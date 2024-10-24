@@ -16,7 +16,7 @@ import Modal from '@mui/joy/Modal'
 import ModalDialog from '@mui/joy/ModalDialog'
 import ModalClose from '@mui/joy/ModalClose'
 import { Add, Edit, Delete, AccountCircle, VerifiedUser } from '@mui/icons-material'
-import { Domain_URL } from '../config'
+import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
 
 

@@ -18,7 +18,7 @@ import Option from '@mui/joy/Option'
 import CircularProgress from '@mui/joy/CircularProgress'
 import { ArrowBack, AccessTime, Person, Info } from '@mui/icons-material'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { Domain_URL } from '../config'
+import { Domain_URL } from '../../config'
 
 interface Slot {
   slotId: string

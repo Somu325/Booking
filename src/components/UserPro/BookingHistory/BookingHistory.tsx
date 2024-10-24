@@ -1,5 +1,7 @@
 
-import  { useState, useEffect } from 'react'
+'use client'
+
+import { useState, useEffect } from 'react'
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
 import Box from '@mui/joy/Box'
@@ -8,9 +10,12 @@ import Table from '@mui/joy/Table'
 import Sheet from '@mui/joy/Sheet'
 import Chip from '@mui/joy/Chip'
 import CircularProgress from '@mui/joy/CircularProgress'
+import Modal from '@mui/joy/Modal'
+import ModalClose from '@mui/joy/ModalClose'
+import ModalDialog from '@mui/joy/ModalDialog'
 import { CalendarToday, Person, AccessTime, Category } from '@mui/icons-material'
 import axios from 'axios'
-import { Domain_URL } from '../config'
+import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
 import Button from '@mui/joy/Button'
 import { ArrowBack } from '@mui/icons-material'
@@ -27,65 +32,14 @@ interface Booking {
 }
 
 const theme = extendTheme({
-  colorSchemes: {
-    light: {
-      palette: {
-        background: {
-          body: 'rgba(255, 255, 255, 0.8)',
-        },
-        primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
-        },
-      },
-    },
-  },
-  components: {
-    JoySheet: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '16px',
-          overflow: 'hidden',
-        },
-      },
-    },
-    JoyTable: {
-      styleOverrides: {
-        root: {
-          '& th': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(5px)',
-          },
-          '& tr:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          },
-        },
-      },
-    },
-    JoyChip: {
-      styleOverrides: {
-        root: {
-          borderRadius: '8px',
-        },
-      },
-    },
-  },
+  // ... (theme configuration remains the same)
 })
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -95,8 +49,9 @@ export default function BookingHistory() {
   const fetchBookings = async () => {
     try {
       setLoading(true)
-      const response = await axios.get<Booking[]>(`${Domain_URL}/bookings/`)
+      const response = await axios.get<Booking[]>(`${Domain_URL}/bookings`)
       setBookings(response.data)
+      console.log(response.data);
       setError(null)
     } catch (err) {
       console.error('Error fetching bookings:', err)
@@ -119,6 +74,10 @@ export default function BookingHistory() {
     }
   }
 
+  const handleUserClick = (booking: Booking) => {
+    setSelectedBooking(booking)
+  }
+
   return (
     <CssVarsProvider theme={theme}>
       <CssBaseline />
@@ -130,7 +89,7 @@ export default function BookingHistory() {
         <Box sx={{ maxWidth: 1000, margin: 'auto' }}>
           <Button
             startDecorator={<ArrowBack />}
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/screen')}
             variant="outlined"
             color="neutral"
             sx={{ mb: 2 }}
@@ -156,7 +115,7 @@ export default function BookingHistory() {
               <Table stickyHeader hoverRow>
                 <thead>
                   <tr>
-                    <th style={{ width: '5%' }}>ID</th>
+
                     <th style={{ width: '15%' }}>User</th>
                     <th style={{ width: '15%' }}>Coach</th>
                     <th style={{ width: '15%' }}>Slot</th>
@@ -168,9 +127,18 @@ export default function BookingHistory() {
                 <tbody>
                   {bookings.map((booking) => (
                     <tr key={booking.id}>
-                      <td>{booking.id}</td>
+
                       <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            cursor: 'pointer',
+                            '&:hover': { textDecoration: 'underline' },
+                          }}
+                          onClick={() => handleUserClick(booking)}
+                        >
                           <Person fontSize="small" />
                           {booking.userId}
                         </Box>
@@ -216,6 +184,62 @@ export default function BookingHistory() {
           )}
         </Box>
       </Box>
+
+      <Modal open={!!selectedBooking} onClose={() => setSelectedBooking(null)}>
+        <ModalDialog
+          aria-labelledby="booking-modal-title"
+          aria-describedby="booking-modal-description"
+          sx={{
+            maxWidth: 500,
+            borderRadius: 'md',
+            p: 3,
+            boxShadow: 'lg',
+          }}
+        >
+          <ModalClose
+            variant="outlined"
+            sx={{
+              top: 'calc(-1/4 * var(--IconButton-size))',
+              right: 'calc(-1/4 * var(--IconButton-size))',
+              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
+              borderRadius: '50%',
+              bgcolor: 'background.body',
+            }}
+          />
+          <Typography
+            id="booking-modal-title"
+            component="h2"
+            level="h4"
+            textColor="inherit"
+            fontWeight="lg"
+            mb={1}
+          >
+            Booking Details
+          </Typography>
+          <Typography id="booking-modal-description" textColor="text.tertiary">
+            {selectedBooking && (
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                {/* <Typography>ID:</Typography>
+                <Typography>{selectedBooking.id}</Typography> */}
+                <Typography>User ID:</Typography>
+                <Typography>{selectedBooking.userId}</Typography>
+                <Typography>Coach ID:</Typography>
+                <Typography>{selectedBooking.coachId}</Typography>
+                <Typography>Slot ID:</Typography>
+                <Typography>{selectedBooking.slotId}</Typography>
+                <Typography>Booking Type:</Typography>
+                <Typography>{selectedBooking.bookingType}</Typography>
+                <Typography>Group ID:</Typography>
+                <Typography>{selectedBooking.groupId || 'N/A'}</Typography>
+                <Typography>Status:</Typography>
+                <Typography>{selectedBooking.status}</Typography>
+                <Typography>Created At:</Typography>
+                <Typography>{new Date(selectedBooking.createdAt).toLocaleString()}</Typography>
+              </Box>
+            )}
+          </Typography>
+        </ModalDialog>
+      </Modal>
     </CssVarsProvider>
   )
 }

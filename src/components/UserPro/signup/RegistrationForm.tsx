@@ -19,7 +19,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 
 // Replace with your actual API URL
-import { Domain_URL } from '../config';
+import { Domain_URL } from '../../config';
 
 // Custom theme
 const theme = extendTheme({

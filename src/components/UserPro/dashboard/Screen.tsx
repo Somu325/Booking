@@ -16,7 +16,7 @@ import { Search, Notifications, Menu, CalendarToday, Person, Settings, Logout } 
 import { useNavigate } from 'react-router-dom';
 
 
-import { Domain_URL } from '../config';
+import { Domain_URL } from '../../config';
 
 interface Person {
   id: string
@@ -80,7 +80,7 @@ const theme = extendTheme({
   },
 })
 
-function SideMenu({ isOpen, onClose }: SideMenuProps) {
+function SideMenu({ isOpen }: SideMenuProps) {
   const navigate = useNavigate();
 
   return (
@@ -117,9 +117,9 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
         variant="plain"
         color="neutral"
         sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
-        onClick={onClose}
+        onClick={() =>navigate('/booking-history')}
       >
-        Settings
+        BookingHistory
       </Button>
       <Button
         startDecorator={<Logout />}
@@ -242,7 +242,7 @@ export default function Screen() {
             variant="outlined"
             color="neutral"
             sx={{ ml: 2 }}
-            onClick={() => navigate('/booking-history')}
+            onClick={() => navigate('')}
           >
             <Notifications />
           </IconButton>
@@ -338,3 +338,4 @@ export default function Screen() {
     </CssVarsProvider>
   )
 }
+

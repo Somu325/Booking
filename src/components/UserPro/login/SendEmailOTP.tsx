@@ -8,7 +8,7 @@ import { Email, Lock, ArrowForward } from '@mui/icons-material'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 
-import { Domain_URL } from '../config';
+import { Domain_URL } from '../../config';
 
 // Custom theme
 const theme = extendTheme({

@@ -1,0 +1,31 @@
+/* AdminOverview.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center contents horizontally */
+    padding: 20px; /* Optional padding */
+    width: 100%; /* Full width */
+  }
+  
+  /* Typography styles */
+  .title {
+    margin: 20px 0; /* Space above and below the title */
+  }
+  
+  /* Chart Styles */
+  .chart {
+    width: 100%; /* Full width for charts */
+  }
+  
+  .pieChart {
+    width: 70%; /* Make the pie chart smaller */
+    max-width: 400px; /* Limit maximum width */
+  }
+  
+  /* Card styles for booking list */
+  .booking-card {
+    width: 100%; /* Full width for cards */
+    margin-bottom: 16px; /* Space below each card */
+  }
+  

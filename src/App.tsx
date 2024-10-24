@@ -7,6 +7,21 @@ import SendEmailOTP from "./components/UserPro/login/SendEmailOTP";
 import LandingPage from "./components/UserPro/LandingPage/LandingPage";
 import SlotBooking from "./components/UserPro/SlotBooking/SlotBooking";
 import UserProfile from "./components/UserPro/dashboard/Profile";
+import Login from "./components/admin/AdminLogin/Login";
+import Dashboard from "./components/admin/Dashboard/Dashboard";
+import AdminOverview from "./components/admin/AdminOverview/AdminOverview";
+import RealTime from "./components/admin/RealTimeAnalytics/RealTime";
+import ManageCoach from "./components/admin/ManageCoach/ManageCoach";
+import ManageUser from "./components/admin/user/ManageUser";
+import BookingList from "./components/admin/BookingList/BookingList";
+import CoachProfile from "./components/Coach/Coachprofile/Coachprofile";
+import TimeSlotPicker from "./components/Coach/Createslots/Createslots";
+import CombinedApp from "./components/Coach/Homepage/Homepage";
+import Loginn from "./components/Coach/login/Login";
+import Reset from "./components/Coach/Resetpassword/Resetpassword";
+import SendOtpp from "./components/Coach/Resetpassword/Sendemailotp";
+import Sign from "./components/Coach/signup/Signup";
+import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
 
 
 function App() {
@@ -19,8 +34,23 @@ function App() {
         <Route path="/SignUp" element={<RegistrationForm />} />
         <Route path="/Sendotp" element={<SendEmailOTP />} />
         <Route path="/screen" element={<Screen />} />
+        <Route path="/booking-history" element={<BookingHistory/>}/>
         <Route path="/selectslot/:coachId" element={<SlotBooking />} />
         <Route path="/userprofile" element={<UserProfile />} />
+        <Route path="/Coach-login" element={<Loginn />} />  
+        <Route path="/Coach-Signup" element={<Sign />} />
+        <Route path="/Reset-password" element={<Reset />} />
+        <Route path="/Coach-Profile" element={<CoachProfile />} />
+        <Route path="/Coach-Dashboard" element={<CombinedApp />} />
+        <Route path="/Email-Otpp" element={<SendOtpp />} />
+        <Route path="/Create-slot" element={<TimeSlotPicker />} />
+        <Route path="/Adminlogin" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/AdminOverview" element={<AdminOverview/>} />
+        <Route path="/Analyst" element={<RealTime/>} />
+        <Route path="/ManageCoach" element={<ManageCoach/>} />
+        <Route path="/ManageUser" element={<ManageUser/>} />
+        <Route path="/Booking" element={<BookingList/>} />
      
       </Routes>
     </Router>

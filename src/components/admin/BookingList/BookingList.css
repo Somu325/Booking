@@ -1,0 +1,75 @@
+/* BookingList.css */
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.booking-table th,
+.booking-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.booking-table th {
+  background-color: #007bff;
+  text-align: left;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* New cursor style for sidebar items */
+.sidebar-list-item {
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+.sidebar-list-item:hover {
+  background-color: #e0e0e0; /* Change background on hover */
+}
+
+/* Style for collapsible sub-items */
+.sub-item {
+  padding-left: 32px; /* Indent sub-items */
+  cursor: pointer; /* Change cursor for sub-items */
+}
+
+.sub-item:hover {
+  background-color: #f0f0f0; /* Change background on hover for sub-items */
+}
+
+/* Cursor for the entire drawer */
+.drawer {
+  cursor: pointer; /* Set the cursor for the entire drawer */
+}
+
+/* Ensure cursor is pointer for buttons */
+button {
+  cursor: pointer; /* Change cursor for buttons */
+}
+
+/* Ensure cursor is pointer for modal text */
+.modal p {
+  cursor: text; /* Use text cursor for paragraph text, change if necessary */
+}
+
+/* Optional: change cursor for entire modal */
+.modal {
+  cursor: pointer; /* Ensures pointer cursor in modal */
+}

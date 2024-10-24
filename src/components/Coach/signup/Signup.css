@@ -1,0 +1,76 @@
+body {
+  margin: 0; 
+  background-color: #007bff; 
+  height: 100vh; /* Full viewport height */
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.signup-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+}
+
+/* Styles for the signup card */
+.signup-card {
+  background-color: white; /* White background for the card */
+  padding: 20px; /* Inner padding */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  width: 400px; /* Fixed width for the card */
+}
+
+/* Styles for the headings */
+.signup-card h2 {
+  text-align: center; /* Center the title */
+  margin-bottom: 20px; /* Space below the title */
+}
+
+label {
+  display: block; /* Each label takes a full line */
+  margin-bottom: 5px; /* Space below labels */
+  font-weight: bold; /* Bold text for labels */
+}
+
+/* Styles for input fields */
+input,
+select {
+  width: calc(100% - 20px); /* Full width minus padding */
+  padding: 10px; /* Inner padding */
+  margin-bottom: 15px; /* Space below inputs */
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 4px; /* Slightly rounded corners */
+  font-size: 14px; /* Font size for inputs */
+}
+
+/* Ensure the inputs are consistently styled */
+input {
+  max-width: 100%; /* Prevent inputs from exceeding parent width */
+}
+
+/* Styles for the error message */
+.error-message {
+  color: red; /* Red color for error messages */
+  margin-bottom: 15px; /* Space below error message */
+}
+
+/* Styles for the signup button */
+.signup-button {
+  background-color: #007bff; /* Primary button color */
+  color: white; /* Text color for button */
+  border: none; /* Remove border */
+  padding: 10px; /* Inner padding */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; 
+  font-size: 16px; 
+  transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+
+.signup-button:hover {
+  background-color: #0056b3; 
+}

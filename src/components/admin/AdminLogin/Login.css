@@ -1,0 +1,78 @@
+/* Login.css */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center items vertically */
+  align-items: center; /* Center items horizontally */
+  height: 100vh; /* Full height of the viewport */
+  width: 100vw; /* Full width of the viewport */
+  padding: 20px; /* Padding around the container */
+  background-color: #f4f4f4; /* Background color */
+}
+
+.login label {
+  display: flex;
+  justify-content: space-between; /* Ensure label and input are spaced */
+  align-items: center;
+  width: 100%; /* Full width for labels */
+  max-width: 400px; /* Increased max width for larger screens */
+  margin-bottom: 10px; /* Space between inputs */
+  font-size: 14px; /* Font size for labels */
+}
+
+.login span {
+  flex: 1; /* Label takes up one part */
+  font-weight: bold; /* Bold font for labels */
+}
+
+.login input {
+  width: 100%; /* Full width for inputs */
+  padding: 10px; /* Padding inside input */
+  font-size: 14px; /* Font size for input */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Rounded corners */
+  height: 40px; /* Fixed height for uniform inputs */
+  margin-left: 10px; /* Space between label and input */
+}
+
+.login .Password {
+  margin-bottom: 20px; /* Space below password label */
+}
+
+.login button {
+  width: 100%; /* Full width for button */
+  padding: 10px; /* Padding inside button */
+  font-size: 14px; /* Font size for button */
+  height: 40px; /* Same height as inputs */
+  margin-top: 10px; /* Space above button */
+}
+
+.Alert {
+  margin-top: 10px; /* Space above alerts */
+  max-width: 400px; /* Increased max width for alerts */
+  width: 100%; /* Full width for alerts */
+}
+
+p {
+  font-size: 14px; /* Font size for paragraphs */
+  margin-top: 5px; /* Space above error messages */
+  color: red; /* Red color for error messages */
+  text-align: center; /* Center the text */
+}
+
+/* Add media queries for responsiveness */
+@media (max-width: 768px) {
+  .login {
+    padding: 10px; /* Less padding on smaller screens */
+  }
+
+  .login label {
+    max-width: 100%; /* Full width for labels on smaller screens */
+  }
+
+  .login input,
+  .login button {
+    height: 45px; /* Same height for inputs/buttons on smaller screens */
+  }
+}

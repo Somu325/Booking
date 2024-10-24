@@ -1,0 +1,103 @@
+/* Homepage.css */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+  }
+  
+  .full-length-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items at the top */
+    height: 100vh;
+    width: 100vw;
+    background-color: #f9f9f9;
+    padding: 20px;
+    position: relative;
+  }
+  
+  /* Notification button styling */
+  .notification-btn {
+    position: absolute; /* Fixed position */
+    top: 10px; /* Distance from the top */
+    right: 10px; /* Distance from the right */
+     /* Blue background */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    padding: 12px; /* Adjusted for medium density */
+    font-size: 20px; /* Size of the icon */
+    cursor: pointer;
+    z-index: 1000; /* Ensure it stays on top */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
+  }
+  
+  .notification-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .date-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%; /* Takes up full width */
+  }
+  
+  .date-btn {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    flex-grow: 1; /* Allows buttons to grow and take equal space */
+    font-size: 14px;
+    color: black;
+    text-align: center;
+  }
+  
+  .date-btn.active {
+    background-color: #d3d3d3;
+    font-weight: bold;
+  }
+  
+  .see-all {
+    margin-bottom: 20px;
+    width: 100%; /* Full width */
+  }
+  
+  .see-all-btn {
+    background-color: #e8f4d9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px 20px;
+    color: green;
+    font-size: 14px;
+    width: 100%; /* Full width of the container */
+    text-align: center;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%; /* Full width */
+  }
+  
+  .action-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    flex-grow: 1; /* Allows buttons to grow and take equal space */
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .action-btn:hover {
+    background-color: #0056b3;
+  }
+  

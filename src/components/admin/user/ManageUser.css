@@ -1,0 +1,91 @@
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000; /* Make sure the modal is above other content */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions {
+  margin-top: 20px;
+}
+
+.modal button {
+  margin-right: 10px;
+}
+/* Button styles */
+.view-btn,
+.edit-btn,
+.hold-btn,
+.confirm-btn,
+.close-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-btn {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+
+.edit-btn {
+  background-color: #ffc107; /* Yellow */
+  color: black;
+}
+
+.hold-btn {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+.confirm-btn {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.close-btn {
+  background-color: #6c757d; /* Grey */
+  color: white;
+}
+
+/* Button hover effects */
+.view-btn:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+.edit-btn:hover {
+  background-color: #e0a800; /* Darker yellow */
+}
+
+.hold-btn:hover {
+  background-color: #c82333; /* Darker red */
+}
+
+.confirm-btn:hover {
+  background-color: #218838; /* Darker green */
+}
+
+.close-btn:hover {
+  background-color: #5a6268; /* Darker grey */
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; /* Ensure modal appears above other elements */
+}

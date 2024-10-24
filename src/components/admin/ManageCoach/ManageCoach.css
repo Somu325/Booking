@@ -1,0 +1,139 @@
+/* ManageCoach.css */
+
+/* General Styling */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif; /* Set a default font for better readability */
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+th {
+  background-color: #007bff;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+td {
+  font-size: 14px;
+  color: #333;
+}
+
+/* Button Styling */
+button {
+  padding: 8px 16px;
+  border: none;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px; /* Margin for spacing between buttons */
+  color: white; /* White text for better contrast */
+  background-color: #007bff; /* Default background color for all buttons */
+}
+
+button:focus {
+  outline: none;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Edit Button */
+button.edit {
+  background-color: #0be54c; /* Green background for Edit */
+}
+
+/* Delete Button */
+button.delete {
+  background-color: #dc3545; /* Red background for Delete */
+}
+
+/* Close Button */
+button.close {
+  background-color: #6c757d; /* Gray background for Close */
+}
+
+/* Flexbox for Action Buttons */
+.action-buttons {
+  display: flex; /* Use flexbox to align buttons side by side */
+  justify-content: center; /* Center the buttons within the cell */
+  gap: 10px; /* Space between buttons */
+}
+
+/* Modal Styling */
+.Modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%; /* Make modal width responsive */
+  max-width: 600px; /* Set a maximum width for larger screens */
+}
+
+/* Overlay for Modal */
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 999; /* Ensure overlay is on top */
+}
+
+/* Form Element Styling */
+label {
+  display: block;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+input[type='text'],
+input[type='email'],
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button[type='button'] {
+  margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: none;
+}
+
+/* Full-Screen Flexbox Container */
+.full-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full height of the viewport */
+}
+
+/* Table Container */
+.table-container {
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  flex: 1; /* Allow the table container to take up remaining space */
+}

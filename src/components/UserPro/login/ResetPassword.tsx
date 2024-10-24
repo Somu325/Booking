@@ -13,7 +13,7 @@ import {
   IconButton 
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import {Domain_URL } from '../config';
+import {Domain_URL } from '../../config';
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>('');

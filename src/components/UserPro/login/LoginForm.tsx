@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Container, Box, CircularProgress, Alert, IconButton, InputAdornment } from '@mui/material'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import {  EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons'
-import { Domain_URL } from '../config';
+import { Domain_URL } from '../../config';
 
 const theme = createTheme({
   palette: {
