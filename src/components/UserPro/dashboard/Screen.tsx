@@ -126,7 +126,7 @@ function SideMenu({ isOpen }: SideMenuProps) {
         variant="plain"
         color="danger"
         sx={{ justifyContent: 'flex-start', mt: 'auto', width: '150px' }}
-        onClick={() =>navigate('/user-login')}
+        onClick={() =>navigate('/')}
       >
         Logout
       </Button>
