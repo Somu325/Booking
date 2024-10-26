@@ -8,6 +8,7 @@ import { TextField, Button, Typography, Container, Box, CircularProgress, Alert,
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import {  EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons'
 import { Domain_URL } from '../../config';
+import Cookies from 'js-cookie'; 
 
 const theme = createTheme({
   palette: {
@@ -52,29 +53,41 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+  
     try {
       const { data } = await axios.post(`${Domain_URL}/user/login`, {
         email,
         password,
-      })
-
-      console.log('Login successful:', data)
-      localStorage.setItem('email', data.user.email)
-      localStorage.setItem('userId', data.user.userId)
-
-      navigate('/screen')
+      });
+  
+      console.log('Login successful:', data);
+      
+      // Store user information in localStorage
+      localStorage.setItem('email', data.user.email);
+      localStorage.setItem('userId', data.user.userId);
+  
+      // Set the cookie with the user token (assuming your backend sends it)
+      if (data.token) {
+        Cookies.set('token', data.token, {
+          expires: 1, // Cookie expires in 1 day
+          secure: true, // Set to true in production (for HTTPS)
+          sameSite: 'strict', // Helps prevent CSRF attacks
+        });
+        console.log('Token stored in cookie:', Cookies.get('token'));
+      }
+  
+      // Navigate to the screen after successful login
+      navigate('/screen');
     } catch (error) {
-      console.error('Login failed:', error)
-      setError('Login failed. Please check your credentials.')
+      console.error('Login failed:', error);
+      setError('Login failed. Please check your credentials.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
   return (
     <ThemeProvider theme={theme}>
       <Box

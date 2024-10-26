@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 // import './Login.css';
 import { Domain_URL } from '../../config';
+import Cookies from 'js-cookie';
 
 const Loginn: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -22,20 +23,27 @@ const Loginn: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post(`${Domain_URL}/coach/coachLogin`, { email, password });
       console.log('Login successful:', response.data);
-
-      console.log(response.data.coach.email);
-     
+  
+      // Store the coach's email and ID in localStorage
       localStorage.setItem('coachId', response.data.coach.coachId);
-      localStorage.setItem('email',response.data.coach.email);
-     
-     
+      localStorage.setItem('email', response.data.coach.email);
       
-      // Navigate to the home page after successful login
-      navigate('/Coach-Dashboard'); // Change '/home' to your actual home route
+      // Set the cookie with the token (assuming your backend sends it)
+      if (response.data.token) {
+        Cookies.set('token', response.data.token, {
+          expires: 1, // Cookie expires in 1 day
+          secure: true, // Set to true in production (for HTTPS)
+          sameSite: 'strict', // Helps prevent CSRF attacks
+        });
+        console.log('Token stored in cookie:', Cookies.get('token'));
+      }
+  
+      // Navigate to the Coach Dashboard after successful login
+      navigate('/Coach-Dashboard'); // Change '/Coach-Dashboard' to your actual route
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid email or password. Please try again.');
