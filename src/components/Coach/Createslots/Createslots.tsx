@@ -20,10 +20,9 @@ import {
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import axios from 'axios';
-import { Domain_URL } from "../../config";
+import { Domain_URL } from '../../config';
 
-// import './Createslots.css';
-
+// Helper functions
 const convertTo12HourFormat = (time: string): string => {
   const [hours, minutes] = time.split(':').map(Number);
   const suffix = hours >= 12 ? 'PM' : 'AM';
@@ -53,7 +52,7 @@ const generateSlots = (date: string, startTime: string, endTime: string, duratio
   }
 
   let currentStartTime = startDateTime;
-  const durationInMilliseconds = duration * 60 * 1000;
+  const durationInMilliseconds = duration * 60 *  1000;
 
   while (currentStartTime < endDateTime) {
     const currentEndTime = new Date(currentStartTime.getTime() + durationInMilliseconds);
@@ -78,6 +77,7 @@ const TimeSlotPicker: React.FC = () => {
   const [endTime, setEndTime] = useState<Dayjs | null>(null);
   const [duration, setDuration] = useState<number>(60);
   const [category, setCategory] = useState<string>('General');
+  const [comments, setComments] = useState<string>(''); 
   const [generatedSlots, setGeneratedSlots] = useState<any[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
@@ -137,9 +137,8 @@ const TimeSlotPicker: React.FC = () => {
           date: selectedDate?.format('YYYY-MM-DDTHH:mm:ss[Z]'),
           status: 'available',
           slotType: category.toLowerCase(),
+          comments: category === 'Personal' ? comments : '', 
         };
-
-        console.log('Submitting slot data:', slotData);
 
         const response = await axios.post(`${Domain_URL}/slot/createSlot`, slotData);
         if (response.status !== 201) {
@@ -151,7 +150,6 @@ const TimeSlotPicker: React.FC = () => {
       setSeverity('success');
       resetForm();
     } catch (error: any) {
-      console.error('Error submitting slots:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Error submitting slots. Please try again.';
       setSnackbarMessage(errorMessage);
       setSeverity('error');
@@ -167,6 +165,7 @@ const TimeSlotPicker: React.FC = () => {
     setEndTime(null);
     setDuration(60);
     setCategory('General');
+    setComments('');
     setGeneratedSlots([]);
   };
 
@@ -177,36 +176,118 @@ const TimeSlotPicker: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box className="time-slot-picker-container">
-        <Box className="time-slot-picker-card">
-          <Typography variant="h5" align="center" className="time-slot-picker-title">
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 400, boxShadow: 3, padding: 4, borderRadius: 3 }}>
+          <Typography variant="h5" align="center" sx={{ mb: 2 }}>
             Pick Your Time
           </Typography>
-          <Grid container spacing={1}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
-              <DatePicker
-                label="Select Date"
-                value={selectedDate}
-                onChange={(newDate) => setSelectedDate(newDate)}
-                slots={{ textField: (props) => <TextField {...props} fullWidth /> }}
-              />
+              <TextField
+                label="Category"
+                select
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setStartTime(null);
+                  setEndTime(null);
+                }}
+                fullWidth
+              >
+                {['General', 'Personal'].map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat}
+                  </MenuItem>
+                ))}
+              </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <TimePicker
-                label="Start Time"
-                value={startTime}
-                onChange={(newTime) => setStartTime(newTime)}
-                sx={{ width: 470 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TimePicker
-                label="End Time"
-                value={endTime}
-                onChange={(newTime) => setEndTime(newTime)}
-                sx={{ width: 470 }}
-              />
-            </Grid>
+
+            {category === 'Personal' && (
+              <Grid item xs={12}>
+                <TextField
+                  label="Comments"
+                  value={comments}
+                  onChange={(e) => setComments(e.target.value)}
+                  multiline
+                  rows={2}
+                  fullWidth
+                />
+              </Grid>
+            )}
+
+         <Grid item xs={12}>
+  <DatePicker
+    label="Select Date"
+    value={selectedDate}
+    onChange={(newDate) => setSelectedDate(newDate)}
+    sx={{
+      width: '100%',
+      '& .MuiInputBase-input': {
+        paddingTop: '14px',   // Adjust top padding
+        paddingBottom: '14px', // Adjust bottom padding
+      },
+      '& .MuiInputLabel-root': {
+        transform: 'translate(14px, 12px) scale(1)',  // Adjust label position
+      },
+      '& .MuiInputLabel-shrink': {
+        transform: 'translate(14px, -6px) scale(0.75)', // Adjust label when focused
+      },
+    }}
+    // inputFormat="MM/DD/YYYY"
+    // renderInput={(params) => <TextField {...params} fullWidth />}
+  />
+</Grid>
+
+<Grid item xs={12}>
+  <TimePicker
+    label="Start Time"
+    value={startTime}
+    onChange={(newTime) => setStartTime(newTime)}
+    sx={{
+      width: '100%',
+      '& .MuiInputBase-input': {
+        paddingTop: '14px',   // Adjust top padding
+        paddingBottom: '14px', // Adjust bottom padding
+      },
+      '& .MuiInputLabel-root': {
+        transform: 'translate(14px, 12px) scale(1)',  // Adjust label position
+      },
+      '& .MuiInputLabel-shrink': {
+        transform: 'translate(14px, -6px) scale(0.75)', // Adjust label when focused
+      },
+    }}
+    // renderInput={(params) => <TextField {...params} fullWidth />}
+  />
+    </Grid>
+    <Grid item xs={12}>
+      <TimePicker
+       label="End Time"
+       value={endTime}
+       onChange={(newTime) => setEndTime(newTime)}
+        sx={{
+        width: '100%',
+        '& .MuiInputBase-input': {
+        paddingTop: '14px',   // Adjust top padding
+        paddingBottom: '14px', // Adjust bottom padding
+      },
+      '& .MuiInputLabel-root': {
+        transform: 'translate(14px, 12px) scale(1)',  // Adjust label position
+      },
+      '& .MuiInputLabel-shrink': {
+        transform: 'translate(14px, -6px) scale(0.75)', // Adjust label when focused
+         },
+         }}
+    // renderInput={(params) => <TextField {...params} fullWidth />}
+         />
+         </Grid>
+        
             <Grid item xs={12}>
               <TextField
                 label="Duration (in minutes)"
@@ -223,60 +304,51 @@ const TimeSlotPicker: React.FC = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Category"
-                select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                fullWidth
-                className="MuiTextField-root"
-              >
-                {['General', 'Personal'].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleGenerateSlots}
-                fullWidth
-                sx={{ mb: 2 }}
-                className="MuiButton-root"
-              >
-                Generate Slots
-              </Button>
+
+            <Grid item xs={12} container spacing={1}>
+              <Grid item xs={6}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleGenerateSlots}
+                  disabled={isLoading}
+                >
+                  Generate Slots
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  color="success"
+                  onClick={handleSubmitSlots}
+                  disabled={isLoading}
+                >
+                  Submit Slots
+                </Button>
+              </Grid>
+              {generatedSlots.length > 0 && (
+            <List>
+              {generatedSlots.map((slot, index) => (
+                <ListItem key={index}>
+                  <ListItemText
+                    primary={` ${slot.startTime} - ${slot.endTime}`}
+                    secondary={category === 'Personal' ? comments : ''}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+
             </Grid>
           </Grid>
-          <List>
-            {generatedSlots.map((slot, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={`${slot.startTime} - ${slot.endTime}`} />
-              </ListItem>
-            ))}
-          </List>
-          <Box textAlign="center" sx={{ mt: 2 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmitSlots}
-              disabled={isLoading}
-              fullWidth
-              className="MuiButton-root"
-            >
-              {isLoading ? 'Saving...' : 'Save Slots'}
-            </Button>
-          </Box>
-        </Box>
-        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => handleSnackbarClose()}>
+         <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => handleSnackbarClose()}>
           <Alert onClose={() => handleSnackbarClose()} severity={severity} sx={{ width: '100%' }}>
             {snackbarMessage}
           </Alert>
         </Snackbar>
+      
+        </Box>
       </Box>
     </LocalizationProvider>
   );

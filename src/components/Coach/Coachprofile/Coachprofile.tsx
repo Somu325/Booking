@@ -20,7 +20,8 @@ import {
   Edit,
 } from '@mui/icons-material';
 import axios from 'axios';
-import { Domain_URL } from "../../config";
+import { Domain_URL  } from '../../config';
+import { useNavigate } from 'react-router-dom';
 
 
 interface CoachData {
@@ -47,6 +48,7 @@ export default function CoachProfile() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [updatedDetails, setUpdatedDetails] = useState<Partial<CoachData>>({});
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -121,10 +123,11 @@ export default function CoachProfile() {
       const response = await axios.post(`${Domain_URL}/verify-otp`, { email: coachDetails?.email, otp, orderId });
       if (response.data.message === 'OTP Verified Successfully!') {
         const updatedData = { emailVerified: true };
-        await axios.put(`Domain_URL/coach/update/${coachId}`, updatedData);
+        await axios.put(`${Domain_URL}/coach/update/${coachId}`, updatedData);
 
         setIsEmailVerified(true);
         setSnackbar({ open: true, message: 'Email verified successfully.', severity: 'success' });
+        navigate('/Coach-Dashboard');
       } else {
         setSnackbar({ open: true, message: 'Invalid OTP or email', severity: 'error' });
       }
@@ -212,6 +215,12 @@ export default function CoachProfile() {
               <Typography variant="body1">Profession: {coachDetails?.profession || ' '}</Typography>
             </Box>
           </Grid>
+          <Grid item xs={12}>
+  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Star sx={{ mr: 1 }} />
+    <Typography variant="body1">Bio: {coachDetails?.bio || 'N/A'}</Typography>
+  </Box>
+</Grid>
         </Grid>
       </Paper>
 
@@ -224,7 +233,7 @@ export default function CoachProfile() {
         Edit Profile
       </Button>
 
-     
+      
       <Modal open={editMode} onClose={() => setEditMode(false)}>
         <Paper sx={{
           position: 'absolute',
@@ -264,6 +273,15 @@ export default function CoachProfile() {
             onChange={handleInputChange('profession')}
             sx={{ mb: 2 }}
           />
+          <TextField
+            fullWidth
+            label="Bio"
+            value={updatedDetails.bio || coachDetails?.bio || ''}
+            onChange={handleInputChange('bio')}
+            sx={{ mb: 2 }}
+          />
+          
+          
           <Button
             variant="contained"
             color="primary"
@@ -275,7 +293,7 @@ export default function CoachProfile() {
         </Paper>
       </Modal>
 
-    
+     
       <Modal open={showOtpModal} onClose={() => setShowOtpModal(false)}>
         <Paper sx={{
           position: 'absolute',
