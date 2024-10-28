@@ -31,6 +31,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { Card } from '@mui/joy';
+import { Domain_URL } from '../../config';
 
 
 
@@ -184,7 +185,7 @@ const [upcomingSlots ] = useState<Slot[]>([]);
   const fetchSlots = async (date: Date) => {
     const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
     try {
-      const response = await axios.get(`http://localhost:4000/api/slot/coach/${coachid}?date=${formattedDate}`);
+      const response = await axios.get(`${Domain_URL}/slot/coach/${coachid}?date=${formattedDate}`);
       setSlots(response.data);
       setMessage(''); // Clear message if fetch is successful
     } catch (error) {
@@ -198,7 +199,7 @@ const [upcomingSlots ] = useState<Slot[]>([]);
   const fetchBookedSlots = async (date: Date) => {
     const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
     try {
-      const response = await axios.get(`http://localhost:4000/api/slot/coaches/${coachid}/booked-slots?date=${formattedDate}`);
+      const response = await axios.get(`${Domain_URL}/slot/coaches/${coachid}/booked-slots?date=${formattedDate}`);
       setBookedSlots(response.data);
       setMessage(''); // Clear message if fetch is successful
     } catch (error) {
@@ -213,7 +214,7 @@ const [upcomingSlots ] = useState<Slot[]>([]);
     const currentTime = new Date(); // Current time to compare
   
     try {
-      const response = await axios.get(`http://localhost:4000/api/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
+      const response = await axios.get(`${Domain_URL}/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
       const slots = response.data;
   
       // Filter slots to only include those that ended before the current time
