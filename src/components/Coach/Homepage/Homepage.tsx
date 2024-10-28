@@ -240,11 +240,11 @@ const [upcomingSlots ] = useState<Slot[]>([]);
   };
 
   const handleProfileClick = () => {
-    navigate('/Coachprofile');
+    navigate('/Coach-Profile');
   }
     
   const handleAnalyticsClick = () => {
-    navigate('/CoachAnalytics'); // Navigate to the CoachAnalytics page
+    navigate('/Coach-Analytics'); // Navigate to the CoachAnalytics page
   };
 
 
