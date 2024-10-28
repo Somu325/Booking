@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
+import Cookies from 'js-cookie'; // Include js-cookie for token handling
 import {
   Box,
   Button,
@@ -9,17 +10,16 @@ import {
   Container,
   Link,
   CircularProgress,
-  
 } from '@mui/joy';
-import Email from '@mui/icons-material/Email'; // Import email icon
-import Lock from '@mui/icons-material/Lock'; // Import lock icon
+import Email from '@mui/icons-material/Email'; // Email icon
+import Lock from '@mui/icons-material/Lock'; // Lock icon
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false); // State to handle loading
-  const [error, setError] = useState<string>(''); // State for error message
-  const navigate = useNavigate(); // Initialize useNavigate hook
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [error, setError] = useState<string>(''); // Error state
+  const navigate = useNavigate(); // Initialize navigation
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -31,48 +31,52 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when submitting
-    setError(''); // Reset error message on submit
+    setLoading(true); // Enable loading state
+    setError(''); // Reset error message
 
     try {
-      const response = await axios.post(`${Domain_URL}/coach/coachLogin`,
+      const response = await axios.post(
+        `${Domain_URL}/coach/coachLogin`,
         { email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers: { 'Content-Type': 'application/json' } }
       );
-  
+
       console.log('Login successful:', response.data);
 
-      // Save coach ID and email to local storage
+      // Store coach data in local storage
       localStorage.setItem('coachId', response.data.coach.coachId);
       localStorage.setItem('email', response.data.coach.email);
 
-      // Navigate to the home page after successful login
-      navigate('/Coach-Profile'); // Change '/Homepage' to your actual home route
+      // Store token in cookies (if provided)
+      if (response.data.token) {
+        Cookies.set('token', response.data.token, {
+          expires: 1, // 1-day expiration
+          secure: true, // Use HTTPS in production
+          sameSite: 'strict', // Prevent CSRF attacks
+        });
+        console.log('Token stored:', Cookies.get('token'));
+      }
+
+      // Navigate to Coach Dashboard on success
+      navigate('/Coach-Dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError('Invalid email or password. Please try again.'); // Set error message
+      setError('Invalid email or password. Please try again.');
     } finally {
-      setLoading(false); // Reset loading state after attempt
+      setLoading(false); // Disable loading state
     }
   };
-  {error && <p style={{ color: 'red', marginBottom: '16px' }}>{error}</p>}
-
 
   return (
     <Container
-      maxWidth="sm" 
+      maxWidth="sm"
       sx={{
-        height: '100vh', // Full viewport height
-        display: 'flex',  // Enable flexbox
+        height: '100vh',
+        display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', // Center horizontally
-        alignItems: 'center', // Center vertically
-        marginLeft: '350px'
-        
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: '350px',
       }}
     >
       <Box
@@ -83,20 +87,16 @@ const Login: React.FC = () => {
           justifyContent: 'center',
           padding: 3,
           backgroundColor: 'background.body',
-          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', // Add shadow for better aesthetics
-          borderRadius: '8px', // Rounded corners
-          width: '400px', // Card width
-          minHeight: '400px', // Increase card height
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          width: '400px',
+          minHeight: '400px',
         }}
       >
-        <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>
-          Welcome Back!
-        </h1>
-        <p style={{ marginBottom: '16px', color: 'gray' }}>
-          Sign in to continue
-        </p>
+        <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>Welcome Back!</h1>
+        <p style={{ marginBottom: '16px', color: 'gray' }}>Sign in to continue</p>
 
-        
+        {error && <p style={{ color: 'red', marginBottom: '16px' }}>{error}</p>}
 
         <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
           <Input
@@ -106,8 +106,8 @@ const Login: React.FC = () => {
             value={email}
             onChange={handleEmailChange}
             required
-            sx={{ mb: 2, backgroundColor: 'background.surface' }} // Light background for input
-            startDecorator={<Email />} // Use Email icon as startDecorator
+            sx={{ mb: 2, backgroundColor: 'background.surface' }}
+            startDecorator={<Email />}
           />
           <Input
             fullWidth
@@ -116,8 +116,8 @@ const Login: React.FC = () => {
             value={password}
             onChange={handlePasswordChange}
             required
-            sx={{ mb: 2, backgroundColor: 'background.surface' }} // Light background for input
-            startDecorator={<Lock />} // Use Lock icon as startDecorator
+            sx={{ mb: 2, backgroundColor: 'background.surface' }}
+            startDecorator={<Lock />}
           />
           <Link href="/Email-Otpp" sx={{ display: 'block', mb: 2, textAlign: 'right' }}>
             Forgot Password?
