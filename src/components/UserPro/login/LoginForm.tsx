@@ -1,14 +1,25 @@
 
 
-"use client"
 
-import React, { useState } from 'react'
-import axios from 'axios'
+"use client";
+import  { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { TextField, Button, Typography, Container, Box, CircularProgress, Alert, IconButton, InputAdornment } from '@mui/material'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
-import {  EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons'
+import {
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Box,
+  CircularProgress,
+  Alert,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons';
 import { Domain_URL } from '../../config';
+import Cookies from 'js-cookie';
 
 const theme = createTheme({
   palette: {
@@ -42,45 +53,54 @@ const theme = createTheme({
       },
     },
   },
-})
+});
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
       const { data } = await axios.post(`${Domain_URL}/user/login`, {
         email,
         password,
-      })
+      });
+      console.log('Login successful:', data);
 
-      console.log('Login successful:', data.user.verified)
-      localStorage.setItem('email', data.user.email)
-      localStorage.setItem('userId', data.user.userId)
+      // Store user information in localStorage
+      localStorage.setItem('email', data.user.email);
+      localStorage.setItem('userId', data.user.userId);
+
+      // Set the cookie with the user token (assuming your backend sends it)
+      if (data.token) {
+        Cookies.set('token', data.token, {
+          expires: 1, // Cookie expires in 1 day
+          secure: true, // Set to true in production (for HTTPS)
+          sameSite: 'strict', // Helps prevent CSRF attacks
+        });
+        console.log('Token stored in cookie:', Cookies.get('token'));
+      }
+
       if (data.user.verified === false) {
-       
         navigate('/verifyemail');
-       
-    } else {
+      } else {
         navigate('/screen');
-    }
-      
+      }
     } catch (error) {
-      console.error('Login failed:', error)
-      setError('Login failed. Please check your credentials.')
+      console.error('Login failed:', error);
+      setError('Login failed. Please check your credentials.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -90,7 +110,6 @@ export default function LoginForm() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          //background: 'url("/placeholder.svg?height=1080&width=1920") no-repeat center center fixed',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
           backgroundSize: 'cover',
         }}
@@ -101,23 +120,21 @@ export default function LoginForm() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-               backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
               backdropFilter: 'blur(10px)',
               padding: 4,
               borderRadius: 4,
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
             }}
           >
-            {/* {/ <Person size={64} color="#6C63FF" className="mb-4" /> /} */}
-            <img src="/cric.jpg" alt="Description" className="text-primary mb-4" width={100} height={100} />
-            <Typography component="h1" variant="h4" className="mb-4" fontWeight="bold">
-              Welcome 
+            <img src="/cric.jpg" alt="Description" width={100} height={100} style={{ marginBottom: '16px' }} />
+            <Typography component="h1" variant="h4" fontWeight="bold" style={{ marginBottom: '16px' }}>
+              Welcome
             </Typography>
-            <Typography variant="subtitle1" className="mb-4" color="text.secondary">
+            <Typography variant="subtitle1" color="text.secondary" style={{ marginBottom: '16px' }}>
               Sign in to continue your journey
             </Typography>
-            {error && <Alert severity="error" className="mb-4" sx={{ borderRadius: '50px' }}>{error}</Alert>}
+            {error && <Alert severity="error" style={{ borderRadius: '50px', marginBottom: '16px' }}>{error}</Alert>}
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
               <TextField
                 margin="normal"
@@ -126,21 +143,16 @@ export default function LoginForm() {
                 id="email"
                 placeholder="Enter Email.."
                 name="email"
-                 autoComplete="email"
-                 autoFocus
+                autoComplete="email"
+                autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-               
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <EnvelopeFill color="#6C63FF" />
                     </InputAdornment>
                   ),
-                  sx: {
-                    width: '100%'
-                  
-                  },
                 }}
               />
               <TextField
@@ -178,7 +190,6 @@ export default function LoginForm() {
                 href="/Sendotp"
                 variant="text"
                 color="primary"
-                className="mb-3"
                 sx={{ textAlign: 'right', display: 'block', mt: 1 }}
               >
                 Forgot Password?
@@ -189,7 +200,6 @@ export default function LoginForm() {
                 variant="contained"
                 color="primary"
                 disabled={loading}
-                className="mb-3"
                 sx={{ mt: 3, mb: 2, py: 1.5 }}
               >
                 {loading ? <CircularProgress size={24} /> : 'Login'}
@@ -207,16 +217,7 @@ export default function LoginForm() {
         </Container>
       </Box>
     </ThemeProvider>
-  )
+  );
 }
-
-
-
-
-
-
-
-
-
 
 
