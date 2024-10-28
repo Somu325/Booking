@@ -56,9 +56,17 @@ const Login: React.FC = () => {
         });
         console.log('Token stored:', Cookies.get('token'));
       }
+       if(response.data.coach.emailVerified === true){
+      navigate('/Coach-Dashboard');
+      
+      }
+      else{
+       navigate('/Coach-Profile');
+
+      }
 
       // Navigate to Coach Dashboard on success
-      navigate('/Coach-Dashboard');
+     // navigate('/Coach-Dashboard');
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid email or password. Please try again.');
