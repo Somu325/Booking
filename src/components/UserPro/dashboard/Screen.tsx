@@ -1,4 +1,5 @@
 
+'use client'
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
@@ -12,11 +13,11 @@ import Card from '@mui/joy/Card'
 import Button from '@mui/joy/Button'
 import Modal from '@mui/joy/Modal'
 import ModalDialog from '@mui/joy/ModalDialog'
-import { Search, Notifications, Menu, CalendarToday, Person, Settings, Logout } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom';
+import { Search, Menu, CalendarToday, Person, Settings, Logout } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
+import NotificationsOff from '@mui/icons-material/NotificationsOff';
 
-
-import { Domain_URL } from '../../config';
+import { Domain_URL } from '../../config'
 
 interface Person {
   id: string
@@ -80,8 +81,8 @@ const theme = extendTheme({
   },
 })
 
-function SideMenu({ isOpen }: SideMenuProps) {
-  const navigate = useNavigate();
+function SideMenu({ isOpen, onClose }: SideMenuProps) {
+  const navigate = useNavigate()
 
   return (
     <Box
@@ -108,7 +109,7 @@ function SideMenu({ isOpen }: SideMenuProps) {
         variant="plain"
         color="neutral"
         sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
-        onClick={() =>  navigate('/userprofile')}
+        onClick={() => navigate('/userprofile')}
       >
         Profile
       </Button>
@@ -117,7 +118,7 @@ function SideMenu({ isOpen }: SideMenuProps) {
         variant="plain"
         color="neutral"
         sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
-        onClick={() =>navigate('/booking-history')}
+        onClick={() => navigate('/booking-history')}
       >
         BookingHistory
       </Button>
@@ -126,10 +127,11 @@ function SideMenu({ isOpen }: SideMenuProps) {
         variant="plain"
         color="danger"
         sx={{ justifyContent: 'flex-start', mt: 'auto', width: '150px' }}
-        onClick={() =>navigate('/')}
+        onClick={() => navigate('/')}
       >
         Logout
       </Button>
+      <Button onClick={onClose}>Close Menu</Button>
     </Box>
   )
 }
@@ -141,7 +143,7 @@ export default function Screen() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchData()
@@ -163,9 +165,11 @@ export default function Screen() {
   }
   
   const handleSearch = () => {
-    const filtered = people.filter((person) =>
-      person.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filtered = people.filter((person) => {
+      const nameMatch = person.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false
+      const professionMatch = person.profession?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false
+      return nameMatch || professionMatch
+    })
     setFilteredPeople(filtered)
   }
 
@@ -181,9 +185,6 @@ export default function Screen() {
     return Array.from({ length: 5 }, (_, i) => {
       const date = new Date(startDate)
       date.setDate(startDate.getDate() + i)
-
-
-      
       return date.toISOString().split('T')[0]
     })
   }
@@ -202,6 +203,7 @@ export default function Screen() {
           flexDirection: 'column',
           alignItems: 'center',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+          ...(isMenuOpen && { pl: '260px' }),
         }}
       >
         <Box sx={{
@@ -224,7 +226,7 @@ export default function Screen() {
 
           <Input
             size="lg"
-            placeholder="Search ...."
+            placeholder="Search by Name or Profession..."
             startDecorator={<Search />}
             sx={{ 
               flexGrow: 1, 
@@ -232,20 +234,31 @@ export default function Screen() {
               backgroundColor: 'rgba(255, 255, 255, 0.7)',
               backdropFilter: 'blur(10px)',
               '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+              borderRadius: '20px',
+              '& .MuiInput-input': {
+                padding: '12px 16px',
+              },
+              '& .MuiInput-startDecorator': {
+                paddingLeft: '16px',
+              },
             }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
+          <Typography sx={{ ml: 2, fontWeight: 'bold' }}>
+            Total Coaches: {people.length}
+          </Typography>
+
           <IconButton
             size="lg"
             variant="outlined"
             color="neutral"
-            sx={{ ml: 2 }}
-            onClick={() => navigate('')}
-          >
-            <Notifications />
-          </IconButton>
+             sx={{ ml: 2 }}
+             onClick={() => navigate('')} >
+            <NotificationsOff />
+           </IconButton>
+
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, width: '100%', maxWidth: '1200px', overflowX: 'auto' }}>
@@ -293,7 +306,6 @@ export default function Screen() {
               <Typography level="h2" fontSize="xl" fontWeight="lg" mb={1}>
                 {person.name}
               </Typography>
-              <Typography>Age: {person.age}</Typography>
               <Typography>Profession: {person.profession}</Typography>
               <Typography mb={2}>Phone: {person.phoneNumber}</Typography>
               <Button
@@ -338,4 +350,3 @@ export default function Screen() {
     </CssVarsProvider>
   )
 }
-

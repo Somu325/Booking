@@ -1,4 +1,7 @@
 
+
+
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -16,6 +19,10 @@ import {
   ModalClose,
   ModalDialog,
   Button,
+  Select,
+  Option,
+  FormControl,
+  FormLabel,
 } from '@mui/joy'
 import { ArrowBack, CalendarToday, Person, AccessTime, Category } from '@mui/icons-material'
 import axios from 'axios'
@@ -32,6 +39,7 @@ interface Booking {
   endTime: string
   slotId: number
   slotType: string
+  date: string
   bookingType: 'single' | 'group'
   groupId: number | null
   status: string
@@ -44,11 +52,15 @@ const theme = extendTheme({
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const navigate = useNavigate() 
+  const [dateFilter, setDateFilter] = useState<string>('')
+  const [typeFilter, setTypeFilter] = useState<string>('')
+  const [statusFilter, setStatusFilter] = useState<string>('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId')
@@ -62,6 +74,11 @@ export default function BookingHistory() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
+
+  useEffect(() => {
+    filterBookings()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookings, dateFilter, typeFilter, statusFilter])
 
   const fetchBookings = async () => {
     if (!userId) {
@@ -78,10 +95,28 @@ export default function BookingHistory() {
       setError(null)
     } catch (err) {
       console.error('Error fetching bookings:', err)
-      setError('Failed to fetch booking history. Please try again later.')
+     setError('No booking history. Please Booking Slots.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const filterBookings = () => {
+    let filtered = bookings
+
+    if (dateFilter) {
+      filtered = filtered.filter(booking => booking.date === dateFilter)
+    }
+
+    if (typeFilter) {
+      filtered = filtered.filter(booking => booking.slotType === typeFilter)
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(booking => booking.status.toLowerCase() === statusFilter.toLowerCase())
+    }
+
+    setFilteredBookings(filtered)
   }
 
   const getStatusColor = (status: string) => {
@@ -93,6 +128,10 @@ export default function BookingHistory() {
     return statusColors[status.toLowerCase()] || 'neutral'
   }
 
+  const uniqueDates = [...new Set(bookings.map(booking => booking.date))]
+  const uniqueTypes = [...new Set(bookings.map(booking => booking.slotType))]
+  const uniqueStatuses = [...new Set(bookings.map(booking => booking.status))]
+
   return (
     <CssVarsProvider theme={theme}>
       <CssBaseline />
@@ -103,19 +142,49 @@ export default function BookingHistory() {
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         }}
       >
-        <Box sx={{ maxWidth: 1000, margin: 'auto' }}>
+        <Box sx={{ maxWidth: 2000, }}>
           <Button
             startDecorator={<ArrowBack />}
             onClick={() => navigate('/screen')}
             variant="outlined"
             color="neutral"
-            sx={{ mb: 2 }}
+            sx={{ mb: 2 ,backgroundColor:'black', color: 'white' }}
           >
             Back to Dashboard
           </Button>
           <Typography level="h2" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
             Booking History
           </Typography>
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 ,justifyContent: 'flex-end' }}>
+            <FormControl>
+              <FormLabel>Filter by Date</FormLabel>
+              <Select value={dateFilter} onChange={(_, value) => setDateFilter(value || '')}>
+                <Option value="">All Dates</Option>
+                {uniqueDates.map(date => (
+                  <Option key={date} value={date}>{date}</Option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Filter by Type</FormLabel>
+              <Select value={typeFilter} onChange={(_, value) => setTypeFilter(value || '')}>
+                <Option value="">All Types</Option>
+                {uniqueTypes.map(type => (
+                  <Option key={type} value={type}>{type}</Option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Filter by Status</FormLabel>
+              <Select value={statusFilter} onChange={(_, value) => setStatusFilter(value || '')}>
+                <Option value="">All Statuses</Option>
+                {uniqueStatuses.map(status => (
+                  <Option key={status} value={status}>{status}</Option>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
 
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', height: 200 }}>
@@ -125,7 +194,7 @@ export default function BookingHistory() {
             <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
               {error}
             </Typography>
-          ) : bookings.length === 0 ? (
+          ) : filteredBookings.length === 0 ? (
             <Typography sx={{ mb: 2, textAlign: 'center' }}>No bookings found.</Typography>
           ) : (
             <Sheet variant="outlined" sx={{ boxShadow: 'lg' }}>
@@ -134,6 +203,7 @@ export default function BookingHistory() {
                   <tr>
                     <th>User Name</th>
                     <th>Coach Name</th>
+                    <th>Slot Date</th>
                     <th>Slot</th>
                     <th>Type</th>
                     <th>Status</th>
@@ -141,10 +211,11 @@ export default function BookingHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map((booking) => (
+                  {filteredBookings.map((booking) => (
                     <tr key={booking.id} onClick={() => setSelectedBooking(booking)} style={{ cursor: 'pointer' }}>
                       <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.userName}</Box></td>
                       <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.coachName}</Box></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CalendarToday fontSize="small" />{booking.date}</Box></td>
                       <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><AccessTime fontSize="small" />{booking.startTime} - {booking.endTime}</Box></td>
                       <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Category fontSize="small" />{booking.slotType}</Box></td>
                       <td><Chip variant="soft" color={getStatusColor(booking.status)} size="sm">{booking.status}</Chip></td>
@@ -166,6 +237,7 @@ export default function BookingHistory() {
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
               <Typography>User Name:</Typography><Typography>{selectedBooking.userName}</Typography>
               <Typography>Coach Name:</Typography><Typography>{selectedBooking.coachName}</Typography>
+              <Typography>Slot Date:</Typography><Typography>{selectedBooking.date}</Typography>
               <Typography>Slot Time:</Typography><Typography>{selectedBooking.startTime} - {selectedBooking.endTime}</Typography>
               <Typography>Type:</Typography><Typography>{selectedBooking.slotType}</Typography>
               <Typography>Group ID:</Typography><Typography>{selectedBooking.groupId || 'N/A'}</Typography>
