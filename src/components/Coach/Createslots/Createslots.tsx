@@ -21,6 +21,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import axios from 'axios';
 import { Domain_URL } from '../../config';
+// import { WidthFull } from '@mui/icons-material';
 
 // Helper functions
 const convertTo12HourFormat = (time: string): string => {
@@ -288,22 +289,17 @@ const TimeSlotPicker: React.FC = () => {
          />
          </Grid>
         
-            <Grid item xs={12}>
-              <TextField
-                label="Duration (in minutes)"
-                select
-                value={duration}
-                onChange={(e) => setDuration(parseInt(e.target.value))}
-                fullWidth
-                className="MuiTextField-root"
-              >
-                {[60, 90, 120, 150, 180].map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
+            <Grid item xs={12} >
+            <TextField
+          disabled
+          id="outlined-disabled"
+          label="Duration"
+          defaultValue="1HR"
+          sx={{
+            width: '100%'}}        />
             </Grid>
+
+
 
             <Grid item xs={12} container spacing={1}>
               <Grid item xs={6}>

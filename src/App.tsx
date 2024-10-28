@@ -22,6 +22,7 @@ import Reset from "./components/Coach/Resetpassword/Resetpassword";
 import SendOtpp from "./components/Coach/Resetpassword/Sendemailotp";
 import Sign from "./components/Coach/signup/Signup";
 import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
+import Generateslots from "./components/GenerateWeeklySlots/GenWeekSlots";
 
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
         <Route path="/ManageCoach" element={<ManageCoach/>} />
         <Route path="/ManageUser" element={<ManageUser/>} />
         <Route path="/Booking" element={<BookingList/>} />
+        <Route path="/Week-Slots" element={<Generateslots/>} />
      
       </Routes>
     </Router>
