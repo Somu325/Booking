@@ -93,8 +93,14 @@ const Login: React.FC = () => {
           minHeight: '400px',
         }}
       >
-        <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>Welcome Back!</h1>
-        <p style={{ marginBottom: '16px', color: 'gray' }}>Sign in to continue</p>
+
+        <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>
+          Welcome 
+        </h1>
+        <p style={{ marginBottom: '16px', color: 'gray' }}>
+          Sign in to continue
+        </p>
+
 
         {error && <p style={{ color: 'red', marginBottom: '16px' }}>{error}</p>}
 
@@ -102,7 +108,7 @@ const Login: React.FC = () => {
           <Input
             fullWidth
             placeholder="Email"
-            type="email"
+            //type="email"
             value={email}
             onChange={handleEmailChange}
             required

@@ -30,6 +30,7 @@ import axios from 'axios';
 //import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import { Card } from '@mui/joy';
 
 
 
@@ -97,6 +98,8 @@ interface Slot {
   date: string;
   startTime: string;
   endTime: string;
+  status:string;
+  slot:string;
 }
 
 const CombinedApp: React.FC = () => {
@@ -116,8 +119,9 @@ const CombinedApp: React.FC = () => {
 
   const [slots, setSlots] = useState<Slot[]>([]);
 const [bookedSlots, setBookedSlots] = useState<Slot[]>([]);
-const [completedSlots, setCompletedSlots] = useState<Slot[]>([]);
-const [upcomingSlots, setUpcomingSlots] = useState<Slot[]>([]);
+const [completedSlots] = useState<Slot[]>([]);
+
+const [upcomingSlots ] = useState<Slot[]>([]);
 
 
   
@@ -155,9 +159,8 @@ const [upcomingSlots, setUpcomingSlots] = useState<Slot[]>([]);
   
 
 
-  type ViewType = 'all' | 'booked' | 'completed' | 'upcoming';
+  type ViewType = 'all' | 'booked' | 'completed' | 'inprogress' ;
   // Handle view change and fetch corresponding slots
-
 
 
   const handleViewChange = (viewType: ViewType) => {
@@ -169,11 +172,11 @@ const [upcomingSlots, setUpcomingSlots] = useState<Slot[]>([]);
       fetchBookedSlots(dateToUse); // Fetch booked slots for the selected/current date
     } else if (viewType === 'completed') {
       fetchCompletedSlots(dateToUse); // Fetch completed slots for the selected/current date
-    } else if (viewType === 'upcoming') {
-      fetchUpcomingSlots(dateToUse); // Fetch upcoming slots for the selected/current date
     }
   };
- 
+  
+
+
 
  
 
@@ -204,37 +207,35 @@ const [upcomingSlots, setUpcomingSlots] = useState<Slot[]>([]);
     }
   };
 
-  // Fetch completed slots for the specified date
-const fetchCompletedSlots = async (date: Date) => {
-  const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
-  try {
-    const response = await axios.get(`http://localhost:4000/api/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
-    setCompletedSlots(response.data);
-    setMessage(''); // Clear message if fetch is successful
-  } catch (error) {
-    console.error('Error fetching completed slots:', error);
-    setMessage('No completed slots available');
-  }
-};
+ 
+  const fetchCompletedSlots = async (date: Date) => {
+    const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
+    const currentTime = new Date(); // Current time to compare
+  
+    try {
+      const response = await axios.get(`http://localhost:4000/api/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
+      const slots = response.data;
+  
+      // Filter slots to only include those that ended before the current time
+      const completedSlots = slots.filter((slot: { endTime: any; }) => {
+        const slotEndTime = new Date(`${formattedDate}T${slot.endTime}`); // Combine date and endTime
+        return slotEndTime < currentTime;
+      });
+  
+      setSlots(completedSlots);
+      setMessage(completedSlots.length ? '' : 'No completed slots available');
+    } catch (error) {
+      console.error('Error fetching completed slots:', error);
+      setMessage('No completed slots available');
+    }
+  };
 
 
 
-// Fetch upcoming slots for the specified date
-const fetchUpcomingSlots = async (date: Date) => {
-  const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
-  try {
-    const response = await axios.get(`http://localhost:4000/api/slot/coaches/${coachid}/upcoming-slots?date=${formattedDate}`);
-    setUpcomingSlots(response.data);
-    setMessage(''); // Clear message if fetch is successful
-  } catch (error) {
-    console.error('Error fetching upcoming slots:', error);
-    setMessage('No upcoming slots available');
-  }
-};
  
 
   const handleCreateSlotsClick = () => {
-    navigate('/Createslots'); // Navigate to the create-slots page
+    navigate('/Create-slot'); // Navigate to the create-slots page
   };
 
   const handleProfileClick = () => {
@@ -247,7 +248,7 @@ const fetchUpcomingSlots = async (date: Date) => {
 
 
   const handleLogoutClick = () => {
-    navigate('/login');
+    navigate('/Coach-login');
   }
   
 
@@ -423,7 +424,7 @@ const fetchUpcomingSlots = async (date: Date) => {
             cursor: 'pointer',
             border: 'none',
           }}
-    >ALL</button>
+    >All</button>
   <button className="action-btn" onClick={() => handleViewChange('booked')} 
           style={{
             flex: 1, // Ensures equal width for each button
@@ -431,12 +432,12 @@ const fetchUpcomingSlots = async (date: Date) => {
             fontSize: '16px',
             fontWeight: 'bold',
             borderRadius: '4px',
-           
+           backgroundColor:'black',
             color: '#fff',
             cursor: 'pointer',
             border: 'none',
           }}
-    >BOOKED</button>
+    >Booked</button>
   <button className="action-btn" onClick={() => handleViewChange('completed')} 
     style={{
       flex: 1, // Ensures equal width for each button
@@ -449,15 +450,15 @@ const fetchUpcomingSlots = async (date: Date) => {
       cursor: 'pointer',
       border: 'none',
     }}
-    >COMPLETED</button> 
-  <button className="action-btn" onClick={() => handleViewChange('upcoming')}
+    >Completed</button> 
+  <button className="action-btn" onClick={() => handleViewChange('inprogress')}
         style={{
           flex: 1, // Ensures equal width for each button
           padding: '10px 0',
           fontSize: '16px',
           fontWeight: 'bold',
           borderRadius: '4px',
-          backgroundColor: 'yellow',
+          backgroundColor: 'red',
           color: 'white',
           cursor: 'pointer',
           border: 'none',
@@ -466,27 +467,36 @@ const fetchUpcomingSlots = async (date: Date) => {
 </div>
 
 
+<br></br>
+<br></br>
 
 
-
-<div className="slots-container">
-  <ul>
-    {(view === 'all' ? slots
-      : view === 'booked' ? bookedSlots
-      : view === 'completed' ? completedSlots
-      : upcomingSlots // Use upcomingSlots for 'upcoming' view
-    ).filter(slot => {
-      const slotDate = new Date(slot.date);
-      return slotDate.toDateString() === (selectedDate || currentDate).toDateString();
-    }).map((slot) => (
-      <li key={slot.id} style={{ padding: '10px', border: '1px solid #007bff', marginBottom: '10px', backgroundColor: '#007bff' }}>
-        <div>Date: {slot.date}</div>
-        <div style={{ color: 'black' }}>Time: {slot.startTime} - {slot.endTime}</div>
-      </li>
-    ))}
-  </ul>
-  {message && <p style={{ color: 'red' }}>{message}</p>} 
+<div className="slots-container" style={{ 
+  display: 'grid', 
+  gridTemplateColumns: 'repeat(4, 1fr)', // 4 equal-width columns
+  gap: '10px', // Spacing between cards
+  justifyContent: 'center' 
+}}>
+  {(view === 'all' ? slots
+    : view === 'booked' ? bookedSlots
+    : view === 'completed' ? completedSlots
+    : upcomingSlots // Use upcomingSlots for 'upcoming' view
+  ).filter(slot => {
+    const slotDate = new Date(slot.date);
+    return slotDate.toDateString() === (selectedDate || currentDate).toDateString();
+  }).map((slot) => (
+    <Card key={slot.id} sx={{
+      padding: '8px',
+      border: '0.5px solid #007bff',
+      fontSize: '14px',
+    }}>
+      <div>Date: {new Date(slot.date).toLocaleDateString()}</div>
+      <div style={{ color: 'black' }}>Time: {slot.startTime} - {slot.endTime}</div>
+    </Card>
+  ))}
+  {message && <p style={{ color: 'red' }}>{message}</p>}
 </div>
+
 
  {showCalendar && (
       <div className="calendar-container" style={{ marginTop: '20px' }}>

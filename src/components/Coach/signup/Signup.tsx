@@ -92,10 +92,12 @@ const SignUp: React.FC = () => {
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)', 
           backgroundColor: 'background.body',
           width: '380px', 
-          marginLeft: '400px' 
+          marginLeft: '400px' ,
+        
         }}
       >
         <h2 style={{ textAlign: 'center' }}>Coach Sign Up</h2>
+        <br></br>
 
         {error && (
           <div style={{ color: 'red', marginBottom: '16px' }}>{error}</div>
@@ -110,33 +112,43 @@ const SignUp: React.FC = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              sx={{
+                backgroundColor: 'white'
+               
+              }}
             />
           </Box>
 
+
           <Box sx={{ mb: 2 }}>
-            <select
-              style={{
-                width: '100%',
-                padding: '8px',
-                background: 'transparent',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                fontSize: '16px',
-                outline: 'none',
-                appearance: 'none',
-              }}
-              defaultValue=""
-              onChange={(e) => {
-                setFormData({ ...formData, gender: e.target.value });
-              }}
-            >
-              <option value="" disabled >
-                 Gender
-              </option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </Box>
+  <select
+    style={{
+      width: '100%',
+      padding: '8px',
+      background: 'transparent',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+      fontSize: '16px',
+      outline: 'none',
+      appearance: 'none',
+      backgroundColor: 'white',
+      color: formData.gender ? 'black' : '#a9a9a9', // Gray text for placeholder effect
+    }}
+    defaultValue=""
+    onChange={(e) => {
+      setFormData({ ...formData, gender: e.target.value });
+    }}
+  >
+    <option value="" disabled hidden>
+      Gender
+    </option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select>
+</Box>
+
+          
+
 
           <Box sx={{ mb: 2 }}>
             <Input
@@ -146,6 +158,10 @@ const SignUp: React.FC = () => {
               value={formData.phoneNumber}
               onChange={handleChange}
               required
+              sx={{
+                backgroundColor: 'white'
+               
+              }}
             />
           </Box>
 
@@ -154,49 +170,71 @@ const SignUp: React.FC = () => {
               fullWidth
               placeholder="Email *"
               name="email"
-              type="email"
+              type=""
               value={formData.email}
               onChange={handleChange}
               required
+              sx={{
+                backgroundColor: 'white'
+               
+              }}
             />
           </Box>
 
           <Box sx={{ mb: 2 }}>
-            <select
-              style={{
-                width: '100%',
-                padding: '8px',
-                background: 'transparent',
-                borderRadius: '4px',
-                border: '1px solid #ccc',
-                fontSize: '16px',
-                outline: 'none',
-                appearance: 'none',
-              }}
-              value={formData.sport}
-              onChange={(e) => {
-                setFormData({ ...formData, sport: e.target.value });
-              }}
-              required
-            >
-              <option value="" disabled>
-                Select Sport
-              </option>
-              <option value="Cricket">Cricket</option>
-            </select>
-          </Box>
+  <select
+    style={{
+      width: '100%',
+      padding: '8px',
+      background: 'transparent',
+      borderRadius: '4px',
+      border: '1px solid #ccc',
+      fontSize: '16px',
+      outline: 'none',
+      appearance: 'none',
+      backgroundColor: 'white',
+      color: formData.sport ? 'black' : '#a9a9a9', // Gray text for placeholder effect
+    }}
+    value={formData.sport}
+    onChange={(e) => {
+      setFormData({ ...formData, sport: e.target.value });
+    }}
+    required
+  >
+    <option value="" disabled selected hidden>
+      Select Sport
+    </option>
+    <option value="Cricket">Cricket</option>
+   
+  </select>
+</Box>
 
-          <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              placeholder="Bio(optional)"
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              inputProps={{ maxLength: 500 }}
-              variant="outlined"
-            />
-          </Box>
+
+<Box sx={{ mb: 2 }}>
+  <TextField
+    fullWidth
+    placeholder="Bio "
+    name="bio"
+    value={formData.bio}
+    onChange={handleChange}
+    inputProps={{ maxLength: 500 }}
+    variant="standard"
+    sx={{
+      backgroundColor: 'white',
+      '& .MuiInput-underline:before': {
+        borderBottom: 'none', // Remove the underline before focusing
+      },
+      '& .MuiInput-underline:after': {
+        borderBottom: 'none', // Remove the underline after focusing
+      },
+      '& .MuiInput-underline:hover:before': {
+        borderBottom: 'none', // Remove underline on hover
+      },
+    }}
+    
+  />
+</Box>
+
 
           <Box sx={{ mb: 2 }}>
             <Input
@@ -207,10 +245,14 @@ const SignUp: React.FC = () => {
               value={formData.password}
               onChange={handleChange}
               required
+              sx={{
+                backgroundColor: 'white'
+               
+              }}
             />
           </Box>
 
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 2 }} >
             <Input
               fullWidth
               placeholder="Confirm Password *"
@@ -219,6 +261,10 @@ const SignUp: React.FC = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               required
+              sx={{
+                backgroundColor: 'white'
+                
+              }}
             />
           </Box>
 

@@ -1,1 +1,3 @@
-export const Domain_URL="http://api.thesports365.com/api";
+
+export const Domain_URL="https://api.thesports365.com/api";
+
