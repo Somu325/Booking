@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import {
   AccountCircle,
-  Cake,
   Phone,
   Star,
   CheckCircle,
@@ -127,7 +126,12 @@ export default function CoachProfile() {
 
         setIsEmailVerified(true);
         setSnackbar({ open: true, message: 'Email verified successfully.', severity: 'success' });
+
+        
+
         navigate('/Coach-Dashboard');
+        alert('Email verified successfully!');
+
       } else {
         setSnackbar({ open: true, message: 'Invalid OTP or email', severity: 'error' });
       }
@@ -183,8 +187,8 @@ export default function CoachProfile() {
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
         <AccountCircle sx={{ fontSize: 96, color: 'text.secondary' }} />
         <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>{coachDetails?.name}</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-          <Typography variant="body1" sx={{ mr: 1 }}>{coachDetails?.email}</Typography>
+        <Box sx={{ display: 'flex',  alignItems: 'center', mt: 1 }}>
+          <Typography variant="body1"  sx={{ mr: 1 ,color:'black'}}>{coachDetails?.email}</Typography>
           {!isEmailVerified ? (
             <Button variant="contained" color="primary" onClick={handleSendOTP} disabled={otpLoading}>
               {otpLoading ? <CircularProgress size={24} /> : 'Verify'}
@@ -195,43 +199,75 @@ export default function CoachProfile() {
         </Box>
       </Box>
 
-      <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Cake sx={{ mr: 1 }} />
-              <Typography variant="body1">Age: {coachDetails?.age || ' '}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Phone sx={{ mr: 1 }} />
-              <Typography variant="body1">Phone: {coachDetails?.phoneNumber || ' '}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Star sx={{ mr: 1 }} />
-              <Typography variant="body1">Profession: {coachDetails?.profession || ' '}</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Paper elevation={3} sx={{ p: 2, mb: 3 ,maxWidth: '700px', mx: 'auto'}}>
+    <Grid container spacing={2}>
+          
+    <Grid item xs={12} sm={6}>
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',  // Centers content horizontally within the grid item
+        marginLeft:'130px'
+      }}
+    >
+      <Phone sx={{ mr: 1 }} />
+
+      <Typography variant="body1" sx={{ color: 'black' }}> {/* Sets text color to black */}
+        Phone: {coachDetails?.phoneNumber || ' '}
+      </Typography>
+    </Box>
+  </Grid>
+
+  <Grid item xs={12}>
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', // Centers content horizontally
+       marginRight:'250px'
+    }}
+  >
     <Star sx={{ mr: 1 }} />
-    <Typography variant="body1">Bio: {coachDetails?.bio || 'N/A'}</Typography>
+    <Typography variant="body1" sx={{ color: 'black' }}> {/* Sets text color to black */}
+      Sport: {coachDetails?.profession || ' '}
+    </Typography>
   </Box>
 </Grid>
+
+
+<Grid item xs={12}>
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', // Centers the content horizontally
+      marginRight:'300px'
+    }}
+  >
+    <Star sx={{ mr: 1 }} />
+    <Typography variant="body1" sx={{ color: 'black' }}> {/* Sets text color to black */}
+      Bio: {coachDetails?.bio || 'N/A'}
+    </Typography>
+  </Box>
+</Grid>
+
         </Grid>
       </Paper>
 
+      <Box sx={{ maxWidth: '700px', mx: 'auto' }}>
       <Button
         variant="contained"
         color="primary"
         startIcon={<Edit />}
         onClick={() => setEditMode(true)}
+        fullWidth
+        
       >
         Edit Profile
       </Button>
+
+      </Box>
 
       
       <Modal open={editMode} onClose={() => setEditMode(false)}>

@@ -21,7 +21,9 @@ import Loginn from "./components/Coach/login/Login";
 import Reset from "./components/Coach/Resetpassword/Resetpassword";
 import SendOtpp from "./components/Coach/Resetpassword/Sendemailotp";
 import Sign from "./components/Coach/signup/Signup";
+import CoachAnalytics from "./components/Coach/CoachAnalytics/CoachAnalytics"
 import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
+//import CombinedApp1 from "./components/Coach/Homepage/Homepage1";
 
 
 function App() {
@@ -44,6 +46,7 @@ function App() {
         <Route path="/Coach-Dashboard" element={<CombinedApp />} />
         <Route path="/Email-Otpp" element={<SendOtpp />} />
         <Route path="/Create-slot" element={<TimeSlotPicker />} />
+        <Route path="/Coach-Analytics" element={<CoachAnalytics />} />
         <Route path="/Adminlogin" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/AdminOverview" element={<AdminOverview/>} />

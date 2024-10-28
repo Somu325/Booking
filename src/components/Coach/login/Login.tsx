@@ -90,7 +90,7 @@ const Login: React.FC = () => {
         }}
       >
         <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>
-          Welcome Back!
+          Welcome 
         </h1>
         <p style={{ marginBottom: '16px', color: 'gray' }}>
           Sign in to continue
@@ -102,7 +102,7 @@ const Login: React.FC = () => {
           <Input
             fullWidth
             placeholder="Email"
-            type="email"
+            //type="email"
             value={email}
             onChange={handleEmailChange}
             required
