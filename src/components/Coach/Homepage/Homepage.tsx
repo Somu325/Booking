@@ -10,7 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+//import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -273,7 +274,7 @@ const [upcomingSlots ] = useState<Slot[]>([]);
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton color="inherit">
-            <NotificationsIcon />
+             <NotificationsOffIcon/>
           </IconButton>
         </Toolbar>
       </AppBar>
