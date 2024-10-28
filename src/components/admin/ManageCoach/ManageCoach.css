@@ -113,7 +113,7 @@ select {
   padding: 8px;
   margin-top: 5px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   border-radius: 4px;
 }
 
@@ -136,4 +136,8 @@ button[type='button'] {
 .table-container {
   overflow-y: auto; /* Allow scrolling if content overflows */
   flex: 1; /* Allow the table container to take up remaining space */
+}
+
+.css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input{
+  padding: 8.5px 14px !important;
 }

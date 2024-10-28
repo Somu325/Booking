@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import React, { useState } from 'react'
@@ -62,11 +63,17 @@ export default function LoginForm() {
         password,
       })
 
-      console.log('Login successful:', data)
+      console.log('Login successful:', data.user.verified)
       localStorage.setItem('email', data.user.email)
       localStorage.setItem('userId', data.user.userId)
-
-      navigate('/screen')
+      if (data.user.verified === false) {
+       
+        navigate('/verifyemail');
+       
+    } else {
+        navigate('/screen');
+    }
+      
     } catch (error) {
       console.error('Login failed:', error)
       setError('Login failed. Please check your credentials.')
@@ -105,7 +112,7 @@ export default function LoginForm() {
             {/* {/ <Person size={64} color="#6C63FF" className="mb-4" /> /} */}
             <img src="/cric.jpg" alt="Description" className="text-primary mb-4" width={100} height={100} />
             <Typography component="h1" variant="h4" className="mb-4" fontWeight="bold">
-              Welcome Back!
+              Welcome 
             </Typography>
             <Typography variant="subtitle1" className="mb-4" color="text.secondary">
               Sign in to continue your journey
@@ -117,18 +124,23 @@ export default function LoginForm() {
                 required
                 fullWidth
                 id="email"
-                placeholder="Email Address"
+                placeholder="Enter Email.."
                 name="email"
-                autoComplete="email"
-                autoFocus
+                 autoComplete="email"
+                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+               
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <EnvelopeFill color="#6C63FF" />
                     </InputAdornment>
                   ),
+                  sx: {
+                    width: '100%'
+                  
+                  },
                 }}
               />
               <TextField
@@ -197,3 +209,14 @@ export default function LoginForm() {
     </ThemeProvider>
   )
 }
+
+
+
+
+
+
+
+
+
+
+

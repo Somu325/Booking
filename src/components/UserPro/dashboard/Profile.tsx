@@ -1,3 +1,5 @@
+
+
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -336,11 +338,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                       value={tempPhoneNumber}
                       onChange={(e) => setTempPhoneNumber(e.target.value)}
                     />
-                    <Input
+                    {/* <Input
                       placeholder="Email"
                       value={tempEmail}
                       onChange={(e) => setTempEmail(e.target.value)}
-                    />
+                    /> */}
                     <Button onClick={updateUserData}>Update Profile</Button>
                   </Box>
                 ) : (
@@ -359,7 +361,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
             <Box sx={{ marginTop: 4 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                <Typography level="h3">Add SubMember</Typography>
+                <Typography level="h3">Add Child</Typography>
                 <Button
                   startDecorator={<Add />}
                   onClick={() => setShowAddChildForm(!showAddChildForm)}
@@ -368,6 +370,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                   Add Child
                 </Button>
               </Box>
+
+              {/* Add the total child count here */}
+              <Typography level="body-lg" sx={{ mb: 2 ,fontWeight: 'bold'}}>
+                Total Children: {childDetails.length}
+              </Typography>
 
               {showAddChildForm && (
                 <Card variant="outlined" sx={{ marginBottom: 2 }}>
@@ -425,6 +432,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                           <Input
                             value={updatedChild.age}
                             onChange={(e) =>
+                              
                               setUpdatedChild({ ...updatedChild, age: e.target.value })
                             }
                             type="number"
