@@ -1,16 +1,22 @@
 
-import React, { useState } from 'react';
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
-import Box from '@mui/joy/Box';
-import Typography from '@mui/joy/Typography';
-import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Alert from '@mui/joy/Alert';
-import IconButton from '@mui/joy/IconButton';
-import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material';
-import axios from 'axios';
+
+"use client"
+
+import React, { useState } from 'react'
+import {
+  Box,
+  Typography,
+  Input,
+  Button,
+  FormControl,
+  FormLabel,
+  Alert,
+  IconButton,
+  CssVarsProvider,
+  extendTheme,
+} from '@mui/joy'
+import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material'
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 
 // Assume Domain_URL is imported from a config file
@@ -328,3 +334,5 @@ export default function Component() {
     </CssVarsProvider>
   );
 }
+
+
