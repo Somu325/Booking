@@ -1,33 +1,95 @@
+
+"use client";
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Paper,
+  ThemeProvider,
+  createTheme,
+} from '@mui/material';
+import { Visibility, VisibilityOff, LockReset } from '@mui/icons-material';
 import { Domain_URL } from '../../config';
+
+// MUI Theme Configuration
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6A11CB',
+    },
+    background: {
+      default: '#E3F2FD',
+    },
+  },
+  shape: {
+    borderRadius: 8,
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+      },
+    },
+  },
+});
 
 const Reset: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ newPassword: string; confirmPassword: string }>({
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   const navigate = useNavigate();
-  //const ${Domain_URL} = 'http://localhost:4000/api';
 
-  const handleResetPassword = async () => {
-    const email2 = typeof window !== 'undefined' ? localStorage.getItem('email') : null;
+  const validatePassword = (password: string): boolean => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
 
-    if (!email2) {
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({ newPassword: '', confirmPassword: '' });
+
+    const email = localStorage.getItem('email');
+
+    if (!email) {
       alert('No email found in localStorage.');
       return;
     }
 
+    if (!validatePassword(newPassword)) {
+      setErrors((prev) => ({
+        ...prev,
+        newPassword:
+          'Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character.',
+      }));
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match.');
+      setErrors((prev) => ({ ...prev, confirmPassword: 'Passwords do not match.' }));
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await axios.put(`${Domain_URL}/coach/reset-password`, { email: email2, newPassword });
+      const response = await axios.put(`${Domain_URL}/coach/reset-password`, { email, newPassword });
 
       if (response.status === 200) {
         alert('Password reset successfully!');
@@ -41,89 +103,98 @@ const Reset: React.FC = () => {
     }
   };
 
-  // Inline CSS styles
-  const styles = {
-    background: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: 'linear-gradient(90deg, rgba(106, 17, 203, 1) 0%, rgba(37, 117, 252, 1) 100%)',
-    },
-    formBox: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '10px',
-      width: '90%',
-      maxWidth: '400px',
-      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-    },
-    label: {
-      fontSize: '18px',
-      color: '#333',
-      marginBottom: '12px',
-    },
-    input: {
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      padding: '10px',
-      marginBottom: '15px',
-      width: '100%',
-    },
-    button: {
-      padding: '12px',
-      backgroundColor: '#6A11CB',
-      color: '#fff',
-      fontSize: '16px',
-      fontWeight: 'bold',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      width: '100%',
-    },
-    disabledButton: {
-      padding: '12px',
-      backgroundColor: '#ccc',
-      color: '#fff',
-      fontSize: '16px',
-      fontWeight: 'bold',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'not-allowed',
-      width: '100%',
-    },
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
-    <div style={styles.background}>
-      <div style={styles.formBox}>
-        <label style={styles.label}>New Password</label>
-        <input
-          type="password"
-          style={styles.input}
-          placeholder="Enter new password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-
-        <label style={styles.label}>Confirm Password</label>
-        <input
-          type="password"
-          style={styles.input}
-          placeholder="Confirm new password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-
-        <button
-          style={loading ? styles.disabledButton : styles.button}
-          onClick={handleResetPassword}
-          disabled={loading}
+    <ThemeProvider theme={theme}>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            padding: 4,
+            backgroundColor: '#fff',
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+          }}
         >
-          {loading ? 'Resetting...' : 'Reset Password'}
-        </button>
-      </div>
-    </div>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <LockReset sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+            <Typography component="h1" variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+              Reset Password
+            </Typography>
+            <Box component="form" onSubmit={handleResetPassword} sx={{ mt: 1, width: '100%' }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="newPassword"
+                label="New Password"
+                type={showPassword ? 'text' : 'password'}
+                id="newPassword"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                error={!!errors.newPassword}
+                helperText={errors.newPassword}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 4, mb: 2, py: 1.5, fontSize: '1.1rem' }}
+                disabled={loading}
+              >
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
+    </ThemeProvider>
   );
 };
 
