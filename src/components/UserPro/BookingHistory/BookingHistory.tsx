@@ -1,30 +1,45 @@
 
+
+
+
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
-import CssBaseline from '@mui/joy/CssBaseline'
-import Box from '@mui/joy/Box'
-import Typography from '@mui/joy/Typography'
-import Table from '@mui/joy/Table'
-import Sheet from '@mui/joy/Sheet'
-import Chip from '@mui/joy/Chip'
-import CircularProgress from '@mui/joy/CircularProgress'
-import Modal from '@mui/joy/Modal'
-import ModalClose from '@mui/joy/ModalClose'
-import ModalDialog from '@mui/joy/ModalDialog'
-import { CalendarToday, Person, AccessTime, Category } from '@mui/icons-material'
+import {
+  CssVarsProvider,
+  extendTheme,
+  CssBaseline,
+  Box,
+  Typography,
+  Table,
+  Sheet,
+  Chip,
+  CircularProgress,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Button,
+  Select,
+  Option,
+  FormControl,
+  FormLabel,
+} from '@mui/joy'
+import { ArrowBack, CalendarToday, Person, AccessTime, Category } from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
-import Button from '@mui/joy/Button'
-import { ArrowBack } from '@mui/icons-material'
 
 interface Booking {
   id: number
   userId: number
   coachId: number
+  userName: string
+  coachName: string
+  startTime: string
+  endTime: string
   slotId: number
+  slotType: string
+  date: string
   bookingType: 'single' | 'group'
   groupId: number | null
   status: string
@@ -32,150 +47,179 @@ interface Booking {
 }
 
 const theme = extendTheme({
-  // ... (theme configuration remains the same)
+  // Theme configuration
 })
 
 export default function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [dateFilter, setDateFilter] = useState<string>('')
+  const [typeFilter, setTypeFilter] = useState<string>('')
+  const [statusFilter, setStatusFilter] = useState<string>('')
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetchBookings()
+    const storedUserId = localStorage.getItem('userId')
+    console.log('Stored userId:', storedUserId) // Log the userId for debugging
+    setUserId(storedUserId)
   }, [])
 
+  useEffect(() => {
+    if (userId) {
+      fetchBookings()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
+
+  useEffect(() => {
+    filterBookings()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookings, dateFilter, typeFilter, statusFilter])
+
   const fetchBookings = async () => {
+    if (!userId) {
+      console.error('UserId is null, cannot fetch bookings')
+      setError('User ID not found. Please log in again.')
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
-      const response = await axios.get<Booking[]>(`${Domain_URL}/bookings`)
+      const response = await axios.get<Booking[]>(`${Domain_URL}/bookings/user/${userId}`)
       setBookings(response.data)
-      console.log(response.data);
       setError(null)
     } catch (err) {
       console.error('Error fetching bookings:', err)
-      setError('Failed to fetch bookings. Please try again later.')
+     setError('No booking history. Please Booking Slots.')
     } finally {
       setLoading(false)
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'progress':
-        return 'primary'
-      case 'completed':
-        return 'success'
-      case 'canceled':
-        return 'danger'
-      default:
-        return 'neutral'
+  const filterBookings = () => {
+    let filtered = bookings
+
+    if (dateFilter) {
+      filtered = filtered.filter(booking => booking.date === dateFilter)
     }
+
+    if (typeFilter) {
+      filtered = filtered.filter(booking => booking.slotType === typeFilter)
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(booking => booking.status.toLowerCase() === statusFilter.toLowerCase())
+    }
+
+    setFilteredBookings(filtered)
   }
 
-  const handleUserClick = (booking: Booking) => {
-    setSelectedBooking(booking)
+  const getStatusColor = (status: string) => {
+    const statusColors: Record<string, 'primary' | 'success' | 'danger' | 'neutral'> = {
+      progress: 'primary',
+      completed: 'success',
+      canceled: 'danger',
+    }
+    return statusColors[status.toLowerCase()] || 'neutral'
   }
+
+  const uniqueDates = [...new Set(bookings.map(booking => booking.date))]
+  const uniqueTypes = [...new Set(bookings.map(booking => booking.slotType))]
+  const uniqueStatuses = [...new Set(bookings.map(booking => booking.status))]
 
   return (
     <CssVarsProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{
-        p: 4,
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-      }}>
-        <Box sx={{ maxWidth: 1000, margin: 'auto' }}>
+      <Box
+        sx={{
+          p: 4,
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+        }}
+      >
+        <Box sx={{ maxWidth: 2000, }}>
           <Button
             startDecorator={<ArrowBack />}
             onClick={() => navigate('/screen')}
             variant="outlined"
             color="neutral"
-            sx={{ mb: 2 }}
+            sx={{ mb: 2 ,backgroundColor:'black', color: 'white' }}
           >
             Back to Dashboard
           </Button>
-          <Typography level="h2" component="h1" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
+          <Typography level="h2" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
             Booking History
           </Typography>
 
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 ,justifyContent: 'flex-end' }}>
+            <FormControl>
+              <FormLabel>Filter by Date</FormLabel>
+              <Select value={dateFilter} onChange={(_, value) => setDateFilter(value || '')}>
+                <Option value="">All Dates</Option>
+                {uniqueDates.map(date => (
+                  <Option key={date} value={date}>{date}</Option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Filter by Type</FormLabel>
+              <Select value={typeFilter} onChange={(_, value) => setTypeFilter(value || '')}>
+                <Option value="">All Types</Option>
+                {uniqueTypes.map(type => (
+                  <Option key={type} value={type}>{type}</Option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel>Filter by Status</FormLabel>
+              <Select value={statusFilter} onChange={(_, value) => setStatusFilter(value || '')}>
+                <Option value="">All Statuses</Option>
+                {uniqueStatuses.map(status => (
+                  <Option key={status} value={status}>{status}</Option>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', height: 200 }}>
               <CircularProgress size="lg" />
             </Box>
           ) : error ? (
             <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
               {error}
             </Typography>
-          ) : bookings.length === 0 ? (
+          ) : filteredBookings.length === 0 ? (
             <Typography sx={{ mb: 2, textAlign: 'center' }}>No bookings found.</Typography>
           ) : (
             <Sheet variant="outlined" sx={{ boxShadow: 'lg' }}>
               <Table stickyHeader hoverRow>
                 <thead>
                   <tr>
-
-                    <th style={{ width: '15%' }}>User</th>
-                    <th style={{ width: '15%' }}>Coach</th>
-                    <th style={{ width: '15%' }}>Slot</th>
-                    <th style={{ width: '10%' }}>Type</th>
-                    <th style={{ width: '15%' }}>Status</th>
-                    <th style={{ width: '25%' }}>Created At</th>
+                    <th>User Name</th>
+                    <th>Coach Name</th>
+                    <th>Slot Date</th>
+                    <th>Slot</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Created At</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map((booking) => (
-                    <tr key={booking.id}>
-
-                      <td>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            cursor: 'pointer',
-                            '&:hover': { textDecoration: 'underline' },
-                          }}
-                          onClick={() => handleUserClick(booking)}
-                        >
-                          <Person fontSize="small" />
-                          {booking.userId}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.coachId}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTime fontSize="small" />
-                          {booking.slotId}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Category fontSize="small" />
-                          {booking.bookingType}
-                        </Box>
-                      </td>
-                      <td>
-                        <Chip
-                          variant="soft"
-                          color={getStatusColor(booking.status)}
-                          size="sm"
-                        >
-                          {booking.status}
-                        </Chip>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarToday fontSize="small" />
-                          {new Date(booking.createdAt).toLocaleString()}
-                        </Box>
-                      </td>
+                  {filteredBookings.map((booking) => (
+                    <tr key={booking.id} onClick={() => setSelectedBooking(booking)} style={{ cursor: 'pointer' }}>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.userName}</Box></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.coachName}</Box></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CalendarToday fontSize="small" />{booking.date}</Box></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><AccessTime fontSize="small" />{booking.startTime} - {booking.endTime}</Box></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Category fontSize="small" />{booking.slotType}</Box></td>
+                      <td><Chip variant="soft" color={getStatusColor(booking.status)} size="sm">{booking.status}</Chip></td>
+                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CalendarToday fontSize="small" />{new Date(booking.createdAt).toLocaleString()}</Box></td>
                     </tr>
                   ))}
                 </tbody>
@@ -185,61 +229,24 @@ export default function BookingHistory() {
         </Box>
       </Box>
 
-      <Modal open={!!selectedBooking} onClose={() => setSelectedBooking(null)}>
-        <ModalDialog
-          aria-labelledby="booking-modal-title"
-          aria-describedby="booking-modal-description"
-          sx={{
-            maxWidth: 500,
-            borderRadius: 'md',
-            p: 3,
-            boxShadow: 'lg',
-          }}
-        >
-          <ModalClose
-            variant="outlined"
-            sx={{
-              top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/4 * var(--IconButton-size))',
-              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
-              borderRadius: '50%',
-              bgcolor: 'background.body',
-            }}
-          />
-          <Typography
-            id="booking-modal-title"
-            component="h2"
-            level="h4"
-            textColor="inherit"
-            fontWeight="lg"
-            mb={1}
-          >
-            Booking Details
-          </Typography>
-          <Typography id="booking-modal-description" textColor="text.tertiary">
-            {selectedBooking && (
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                {/* <Typography>ID:</Typography>
-                <Typography>{selectedBooking.id}</Typography> */}
-                <Typography>User ID:</Typography>
-                <Typography>{selectedBooking.userId}</Typography>
-                <Typography>Coach ID:</Typography>
-                <Typography>{selectedBooking.coachId}</Typography>
-                <Typography>Slot ID:</Typography>
-                <Typography>{selectedBooking.slotId}</Typography>
-                <Typography>Booking Type:</Typography>
-                <Typography>{selectedBooking.bookingType}</Typography>
-                <Typography>Group ID:</Typography>
-                <Typography>{selectedBooking.groupId || 'N/A'}</Typography>
-                <Typography>Status:</Typography>
-                <Typography>{selectedBooking.status}</Typography>
-                <Typography>Created At:</Typography>
-                <Typography>{new Date(selectedBooking.createdAt).toLocaleString()}</Typography>
-              </Box>
-            )}
-          </Typography>
-        </ModalDialog>
-      </Modal>
+      {selectedBooking && (
+        <Modal open onClose={() => setSelectedBooking(null)}>
+          <ModalDialog aria-labelledby="booking-modal-title" aria-describedby="booking-modal-description" sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}>
+            <ModalClose sx={{ top: 'calc(-1/4 * var(--IconButton-size))', right: 'calc(-1/4 * var(--IconButton-size))', boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)', borderRadius: '50%', bgcolor: 'background.body' }} />
+            <Typography id="booking-modal-title" level="h4" fontWeight="lg" mb={1}>Booking Details</Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <Typography>User Name:</Typography><Typography>{selectedBooking.userName}</Typography>
+              <Typography>Coach Name:</Typography><Typography>{selectedBooking.coachName}</Typography>
+              <Typography>Slot Date:</Typography><Typography>{selectedBooking.date}</Typography>
+              <Typography>Slot Time:</Typography><Typography>{selectedBooking.startTime} - {selectedBooking.endTime}</Typography>
+              <Typography>Type:</Typography><Typography>{selectedBooking.slotType}</Typography>
+              <Typography>Group ID:</Typography><Typography>{selectedBooking.groupId || 'N/A'}</Typography>
+              <Typography>Status:</Typography><Typography>{selectedBooking.status}</Typography>
+              <Typography>Created At:</Typography><Typography>{new Date(selectedBooking.createdAt).toLocaleString()}</Typography>
+            </Box>
+          </ModalDialog>
+        </Modal>
+      )}
     </CssVarsProvider>
   )
 }

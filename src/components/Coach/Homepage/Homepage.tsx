@@ -10,7 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+//import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -22,7 +23,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 //import Card from '@mui/material/Card';
 //import CardContent from '@mui/material/CardContent';
 //import Typography from '@mui/material/Typography';
-// import './Homepage.css';
+
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -30,68 +31,60 @@ import axios from 'axios';
 //import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
-import { Domain_URL } from "../../config";
- 
+import { Card } from '@mui/joy';
+import { Domain_URL } from '../../config';
 
-//npm type Value = Date | [Date, Date] | null; // Define Value type
-
-
-type MainProps = {
-  open?: boolean; // Add the open property with an optional boolean type
-};
 
 
 const drawerWidth = 240;
 
 
-interface Slot {
-  id: string; // Assuming ID is a string, change if necessary
-  date: string; // or Date, depending on how you're handling dates
-  startTime: string; // Assuming this is a string, e.g., '10:00 AM'
-  endTime: string; // Assuming this is a string, e.g., '11:00 AM'
+interface MainProps {
+  open: boolean;
 }
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<MainProps>(
-  ({ theme, open }) => {
-    const marginLeft = open ? 0 : `-${drawerWidth}px`; // Determine marginLeft based on open prop
-
-    return {
-      flexGrow: 1,
-      padding: theme.spacing(3),
-      marginLeft: marginLeft, // Set marginLeft based on the condition
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
       transition: theme.transitions.create('margin', {
-        easing: open ? theme.transitions.easing.easeOut : theme.transitions.easing.sharp,
-        duration: open 
-          ? theme.transitions.duration.enteringScreen 
-          : theme.transitions.duration.leavingScreen,
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
       }),
-    };
-  }
+      marginLeft: 0,
+    }),
+  }),
 );
 
 
-import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean; // Make 'open' optional or required based on your needs
+
+interface AppBarProps {
+  open: boolean;
 }
-
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open = false }) => ({
-  // Combine the transition properties into one definition
+})<AppBarProps>(({ theme, open }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
-    easing: open ? theme.transitions.easing.easeOut : theme.transitions.easing.sharp,
-    duration: open ? theme.transitions.duration.enteringScreen : theme.transitions.duration.leavingScreen,
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
   }),
-  // Set width and margin based on the `open` state
-  width: open ? `calc(100% - ${drawerWidth}px)` : '100%',
-  marginLeft: open ? `${drawerWidth}px` : '0',
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
 }));
-
-
-
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -101,20 +94,36 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+
+interface Slot {
+  id: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status:string;
+  slot:string;
+}
+
 const CombinedApp: React.FC = () => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [slots, setSlots] = useState([]); // State to store fetched slots
-  const [bookedSlots, setBookedSlots] = useState([]); // State for booked slots
-  const [completedSlots, setCompletedSlots] = useState([]); // Completed slots
-const [upcomingSlots, setUpcomingSlots] = useState([]);
+ // const [slots, setSlots] = useState([]); // State to store fetched slots
+  //const [bookedSlots, setBookedSlots] = useState([]); // State for booked slots
+ // const [completedSlots, setCompletedSlots] = useState([]); // Completed slots
+//const [upcomingSlots, setUpcomingSlots] = useState([]);
   const [message, setMessage] = useState<string>('');
   const navigate = useNavigate();
   //const [view, setView] = useState<'all' | 'booked'>('all'); // State to track the current view
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Store the selected date
-  const [view, setView] = useState<'all' | 'booked' | 'completed' | 'upcoming'>('all');
+  const [view, setView] = useState<ViewType>('all');
+
+  const [slots, setSlots] = useState<Slot[]>([]);
+const [bookedSlots, setBookedSlots] = useState<Slot[]>([]);
+const [completedSlots] = useState<Slot[]>([]);
+
+const [upcomingSlots ] = useState<Slot[]>([]);
 
 
   
@@ -140,47 +149,36 @@ const [upcomingSlots, setUpcomingSlots] = useState([]);
     setSelectedDate(null); // Reset selected date
   };
 
-// const handleCalendarChange = (value: Value) => {
-//   if (value instanceof Date) {
-//     // Handle single date
-//     setSelectedDate(value);
-//   } else if (Array.isArray(value) && value.length === 2) {
-//     // Handle range, taking the start date
-//     setSelectedDate(value[0]); // You can also manage end date if necessary
-//   } else {
-//     // Handle null case or unexpected values
-//     setSelectedDate(null);
-//   }
-// };
-  
+  //type Value = Date | null;
+
+ /* const handleCalendarChange = (value?: Value, event?: React.MouseEvent<HTMLButtonElement>) => {
+    if (value instanceof Date) { // Ensure value is a valid Date
+      setCurrentDate(value);     // Update currentDate to the selected date
+      setSelectedDate(value);    // Store the selected date
+      setShowCalendar(false);    // Close the calendar
+    }
+  };*/
   
 
 
-   // Handle calendar date selection
-  // const handleCalendarChange = (date: Date) => {
-   // setCurrentDate(date); // Update currentDate to the selected date
-   // setSelectedDate(date); // Store the selected date
-   // setShowCalendar(false); // Close the calendar
-  //};
-
-  
-
-
+  type ViewType = 'all' | 'booked' | 'completed' | 'inprogress' ;
   // Handle view change and fetch corresponding slots
-const handleViewChange = (viewType: 'all' | 'booked' | 'completed' | 'upcoming') => {
-  setView(viewType);
-  const dateToUse = selectedDate || currentDate; // Use selected date if available
-  if (viewType === 'all') {
-    fetchSlots(dateToUse); // Fetch all slots for the selected/current date
-  } else if (viewType === 'booked') {
-    fetchBookedSlots(dateToUse); // Fetch booked slots for the selected/current date
-  } else if (viewType === 'completed') {
-    fetchCompletedSlots(dateToUse); // Fetch completed slots for the selected/current date
-  } else if (viewType === 'upcoming') {
-    fetchUpcomingSlots(dateToUse); // Fetch upcoming slots for the selected/current date
-  }
-};
- 
+
+
+  const handleViewChange = (viewType: ViewType) => {
+    setView(viewType);
+    const dateToUse = selectedDate || currentDate; // Use selected date if available
+    if (viewType === 'all') {
+      fetchSlots(dateToUse); // Fetch all slots for the selected/current date
+    } else if (viewType === 'booked') {
+      fetchBookedSlots(dateToUse); // Fetch booked slots for the selected/current date
+    } else if (viewType === 'completed') {
+      fetchCompletedSlots(dateToUse); // Fetch completed slots for the selected/current date
+    }
+  };
+  
+
+
 
  
 
@@ -202,7 +200,7 @@ const handleViewChange = (viewType: 'all' | 'booked' | 'completed' | 'upcoming')
   const fetchBookedSlots = async (date: Date) => {
     const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
     try {
-      const response = await axios.get(`Domain_URL/slot/coaches/${coachid}/booked-slots?date=${formattedDate}`);
+      const response = await axios.get(`${Domain_URL}/slot/coaches/${coachid}/booked-slots?date=${formattedDate}`);
       setBookedSlots(response.data);
       setMessage(''); // Clear message if fetch is successful
     } catch (error) {
@@ -211,33 +209,31 @@ const handleViewChange = (viewType: 'all' | 'booked' | 'completed' | 'upcoming')
     }
   };
 
-  // Fetch completed slots for the specified date
-const fetchCompletedSlots = async (date: Date) => {
-  const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
-  try {
-    const response = await axios.get(`Domain_URL/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
-    setCompletedSlots(response.data);
-    setMessage(''); // Clear message if fetch is successful
-  } catch (error) {
-    console.error('Error fetching completed slots:', error);
-    setMessage('No completed slots available');
-  }
-};
+ 
+  const fetchCompletedSlots = async (date: Date) => {
+    const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
+    const currentTime = new Date(); // Current time to compare
+  
+    try {
+      const response = await axios.get(`${Domain_URL}/slot/coaches/${coachid}/completed-slots?date=${formattedDate}`);
+      const slots = response.data;
+  
+      // Filter slots to only include those that ended before the current time
+      const completedSlots = slots.filter((slot: { endTime: any; }) => {
+        const slotEndTime = new Date(`${formattedDate}T${slot.endTime}`); // Combine date and endTime
+        return slotEndTime < currentTime;
+      });
+  
+      setSlots(completedSlots);
+      setMessage(completedSlots.length ? '' : 'No completed slots available');
+    } catch (error) {
+      console.error('Error fetching completed slots:', error);
+      setMessage('No completed slots available');
+    }
+  };
 
 
 
-// Fetch upcoming slots for the specified date
-const fetchUpcomingSlots = async (date: Date) => {
-  const formattedDate = date.toISOString().split('T')[0]; // Format date to YYYY-MM-DD
-  try {
-    const response = await axios.get(`Domain_URL/slot/coaches/${coachid}/upcoming-slots?date=${formattedDate}`);
-    setUpcomingSlots(response.data);
-    setMessage(''); // Clear message if fetch is successful
-  } catch (error) {
-    console.error('Error fetching upcoming slots:', error);
-    setMessage('No upcoming slots available');
-  }
-};
  
 
   const handleCreateSlotsClick = () => {
@@ -249,7 +245,7 @@ const fetchUpcomingSlots = async (date: Date) => {
   }
     
   const handleAnalyticsClick = () => {
-    navigate('/CoachAnalytics'); // Navigate to the CoachAnalytics page
+    navigate('/Coach-Analytics'); // Navigate to the CoachAnalytics page
   };
 
 
@@ -278,7 +274,7 @@ const fetchUpcomingSlots = async (date: Date) => {
           </IconButton>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton color="inherit">
-            <NotificationsIcon />
+             <NotificationsOffIcon/>
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -347,77 +343,172 @@ const fetchUpcomingSlots = async (date: Date) => {
         <DrawerHeader />
         <br />
         <br />
-        <br />
+        
         <div style={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
       
 
       <main style={{ marginTop: '20px' }}>
         <div className="full-length-container">
-          <div className="date-buttons">
-            {Array.from({ length: 4 }).map((_, index) => {
-              const buttonDate = new Date(currentDate);
-              buttonDate.setDate(currentDate.getDate() + index);
-              return (
-                <button className="date-btn" key={index} onClick={() => handleDateChange(index)}>
-                  {buttonDate.toLocaleString('default', { month: 'short' })}<br />
-                  {index === 0 ? 'Today' : index === 1 ? 'Tomorrow' : buttonDate.toLocaleString('default', { weekday: 'short' })}<br />
-                  {buttonDate.getDate()}
-                </button>
-              );
-            })}
-          </div>
+        <div 
+  style={{
+    display: 'flex', 
+    flexDirection: 'column',
+    alignItems: 'center', 
+    width: '100%', 
+    position: 'absolute', 
+    top: 100, // Positions the container at the top
+    padding: '10px 0',
+    backgroundColor: '#f5f5f5', // Optional: background for visibility
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)' // Optional: shadow for separation
+  }}
+>
+  <div className="date-buttons" style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', width: '100%' }}>
+    {Array.from({ length: 4 }).map((_, index) => {
+      const buttonDate = new Date(currentDate);
+      buttonDate.setDate(currentDate.getDate() + index);
+      return (
+        <button 
+          className="date-btn" 
+          key={index} 
+          onClick={() => handleDateChange(index)} 
+          style={{
+            flex: 1,
+            padding: '10px 0',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '4px',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            cursor: 'pointer',
+            border: 'none',
+          }}
+        >
+          {buttonDate.toLocaleString('default', { month: 'short' })}<br />
+
+          {buttonDate.getDate()}
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+<br></br>
+
 
           <div className="see-all">
-            <button className="see-all-btn" onClick={() => setShowCalendar(true)}>
+            <button className="see-all-btn" onClick={() => setShowCalendar(true)} 
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                }}
+              >
               <span role="img" aria-label="calendar">📅</span>
               See All ({currentDate.toLocaleDateString()})
             </button>
           </div>
+          <br></br>
 
-          <div className="action-buttons">
-  <button className="action-btn" onClick={() => handleViewChange('all')}>ALL</button>
-  <button className="action-btn" onClick={() => handleViewChange('booked')}>BOOKED</button>
-  <button className="action-btn" onClick={() => handleViewChange('completed')}>COMPLETED</button> 
-  <button className="action-btn" onClick={() => handleViewChange('upcoming')}>UPCOMING</button> 
+<div className="action-buttons">
+  <button className="action-btn" onClick={() => handleViewChange('all')}  
+          style={{
+            flex: 1, // Ensures equal width for each button
+            padding: '10px 0',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '4px',
+            
+            color: '#fff',
+            cursor: 'pointer',
+            border: 'none',
+          }}
+    >All</button>
+  <button className="action-btn" onClick={() => handleViewChange('booked')} 
+          style={{
+            flex: 1, // Ensures equal width for each button
+            padding: '10px 0',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderRadius: '4px',
+           backgroundColor:'black',
+            color: '#fff',
+            cursor: 'pointer',
+            border: 'none',
+          }}
+    >Booked</button>
+  <button className="action-btn" onClick={() => handleViewChange('completed')} 
+    style={{
+      flex: 1, // Ensures equal width for each button
+      padding: '10px 0',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      borderRadius: '4px',
+      backgroundColor: 'green',
+      color: 'white',
+      cursor: 'pointer',
+      border: 'none',
+    }}
+    >Completed</button> 
+  <button className="action-btn" onClick={() => handleViewChange('inprogress')}
+        style={{
+          flex: 1, // Ensures equal width for each button
+          padding: '10px 0',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '4px',
+          backgroundColor: 'red',
+          color: 'white',
+          cursor: 'pointer',
+          border: 'none',
+        }}
+    >In Progress</button> 
 </div>
 
 
-<div className="slots-container">
-  <ul>
-    {(view === 'all' ? slots
-      : view === 'booked' ? bookedSlots
-      : view === 'completed' ? completedSlots
-      : upcomingSlots
-    )
-      .filter((slot: Slot) => {
-        const slotDate = new Date(slot.date);
-        return slotDate.toDateString() === (selectedDate || currentDate).toDateString();
-      })
-      .map((slot: Slot) => (
-        <li
-          key={slot.id}
-          style={{ padding: '10px', border: '1px solid #007bff', marginBottom: '10px', backgroundColor: '#007bff' }}
-        >
-          <div>Date: {slot.date}</div>
-          <div style={{ color: 'black' }}>Time: {slot.startTime} - {slot.endTime}</div>
-        </li>
-      ))}
-  </ul>
-  {message && <p style={{ color: 'red' }}>{message}</p>}
-</div>;
-  
+<br></br>
+<br></br>
 
-          {showCalendar && (
-            <div className="calendar-container" style={{ marginTop: '20px' }}>
-              <Calendar
-           // onChange={handleCalendarChange}
-            //value={selectedDate || currentDate}
-        />
-            <button onClick={() => setShowCalendar(false)}>Close Calendar</button>
-          </div>
-          )}
+
+<div className="slots-container" style={{ 
+  display: 'grid', 
+  gridTemplateColumns: 'repeat(4, 1fr)', // 4 equal-width columns
+  gap: '10px', // Spacing between cards
+  justifyContent: 'center' 
+}}>
+  {(view === 'all' ? slots
+    : view === 'booked' ? bookedSlots
+    : view === 'completed' ? completedSlots
+    : upcomingSlots // Use upcomingSlots for 'upcoming' view
+  ).filter(slot => {
+    const slotDate = new Date(slot.date);
+    return slotDate.toDateString() === (selectedDate || currentDate).toDateString();
+  }).map((slot) => (
+    <Card key={slot.id} sx={{
+      padding: '8px',
+      border: '0.5px solid #007bff',
+      fontSize: '14px',
+    }}>
+      <div>Date: {new Date(slot.date).toLocaleDateString()}</div>
+      <div style={{ color: 'black' }}>Time: {slot.startTime} - {slot.endTime}</div>
+    </Card>
+  ))}
+  {message && <p style={{ color: 'red' }}>{message}</p>}
+</div>
+
+
+ {showCalendar && (
+      <div className="calendar-container" style={{ marginTop: '20px' }}>
+            <Calendar 
+            //onChange={(value, event) => handleCalendarChange(value, event)} value={selectedDate || currentDate}
+             />;
+           <button onClick={() => setShowCalendar(false)}>Close Calendar</button>
+       </div>
+  )}
         </div>
-          
       </main>
     </div>
       </Main>

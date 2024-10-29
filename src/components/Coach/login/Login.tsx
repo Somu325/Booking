@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-// import './Login.css';
+import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
+import Cookies from 'js-cookie'; // Include js-cookie for token handling
+import {
+  Box,
+  Button,
+  Input,
+  Container,
+  Link,
+  CircularProgress,
+} from '@mui/joy';
+import Email from '@mui/icons-material/Email'; // Email icon
+import Lock from '@mui/icons-material/Lock'; // Lock icon
 
-const Loginn: React.FC = () => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string>(''); // State to hold error messages
-  const navigate = useNavigate(); // Initialize useNavigate hook
-
-  
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [error, setError] = useState<string>(''); // Error state
+  const navigate = useNavigate(); // Initialize navigation
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -22,60 +31,128 @@ const Loginn: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true); // Enable loading state
+    setError(''); // Reset error message
 
     try {
-      const response = await axios.post(`${Domain_URL}/coach/coachLogin`, { email, password });
+      const response = await axios.post(
+        `${Domain_URL}/coach/coachLogin`,
+        { email, password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
       console.log('Login successful:', response.data);
 
-      console.log(response.data.coach.email);
-     
+      // Store coach data in local storage
       localStorage.setItem('coachId', response.data.coach.coachId);
-      localStorage.setItem('email',response.data.coach.email);
-     
-     
+      localStorage.setItem('email', response.data.coach.email);
+
+      // Store token in cookies (if provided)
+      if (response.data.token) {
+        Cookies.set('token', response.data.token, {
+          expires: 1, // 1-day expiration
+          secure: true, // Use HTTPS in production
+          sameSite: 'strict', // Prevent CSRF attacks
+        });
+        console.log('Token stored:', Cookies.get('token'));
+      }
+       if(response.data.coach.emailVerified === true){
+      navigate('/Coach-Dashboard');
       
-      // Navigate to the home page after successful login
-      navigate('/Coach-Dashboard'); // Change '/home' to your actual home route
+      }
+      else{
+       navigate('/Coach-Profile');
+
+      }
+
+      // Navigate to Coach Dashboard on success
+     // navigate('/Coach-Dashboard');
     } catch (error) {
       console.error('Login error:', error);
       setError('Invalid email or password. Please try again.');
+    } finally {
+      setLoading(false); // Disable loading state
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-form">
-        <div className="icon-container">
-          <img src="/path-to-your-icon.png" alt="Login icon" className="login-icon" />
-        </div>
-        <h2>Welcome Back!</h2>
-        <p>Sign in to continue</p>
-        
-        {/* Display the error message */}
-        {error && <div className="error-message">{error}</div>}
+    <Container
+      maxWidth="sm"
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: '350px',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 3,
+          backgroundColor: 'background.body',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+          borderRadius: '8px',
+          width: '400px',
+          minHeight: '400px',
+        }}
+      >
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
+        <h1 style={{ marginBottom: '16px', fontSize: '2rem' }}>
+          Welcome 
+        </h1>
+        <p style={{ marginBottom: '16px', color: 'gray' }}>
+          Sign in to continue
+        </p>
+
+
+        {error && <p style={{ color: 'red', marginBottom: '16px' }}>{error}</p>}
+
+        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', mt: 2 }}>
+          <Input
+            fullWidth
             placeholder="Email"
+            //type="email"
             value={email}
             onChange={handleEmailChange}
             required
+            sx={{ mb: 2, backgroundColor: 'background.surface' }}
+            startDecorator={<Email />}
           />
-          <input
-            type="password"
+          <Input
+            fullWidth
             placeholder="Password"
+            type="password"
             value={password}
             onChange={handlePasswordChange}
             required
+            sx={{ mb: 2, backgroundColor: 'background.surface' }}
+            startDecorator={<Lock />}
           />
-          <a href="/Email-Otpp" className="forgot-password">Forgot Password?</a>
-          <button type="submit" className="login-button">Login</button>
-        </form>
-        <p className="signup-link">Don't have an account? <a href="/Coach-Signup">Sign Up</a></p> {/* Update link to /signup */}
-      </div>
-    </div>
+          <Link href="/Email-Otpp" sx={{ display: 'block', mb: 2, textAlign: 'right' }}>
+            Forgot Password?
+          </Link>
+          <Button
+            type="submit"
+            fullWidth
+            variant="solid"
+            color="primary"
+            sx={{ mb: 2 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size="sm" color="neutral" /> : 'Login'}
+          </Button>
+          <p style={{ textAlign: 'center', marginBottom: '16px' }}>
+            Don't have an account? <Link href="/Coach-signup">Sign Up</Link>
+          </p>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 
-export default Loginn;
+export default Login;

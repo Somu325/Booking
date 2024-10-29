@@ -53,7 +53,7 @@ const generateSlots = (date: string, startTime: string, endTime: string, duratio
   }
 
   let currentStartTime = startDateTime;
-  const durationInMilliseconds = duration * 60 * 1000;
+  const durationInMilliseconds = duration * 60 *  1000;
 
   while (currentStartTime < endDateTime) {
     const currentEndTime = new Date(currentStartTime.getTime() + durationInMilliseconds);
