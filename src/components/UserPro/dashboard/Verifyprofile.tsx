@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -101,7 +103,8 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [showOtpSentModal, setShowOtpSentModal] = useState(false); // State for OTP sent message
+  const [showOtpSentModal, setShowOtpSentModal] = useState(false);
+  const [timer, setTimer] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,13 +140,25 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
     }
   }, [isEmailVerified, navigate]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
   // Verify email by sending OTP
   const verifyEmail = async () => {
     try {
       const response = await axios.post(`${Domain_URL}/api/send-otp1`, { email: userData?.email });
       setEmailVerificationData(response.data);
-      setShowOtpSentModal(true); // Set OTP sent message to true
-      setTimeout(() => setShowOtpSentModal(false), 3000); // Hide message after 3 seconds
+      setShowOtpSentModal(true);
+      setTimeout(() => setShowOtpSentModal(false), 3000);
+      setTimer(120); // Set 2-minute timer
+      setShowEmailModal(true); // Open the email modal after sending OTP
     } catch (error) {
       console.error('Error verifying email:', error);
     }
@@ -195,8 +210,14 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               {isEmailVerified ? (
                 <VerifiedUser sx={{ marginLeft: 1, color: 'success.main' }} />
               ) : (
-                <Button variant="plain" color="primary" onClick={() => setShowEmailModal(true)} sx={{ marginLeft: 1, backgroundColor:'skyblue' , color: 'black' }}>
-                  Verify Email
+                <Button 
+                  variant="plain" 
+                  color="primary" 
+                  onClick={verifyEmail} 
+                  disabled={timer > 0}
+                  sx={{ marginLeft: 1, backgroundColor:'skyblue' , color: 'black' }}
+                >
+                  {timer > 0 ? `Resend OTP (${timer}s)` : 'Verify Email'}
                 </Button>
               )}
             </Box>
@@ -207,7 +228,6 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </Typography>
             )}
 
-           
             {showAlert && (
               <Card variant="outlined" sx={{ mt: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
                 <CardContent>
@@ -219,27 +239,36 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </Card>
             )}
 
-            
             <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
                 <Typography level="h4">Verify Your Email</Typography>
-                <Button onClick={verifyEmail}>Send OTP</Button>
-
-               
-                <Modal open={showOtpSentModal} onClose={() => setShowOtpSentModal(false)}>
-                  <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-                    <ModalClose />
-                    <Typography level="h4" color="success">OTP Sent Successfully!</Typography>
-                  </ModalDialog>
-                </Modal>
-
-                <Input placeholder="Enter OTP" value={otp} onChange={(e) => setOtp(e.target.value)} />
-                <Button onClick={confirmOtp}>Verify OTP</Button>
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <Input 
+                    placeholder="Enter OTP" 
+                    value={otp} 
+                    onChange={(e) => setOtp(e.target.value)}
+                    sx={{ width: '100%', mb: 2 }}
+                  />
+                  <Button onClick={confirmOtp} sx={{ width: '100%' }}>Verify OTP</Button>
+                </Box>
+                <Button 
+                  onClick={verifyEmail} 
+                  disabled={timer > 0}
+                  sx={{ width: '100%' }}
+                >
+                  {timer > 0 ? `Resend OTP (${timer}s)` : 'Resend OTP'}
+                </Button>
               </ModalDialog>
             </Modal>
 
-            
+            <Modal open={showOtpSentModal} onClose={() => setShowOtpSentModal(false)}>
+              <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+                <ModalClose />
+                <Typography level="h4" color="success">OTP Sent Successfully!</Typography>
+              </ModalDialog>
+            </Modal>
+
             <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -247,7 +276,6 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </ModalDialog>
             </Modal>
 
-       
             <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />

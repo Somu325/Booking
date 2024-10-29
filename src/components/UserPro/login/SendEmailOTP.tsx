@@ -1,14 +1,13 @@
 
+'use client'
 
-"use client"
-
-import  { useState } from 'react'
+import  { useState, useEffect } from 'react'
 import { Box, Typography, Input, Button, Alert, CssVarsProvider, extendTheme } from '@mui/joy'
-import { Email, Lock, ArrowForward } from '@mui/icons-material'
+import { Email, Lock, ArrowForward, ArrowBack } from '@mui/icons-material'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 
-import { Domain_URL } from '../../config';
+import { Domain_URL } from '../../config'
 
 // Custom theme
 const theme = extendTheme({
@@ -84,8 +83,19 @@ export default function SendEmailOTP() {
   const [isOTPSent, setIsOTPSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [timer, setTimer] = useState(0)
   const { setUserEmail } = useUserContext()
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1)
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [timer])
 
   const handleSendOTP = async () => {
     if (!email) {
@@ -109,6 +119,7 @@ export default function SendEmailOTP() {
         setIsOTPSent(true)
         setSuccess('OTP sent successfully to your email')
         localStorage.setItem('email', email)
+        setTimer(120) // Reset the timer to 2 minutes
       } else {
         setError('Failed to send OTP')
       }
@@ -155,6 +166,10 @@ export default function SendEmailOTP() {
     }
   }
 
+  const handleBackToLogin = () => {
+    navigate('/user-login')
+  }
+
   return (
     <CssVarsProvider theme={theme}>
       <Box
@@ -184,10 +199,10 @@ export default function SendEmailOTP() {
           }}
         >
           <Typography level="h3" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 800, color: 'primary.700' }}>
-            {!isOTPSent ? 'Secure Login' : 'Verify OTP'}
+            {!isOTPSent ? 'Reset Password' : 'Verify OTP'}
           </Typography>
           <Typography level="body-md" sx={{ mb: 4, textAlign: 'center', color: 'neutral.600' }}>
-            {!isOTPSent ? 'Enter your email to receive a one-time password' : 'Enter the OTP sent to your email'}
+            {!isOTPSent ? 'Enter your email to receive a one-time password' : `Enter the OTP sent to ${email}`}
           </Typography>
           {!isOTPSent ? (
             <>
@@ -216,7 +231,7 @@ export default function SendEmailOTP() {
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                type="number"
+                //type="number"
                 startDecorator={<Lock sx={{ color: 'primary.500' }} />}
                 sx={{ mb: 3 }}
               />
@@ -230,6 +245,20 @@ export default function SendEmailOTP() {
               >
                 {loading ? 'Verifying...' : 'Verify OTP'}
               </Button>
+              {timer > 0 ? (
+                <Typography level="body-sm" sx={{ mt: 2, textAlign: 'center', color: 'primary.600' }}>
+                  Resend OTP in {timer} seconds
+                </Typography>
+              ) : (
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={handleSendOTP}
+                  sx={{ mt: 2, py: 1.5 }}
+                >
+                  Resend OTP
+                </Button>
+              )}
             </>
           )}
           {error && (
@@ -242,7 +271,15 @@ export default function SendEmailOTP() {
               {success}
             </Alert>
           )}
-          
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleBackToLogin}
+            startDecorator={<ArrowBack />}
+            sx={{ mt: 3, py: 1.5 }}
+          >
+            Back to Login
+          </Button>
         </Box>
       </Box>
     </CssVarsProvider>

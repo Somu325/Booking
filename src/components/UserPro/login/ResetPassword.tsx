@@ -1,36 +1,75 @@
 
+"use client"
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Container, 
-  Box, 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  InputAdornment, 
-  IconButton 
+import axios from 'axios';
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  InputAdornment,
+  IconButton,
+  ThemeProvider,
+  createTheme,
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, LockReset } from '@mui/icons-material';
 import { Domain_URL } from '../../config';
 
-const ResetPassword: React.FC = () => {
-  const [newPassword, setNewPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6200EA',
+    },
+    background: {
+      default: '#F5F5F5',
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+        variant: 'outlined',
+      },
+    },
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+      },
+    },
+  },
+});
 
-  const navigate = useNavigate();
+export default function ResetPassword() {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({ newPassword: '', confirmPassword: '' });
+
+  const navigate= useNavigate();
 
   const validatePassword = (password: string): boolean => {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);
   };
 
-  const handleResetPassword = async () => {
-    const email = typeof window !== 'undefined' ? localStorage.getItem('email') : null;
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({ newPassword: '', confirmPassword: '' });
+
+    const email = localStorage.getItem('email');
 
     if (!email) {
       alert('No email found in localStorage.');
@@ -38,12 +77,15 @@ const ResetPassword: React.FC = () => {
     }
 
     if (!validatePassword(newPassword)) {
-      alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
+      setErrors(prev => ({
+        ...prev,
+        newPassword: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.'
+      }));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match.');
+      setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match.' }));
       return;
     }
 
@@ -69,86 +111,92 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <Container 
-      component="main" 
-      maxWidth="xs" 
-      sx={{ 
-        height: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-      }}
-    >
-      <Paper 
-        elevation={6} 
-        sx={{ 
-          padding: 4, 
-          backgroundColor: 'rgba(255, 255, 255, 0.8)' 
+    <ThemeProvider theme={theme}>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <Box
+        <Paper
+          elevation={0}
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            padding: 4,
+            backgroundColor: 'white',
+            borderRadius: 3,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <Typography component="h1" variant="h5" sx={{ marginBottom: 2 }}>
-            Reset Password
-          </Typography>
-          <Box component="form" onSubmit={(e) => { e.preventDefault(); handleResetPassword(); }} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="newPassword"
-              label="New Password"
-              type={showPassword ? 'text' : 'password'}
-              id="newPassword"
-              autoComplete="new-password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              helperText="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleTogglePasswordVisibility}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              id="confirmPassword"
-              autoComplete="new-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? 'Resetting...' : 'Reset Password'}
-            </Button>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <LockReset sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+            <Typography component="h1" variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+              Reset Password
+            </Typography>
+            <Box component="form" onSubmit={handleResetPassword} sx={{ mt: 1, width: '100%' }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="newPassword"
+                label="New Password"
+                type={showPassword ? 'text' : 'password'}
+                id="newPassword"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                error={!!errors.newPassword}
+                helperText={errors.newPassword}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleTogglePasswordVisibility}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 4, mb: 2, py: 1.5, fontSize: '1.1rem' }}
+                disabled={loading}
+              >
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      </Paper>
-    </Container>
+        </Paper>
+      </Container>
+    </ThemeProvider>
   );
-};
-
-export default ResetPassword;
+}

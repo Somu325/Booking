@@ -1,7 +1,5 @@
 
 
-
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -24,7 +22,13 @@ import {
   FormControl,
   FormLabel,
 } from '@mui/joy'
-import { ArrowBack, CalendarToday, Person, AccessTime, Category } from '@mui/icons-material'
+import {
+  ArrowBack,
+  CalendarToday,
+  Person,
+  AccessTime,
+  Category,
+} from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
@@ -64,14 +68,11 @@ export default function BookingHistory() {
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId')
-    console.log('Stored userId:', storedUserId) // Log the userId for debugging
     setUserId(storedUserId)
   }, [])
 
   useEffect(() => {
-    if (userId) {
-      fetchBookings()
-    }
+    if (userId) fetchBookings()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
@@ -82,7 +83,6 @@ export default function BookingHistory() {
 
   const fetchBookings = async () => {
     if (!userId) {
-      console.error('UserId is null, cannot fetch bookings')
       setError('User ID not found. Please log in again.')
       setLoading(false)
       return
@@ -90,12 +90,14 @@ export default function BookingHistory() {
 
     try {
       setLoading(true)
-      const response = await axios.get<Booking[]>(`${Domain_URL}/bookings/user/${userId}`)
+      const response = await axios.get<Booking[]>(
+        `${Domain_URL}/bookings/user/${userId}`
+      )
       setBookings(response.data)
       setError(null)
     } catch (err) {
       console.error('Error fetching bookings:', err)
-     setError('No booking history. Please Booking Slots.')
+      setError('No booking history. Please book slots.')
     } finally {
       setLoading(false)
     }
@@ -105,17 +107,17 @@ export default function BookingHistory() {
     let filtered = bookings
 
     if (dateFilter) {
-      filtered = filtered.filter(booking => booking.date === dateFilter)
+      filtered = filtered.filter((booking) => booking.date === dateFilter)
     }
-
     if (typeFilter) {
-      filtered = filtered.filter(booking => booking.slotType === typeFilter)
+      filtered = filtered.filter((booking) => booking.slotType === typeFilter)
     }
-
     if (statusFilter) {
-      filtered = filtered.filter(booking => booking.status.toLowerCase() === statusFilter.toLowerCase())
+      filtered = filtered.filter(
+        (booking) =>
+          booking.status.toLowerCase() === statusFilter.toLowerCase()
+      )
     }
-
     setFilteredBookings(filtered)
   }
 
@@ -128,59 +130,100 @@ export default function BookingHistory() {
     return statusColors[status.toLowerCase()] || 'neutral'
   }
 
-  const uniqueDates = [...new Set(bookings.map(booking => booking.date))]
-  const uniqueTypes = [...new Set(bookings.map(booking => booking.slotType))]
-  const uniqueStatuses = [...new Set(bookings.map(booking => booking.status))]
+  const uniqueDates = [...new Set(bookings.map((booking) => booking.date))]
+  const uniqueTypes = [...new Set(bookings.map((booking) => booking.slotType))]
+  const uniqueStatuses = [...new Set(bookings.map((booking) => booking.status))]
 
   return (
     <CssVarsProvider theme={theme}>
       <CssBaseline />
       <Box
         sx={{
-          p: 4,
+          p: { xs: 2, md: 4 },
           minHeight: '100vh',
           background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         }}
       >
-        <Box sx={{ maxWidth: 2000, }}>
+        <Box sx={{ maxWidth: '100%', mb: 2 }}>
           <Button
             startDecorator={<ArrowBack />}
             onClick={() => navigate('/screen')}
             variant="outlined"
             color="neutral"
-            sx={{ mb: 2 ,backgroundColor:'black', color: 'white' }}
+            sx={{
+              mb: 2,
+               backgroundColor:'#0B6BCB',
+              color: 'white',
+              width: { xs: '100%', sm: 'auto' },
+              '&:hover': {
+                backgroundColor: '#0D8CEB', // lighter blue for hover
+              },
+            }}
           >
             Back to Dashboard
           </Button>
-          <Typography level="h2" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
+          <Typography
+            level="h2"
+            sx={{
+              mb: 4,
+              textAlign: 'center',
+              fontWeight: 'bold',
+              fontSize: { xs: '1.5rem', md: '2.5rem' },
+            }}
+          >
             Booking History
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 ,justifyContent: 'flex-end' }}>
-            <FormControl>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              mb: 2,
+              flexWrap: 'wrap',
+              justifyContent: { xs: 'center', md: 'flex-end' },
+            }}
+          >
+             <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Date</FormLabel>
-              <Select value={dateFilter} onChange={(_, value) => setDateFilter(value || '')}>
+              <Select
+                value={dateFilter}
+                onChange={(_, value) => setDateFilter(value || '')}
+              >
                 <Option value="">All Dates</Option>
-                {uniqueDates.map(date => (
-                  <Option key={date} value={date}>{date}</Option>
+                {uniqueDates.map((date) => (
+                  <Option key={date} value={date}>
+                    {new Date(date).toLocaleDateString('en-US')}
+                  </Option>
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+            
+            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Type</FormLabel>
-              <Select value={typeFilter} onChange={(_, value) => setTypeFilter(value || '')}>
+              <Select
+                value={typeFilter}
+                onChange={(_, value) => setTypeFilter(value || '')}
+              >
                 <Option value="">All Types</Option>
-                {uniqueTypes.map(type => (
-                  <Option key={type} value={type}>{type}</Option>
+                {uniqueTypes.map((type) => (
+                  <Option key={type} value={type}>
+                    {type}
+                  </Option>
                 ))}
               </Select>
             </FormControl>
-            <FormControl>
+
+            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Status</FormLabel>
-              <Select value={statusFilter} onChange={(_, value) => setStatusFilter(value || '')}>
+              <Select
+                value={statusFilter}
+                onChange={(_, value) => setStatusFilter(value || '')}
+              >
                 <Option value="">All Statuses</Option>
-                {uniqueStatuses.map(status => (
-                  <Option key={status} value={status}>{status}</Option>
+                {uniqueStatuses.map((status) => (
+                  <Option key={status} value={status}>
+                    {status}
+                  </Option>
                 ))}
               </Select>
             </FormControl>
@@ -195,9 +238,11 @@ export default function BookingHistory() {
               {error}
             </Typography>
           ) : filteredBookings.length === 0 ? (
-            <Typography sx={{ mb: 2, textAlign: 'center' }}>No bookings found.</Typography>
+            <Typography sx={{ mb: 2, textAlign: 'center' }}>
+              No bookings found.
+            </Typography>
           ) : (
-            <Sheet variant="outlined" sx={{ boxShadow: 'lg' }}>
+            <Sheet variant="outlined" sx={{ boxShadow: 'lg', overflowX: 'auto' }}>
               <Table stickyHeader hoverRow>
                 <thead>
                   <tr>
@@ -207,19 +252,54 @@ export default function BookingHistory() {
                     <th>Slot</th>
                     <th>Type</th>
                     <th>Status</th>
-                    <th>Created At</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredBookings.map((booking) => (
-                    <tr key={booking.id} onClick={() => setSelectedBooking(booking)} style={{ cursor: 'pointer' }}>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.userName}</Box></td>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Person fontSize="small" />{booking.coachName}</Box></td>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CalendarToday fontSize="small" />{booking.date}</Box></td>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><AccessTime fontSize="small" />{booking.startTime} - {booking.endTime}</Box></td>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Category fontSize="small" />{booking.slotType}</Box></td>
-                      <td><Chip variant="soft" color={getStatusColor(booking.status)} size="sm">{booking.status}</Chip></td>
-                      <td><Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><CalendarToday fontSize="small" />{new Date(booking.createdAt).toLocaleString()}</Box></td>
+                    <tr
+                      key={booking.id}
+                      onClick={() => setSelectedBooking(booking)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <td>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Person fontSize="small" />
+                          {booking.userName}
+                        </Box>
+                      </td>
+                      <td>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Person fontSize="small" />
+                          {booking.coachName}
+                        </Box>
+                      </td>
+                      <td>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                       <CalendarToday fontSize="small" />
+                            {new Date(booking.date).toLocaleDateString('en-US')}
+                       </Box>
+                      </td>
+                      <td>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <AccessTime fontSize="small" />
+                          {booking.startTime} - {booking.endTime}
+                        </Box>
+                      </td>
+                      <td>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Category fontSize="small" />
+                          {booking.slotType}
+                        </Box>
+                      </td>
+                      <td>
+                        <Chip
+                          variant="soft"
+                          color={getStatusColor(booking.status)}
+                          size="sm"
+                        >
+                          {booking.status}
+                        </Chip>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -228,21 +308,19 @@ export default function BookingHistory() {
           )}
         </Box>
       </Box>
-
       {selectedBooking && (
         <Modal open onClose={() => setSelectedBooking(null)}>
           <ModalDialog aria-labelledby="booking-modal-title" aria-describedby="booking-modal-description" sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}>
-            <ModalClose sx={{ top: 'calc(-1/4 * var(--IconButton-size))', right: 'calc(-1/4 * var(--IconButton-size))', boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)', borderRadius: '50%', bgcolor: 'background.body' }} />
+            <ModalClose sx={{ top: 'calc(-1/4  var(--IconButton-size))',  boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)', borderRadius: '50%', bgcolor: 'background.body' }} />
             <Typography id="booking-modal-title" level="h4" fontWeight="lg" mb={1}>Booking Details</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
               <Typography>User Name:</Typography><Typography>{selectedBooking.userName}</Typography>
               <Typography>Coach Name:</Typography><Typography>{selectedBooking.coachName}</Typography>
-              <Typography>Slot Date:</Typography><Typography>{selectedBooking.date}</Typography>
+              <Typography>Slot Date:</Typography><Typography>{new Date(selectedBooking.date).toLocaleDateString('en-US')}</Typography>
               <Typography>Slot Time:</Typography><Typography>{selectedBooking.startTime} - {selectedBooking.endTime}</Typography>
               <Typography>Type:</Typography><Typography>{selectedBooking.slotType}</Typography>
               <Typography>Group ID:</Typography><Typography>{selectedBooking.groupId || 'N/A'}</Typography>
               <Typography>Status:</Typography><Typography>{selectedBooking.status}</Typography>
-              <Typography>Created At:</Typography><Typography>{new Date(selectedBooking.createdAt).toLocaleString()}</Typography>
             </Box>
           </ModalDialog>
         </Modal>
