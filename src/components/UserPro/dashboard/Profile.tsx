@@ -1,9 +1,11 @@
 
 
+
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
@@ -18,9 +20,8 @@ import Modal from '@mui/joy/Modal'
 import ModalDialog from '@mui/joy/ModalDialog'
 import ModalClose from '@mui/joy/ModalClose'
 import { Add, Edit, Delete, AccountCircle, VerifiedUser } from '@mui/icons-material'
-import { Domain_URL } from '../../config'
-import { useNavigate } from 'react-router-dom'
 
+import { Domain_URL } from '../../config'
 
 interface User {
   userId: string
@@ -135,7 +136,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   const [newChildAge, setNewChildAge] = useState('')
   const [newChildGender, setNewChildGender] = useState('')
   const [userId, setUserId] = useState('')
-  const [childDetails, setChildDetails] = useState<  { childId: string; name: string; age: number; gender: string }[] >([])
+  const [childDetails, setChildDetails] = useState<{ childId: string; name: string; age: number; gender: string }[]>([])
   const [showAddChildForm, setShowAddChildForm] = useState(false)
   const [editableChildId, setEditableChildId] = useState<string | null>(null)
   const [updatedChild, setUpdatedChild] = useState({ name: '', age: '', gender: '' })
@@ -145,6 +146,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   const [emailVerificationData, setEmailVerificationData] = useState<EmailVerificationData>({ orderId: '' })
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
+  const [nameError, setNameError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+  const [childNameError, setChildNameError] = useState('')
+  const [childAgeError, setChildAgeError] = useState('')
+
   const Navigate = useNavigate()
 
   useEffect(() => {
@@ -178,7 +184,56 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail, email])
 
+  const validateName = (name: string) => {
+    if (name.length < 2) {
+      setNameError('Name must be at least 2 characters long')
+      return false
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      setNameError('Name should only contain letters and spaces')
+      return false
+    }
+    setNameError('')
+    return true
+  }
+
+  const validatePhoneNumber = (phone: string) => {
+    if (!/^\d{10}$/.test(phone)) {
+      setPhoneError('Phone number must be 10 digits')
+      return false
+    }
+    setPhoneError('')
+    return true
+  }
+
+  const validateChildName = (name: string) => {
+    if (name.length < 2) {
+      setChildNameError('Name must be at least 2 characters long')
+      return false
+    }
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      setChildNameError('Name should only contain letters and spaces')
+      return false
+    }
+    setChildNameError('')
+    return true
+  }
+
+  const validateChildAge = (age: string) => {
+    const ageNum = parseInt(age, 10)
+    if (isNaN(ageNum) || ageNum < 0 || ageNum > 18) {
+      setChildAgeError('Age must be between 0 and 18')
+      return false
+    }
+    setChildAgeError('')
+    return true
+  }
+
   const updateUserData = async () => {
+    if (!validateName(tempName) || !validatePhoneNumber(tempPhoneNumber)) {
+      return
+    }
+
     try {
       const updatedUserData = {
         name: tempName,
@@ -197,6 +252,10 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   }
 
   const handleUpdateChild = async (childId: string) => {
+    if (!validateChildName(updatedChild.name) || !validateChildAge(updatedChild.age)) {
+      return
+    }
+
     try {
       const updatedChildData = {
         name: updatedChild.name,
@@ -212,7 +271,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   }
 
   const addChild = async () => {
-    if (!newChildName || !newChildAge || !newChildGender) {
+    if (!validateChildName(newChildName) || !validateChildAge(newChildAge) || !newChildGender) {
       return
     }
 
@@ -331,19 +390,24 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                     <Input
                       placeholder="Name"
                       value={tempName}
-                      onChange={(e) => setTempName(e.target.value)}
+                      onChange={(e) => {
+                        setTempName(e.target.value)
+                        validateName(e.target.value)
+                      }}
+                      error={!!nameError}
                     />
+                    {nameError && <Typography color="danger">{nameError}</Typography>}
                     <Input
                       placeholder="Phone Number"
                       value={tempPhoneNumber}
-                      onChange={(e) => setTempPhoneNumber(e.target.value)}
+                      onChange={(e) => {
+                        setTempPhoneNumber(e.target.value)
+                        validatePhoneNumber(e.target.value)
+                      }}
+                      error={!!phoneError}
                     />
-                    {/* <Input
-                      placeholder="Email"
-                      value={tempEmail}
-                      onChange={(e) => setTempEmail(e.target.value)}
-                    /> */}
-                    <Button onClick={updateUserData}>Update Profile</Button>
+                    {phoneError && <Typography color="danger">{phoneError}</Typography>}
+                    <Button onClick={updateUserData} disabled={!!nameError || !!phoneError}>Update Profile</Button>
                   </Box>
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -360,7 +424,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
             </Card>
 
             <Box sx={{ marginTop: 4 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+              <Box sx={{ display: 'flex', 
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 2
+              }}>
                 <Typography level="h3">Add Child</Typography>
                 <Button
                   startDecorator={<Add />}
@@ -371,8 +439,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                 </Button>
               </Box>
 
-              {/* Add the total child count here */}
-              <Typography level="body-lg" sx={{ mb: 2 ,fontWeight: 'bold'}}>
+              <Typography level="body-lg" sx={{ mb: 2, fontWeight: 'bold' }}>
                 Total Children: {childDetails.length}
               </Typography>
 
@@ -383,14 +450,24 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                       <Input
                         placeholder="Child's Name"
                         value={newChildName}
-                        onChange={(e) => setNewChildName(e.target.value)}
+                        onChange={(e) => {
+                          setNewChildName(e.target.value)
+                          validateChildName(e.target.value)
+                        }}
+                        error={!!childNameError}
                       />
+                      {childNameError && <Typography color="danger">{childNameError}</Typography>}
                       <Input
                         placeholder="Child's Age"
                         value={newChildAge}
-                        onChange={(e) => setNewChildAge(e.target.value)}
+                        onChange={(e) => {
+                          setNewChildAge(e.target.value)
+                          validateChildAge(e.target.value)
+                        }}
                         type="number"
+                        error={!!childAgeError}
                       />
+                      {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
                       <select
                         value={newChildGender}
                         onChange={(e) => setNewChildGender(e.target.value)}
@@ -409,7 +486,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
-                      <Button onClick={addChild}>Add Sub Member</Button>
+                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender}>Add Sub Member</Button>
                     </Box>
                   </CardContent>
                 </Card>
@@ -422,22 +499,26 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                       {editableChildId === child.childId ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                           <Input
-                
                             value={updatedChild.name}
-                            onChange={(e) =>
+                            onChange={(e) => {
                               setUpdatedChild({ ...updatedChild, name: e.target.value })
-                            }
+                              validateChildName(e.target.value)
+                            }}
                             placeholder="Name"
+                            error={!!childNameError}
                           />
+                          {childNameError && <Typography color="danger">{childNameError}</Typography>}
                           <Input
                             value={updatedChild.age}
-                            onChange={(e) =>
-                              
+                            onChange={(e) => {
                               setUpdatedChild({ ...updatedChild, age: e.target.value })
-                            }
+                              validateChildAge(e.target.value)
+                            }}
                             type="number"
                             placeholder="Age"
+                            error={!!childAgeError}
                           />
+                          {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
                           <select
                             value={updatedChild.gender}
                             onChange={(e) =>
@@ -458,7 +539,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                           </select>
-                          <Button onClick={() => handleUpdateChild(child.childId)}>
+                          <Button onClick={() => handleUpdateChild(child.childId)} disabled={!!childNameError || !!childAgeError}>
                             Save
                           </Button>
                         </Box>

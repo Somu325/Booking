@@ -1,9 +1,9 @@
 
 
+"use client"
 
-"use client";
-import  { useState } from 'react';
-import axios from 'axios';
+import  { useState } from 'react'
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import {
   TextField,
@@ -16,10 +16,12 @@ import {
   IconButton,
   InputAdornment,
 } from '@mui/material';
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-icons';
 import { Domain_URL } from '../../config';
 import Cookies from 'js-cookie';
+
 
 const theme = createTheme({
   palette: {
@@ -77,7 +79,10 @@ export default function LoginForm() {
 
       // Store user information in localStorage
       localStorage.setItem('email', data.user.email);
-      localStorage.setItem('userId', data.user.userId);
+      localStorage.setItem('userId', data.user.id);
+      console.log( "id is",localStorage.getItem('userId'));
+      console.log( "verifyed is",data.user.id.verified);
+     
 
       // Set the cookie with the user token (assuming your backend sends it)
       if (data.token) {
@@ -202,7 +207,7 @@ export default function LoginForm() {
                 disabled={loading}
                 sx={{ mt: 3, mb: 2, py: 1.5 }}
               >
-                {loading ? <CircularProgress size={24} /> : 'Login'}
+                {loading ? <CircularProgress size={24} /> : 'Sign In'}
               </Button>
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2">
@@ -218,6 +223,7 @@ export default function LoginForm() {
       </Box>
     </ThemeProvider>
   );
+
 }
 
 

@@ -242,9 +242,7 @@ export default function SendEmailOTP() {
               {success}
             </Alert>
           )}
-          <Typography level="body-md" sx={{ mt: 4, textAlign: 'center', color: 'neutral.500' }}>
-            By continuing, you agree to our <Typography component="a" href="#" color="primary">Terms of Service</Typography> and <Typography component="a" href="#" color="primary">Privacy Policy</Typography>.
-          </Typography>
+          
         </Box>
       </Box>
     </CssVarsProvider>

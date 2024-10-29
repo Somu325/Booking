@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -13,7 +14,7 @@ import {
   IconButton 
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import {Domain_URL } from '../../config';
+import { Domain_URL } from '../../config';
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>('');
@@ -23,11 +24,21 @@ const ResetPassword: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const validatePassword = (password: string): boolean => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
+
   const handleResetPassword = async () => {
     const email = typeof window !== 'undefined' ? localStorage.getItem('email') : null;
 
     if (!email) {
       alert('No email found in localStorage.');
+      return;
+    }
+
+    if (!validatePassword(newPassword)) {
+      alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
       return;
     }
 
@@ -65,8 +76,7 @@ const ResetPassword: React.FC = () => {
         height: '100vh', 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center' ,
-       
+        justifyContent: 'center',
       }}
     >
       <Paper 
@@ -98,6 +108,7 @@ const ResetPassword: React.FC = () => {
               autoComplete="new-password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              helperText="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
