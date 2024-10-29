@@ -528,7 +528,7 @@ const RegistrationForm: React.FC = () => {
     try {
       const response = await axios.post(`${Domain_URL}/coach/createCoache`, requiredFields);
       if (response.status === 201) {
-        setSuccess('User registered successfully!');
+        setSuccess('Coach registered successfully!');
         setTimeout(() => navigate('/Coach-login'), 2000);
       }
     } catch (error) {
