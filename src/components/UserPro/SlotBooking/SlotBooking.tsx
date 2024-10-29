@@ -155,7 +155,7 @@ export default function SlotBooking() {
     const fetchSubsets = async () => {
       const userId = localStorage.getItem('userId')
       if (!userId) {
-        setError('User not logged in.')
+        //setError('User not logged in.')
         return
       }
       console.log(userId);
@@ -166,7 +166,7 @@ export default function SlotBooking() {
        
       } catch (error) {
         console.error('Error fetching subusers:', error)
-        setError('Failed to fetch subsets. Please try again.')
+        //setError('Failed to fetch subsets. Please try again.')
       }
     }
 
@@ -206,7 +206,7 @@ export default function SlotBooking() {
       
       if (response.data && response.data.message === "Invalid slot ID") {
         console.error('Error response:', response.data)
-        setError('Invalid slot ID. Please try again.')
+        //setError('Invalid slot ID. Please try again.')
         return
       }
 
@@ -266,7 +266,10 @@ export default function SlotBooking() {
           <Button
             startDecorator={<ArrowBack />}
             variant="outlined"
-            sx={{ mb: 4 }}
+            sx={{ mb: 4 ,backgroundColor:'#0B6BCB',color: 'white','&:hover': {
+              backgroundColor: '#0D8CEB', // lighter blue for hover
+            },
+          }}
             onClick={handleBack}
           >
             Back

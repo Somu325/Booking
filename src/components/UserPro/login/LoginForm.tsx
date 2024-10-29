@@ -101,7 +101,7 @@ export default function LoginForm() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Login failed. Please check your credentials.');
+      setError('Incorrect Email OR Password');
     } finally {
       setLoading(false);
     }

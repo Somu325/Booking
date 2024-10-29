@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import React, { useState } from 'react'
@@ -18,7 +19,7 @@ import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icon
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 
-// Replace with your actual API URL
+// Assume Domain_URL is imported from a config file
 import { Domain_URL } from '../../config';
 
 // Custom theme
@@ -59,85 +60,109 @@ const theme = extendTheme({
       },
     },
   },
-})
+});
 
-export default function RegistrationForm() {
-  const [email, setEmail] = useState('')
-  const [mobileNumber, setMobileNumber] = useState('')
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+export default function Component() {
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [name, setName] = useState('');
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    return re.test(email)
-  }
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const isValid = re.test(email);
+    setEmailError(isValid ? null : 'Please enter a valid email address.');
+    return isValid;
+  };
 
   const validateMobileNumber = (number: string) => {
-    const re = /^[0-9]{10}$/
-    return re.test(number)
-  }
+    const maxDigits = 10;
+    const phoneRegex = new RegExp(`^\\d{1,${maxDigits}}$`);
+    if (!phoneRegex.test(number)) {
+      setMobileNumberError('Please enter a valid mobile number.');
+      return false;
+    }
+    setMobileNumberError(null);
+    return true;
+  };
 
   const validateName = (name: string) => {
-    return name.length >= 2 && name.length <= 50
-  }
+    const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
+    setNameError(isValid ? null : 'Please enter a valid name (only alphabetic characters).');
+    return isValid;
+  };
 
   const validatePassword = (password: string) => {
-    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-    return re.test(password)
-  }
+    const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+    setPasswordError(
+      isValid ? null : 'Password must contain at least 8 characters, including uppercase, lowercase, a number, and a special character.'
+    );
+    return isValid;
+  };
+
+  const validateConfirmPassword = (confirmPassword: string) => {
+    const isMatch = confirmPassword === password;
+    setConfirmPasswordError(isMatch ? null : 'Passwords do not match.');
+    return isMatch;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
 
     if (!email || !mobileNumber || !password || !confirmPassword) {
-      setError('All fields except name are required.')
-      return
+      setError('All fields except name are required.');
+      return;
     }
 
     if (!validateEmail(email)) {
-      setError('Please enter a valid email address.')
-      return
+      setError('Please enter a valid email address.');
+      return;
     }
 
     if (!validateMobileNumber(mobileNumber)) {
-      setError('Please enter a valid 10-digit mobile number.')
-      return
+      setError('Please enter a valid 10-digit mobile number.');
+      return;
     }
 
     if (name && !validateName(name)) {
-      setError('Name should be between 2 and 50 characters.')
-      return
+      setError('Name should be between 2 and 50 alphabetic characters.');
+      return;
     }
 
     if (!validatePassword(password)) {
-      setError('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.')
-      return
+      setError('Please enter a valid password.');
+      return;
     }
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
-      return
+    if (!validateConfirmPassword(confirmPassword)) {
+      setError('Please make sure your passwords match.');
+      return;
     }
 
-    const userData = { email, name, mobileNumber, password }
+    const userData = { email, name, mobileNumber, password };
 
     try {
-      const response = await axios.post(`${Domain_URL}/user/signup`, userData)
+      const response = await axios.post(`${Domain_URL}/user/signup`, userData);
       if (response.status === 201) {
-        setSuccess('User registered successfully!')
-        setTimeout(() => navigate('/user-login'), 2000)
+        setSuccess('User registered successfully!');
+        setTimeout(() => navigate('/user-login'), 2000);
       }
     } catch (error) {
-      setError('Email already registered.')
-      console.error(error)
+      setError('Email already registered.');
+      console.error(error);
     }
-  }
+  };
 
   return (
     <CssVarsProvider theme={theme}>
@@ -167,7 +192,7 @@ export default function RegistrationForm() {
           }}
         >
           <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
-            Create Account
+            Create An Account
           </Typography>
 
           <FormControl sx={{ mb: 2 }}>
@@ -175,21 +200,37 @@ export default function RegistrationForm() {
             <Input
               placeholder="Email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                validateEmail(e.target.value);
+              }}
               type="email"
               required
               startDecorator={<Email />}
             />
+            {emailError && (
+              <Typography color="danger" fontSize="sm">
+                {emailError}
+              </Typography>
+            )}
           </FormControl>
 
           <FormControl sx={{ mb: 2 }}>
-            <FormLabel>Name (Optional)</FormLabel>
+            <FormLabel>Name</FormLabel>
             <Input
               placeholder="Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                validateName(e.target.value);
+              }}
               startDecorator={<Person />}
             />
+            {nameError && (
+              <Typography color="danger" fontSize="sm">
+                {nameError}
+              </Typography>
+            )}
           </FormControl>
 
           <FormControl sx={{ mb: 2 }}>
@@ -197,11 +238,19 @@ export default function RegistrationForm() {
             <Input
               placeholder="Mobile Number"
               value={mobileNumber}
-              onChange={(e) => setMobileNumber(e.target.value)}
+              onChange={(e) => {
+                setMobileNumber(e.target.value);
+                validateMobileNumber(e.target.value);
+              }}
               type="tel"
               required
               startDecorator={<Phone />}
             />
+            {mobileNumberError && (
+              <Typography color="danger" fontSize="sm">
+                {mobileNumberError}
+              </Typography>
+            )}
           </FormControl>
 
           <FormControl sx={{ mb: 2 }}>
@@ -209,7 +258,10 @@ export default function RegistrationForm() {
             <Input
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validatePassword(e.target.value);
+              }}
               type={showPassword ? 'text' : 'password'}
               required
               startDecorator={<Lock />}
@@ -219,6 +271,11 @@ export default function RegistrationForm() {
                 </IconButton>
               }
             />
+            {passwordError && (
+              <Typography color="danger" fontSize="sm">
+                {passwordError}
+              </Typography>
+            )}
           </FormControl>
 
           <FormControl sx={{ mb: 3 }}>
@@ -226,7 +283,10 @@ export default function RegistrationForm() {
             <Input
               placeholder="Confirm Password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                validateConfirmPassword(e.target.value);
+              }}
               type={showConfirmPassword ? 'text' : 'password'}
               required
               startDecorator={<Lock />}
@@ -236,6 +296,11 @@ export default function RegistrationForm() {
                 </IconButton>
               }
             />
+            {confirmPasswordError && (
+              <Typography color="danger" fontSize="sm">
+                {confirmPasswordError}
+              </Typography>
+            )}
           </FormControl>
 
           <Button type="submit" fullWidth sx={{ mt: 2, py: 1.5 }}>
@@ -258,8 +323,8 @@ export default function RegistrationForm() {
             <Typography
               component="a"
               href="/user-login"
-              fontWeight="bold"
               color="primary"
+              sx={{ cursor: 'pointer', fontWeight: 'bold' }}
             >
               Log In
             </Typography>
@@ -267,5 +332,7 @@ export default function RegistrationForm() {
         </Box>
       </Box>
     </CssVarsProvider>
-  )
+  );
 }
+
+
