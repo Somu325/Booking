@@ -474,7 +474,7 @@ const RegistrationForm: React.FC = () => {
     // Phone validation
     if (name === 'phoneNumber') {
       if (!validatePhoneNumber(value)) {
-        setPhoneError('Please enter a valid 10-digit phone number.');
+        setPhoneError('Please enter a valid phone number.');
       } else {
         setPhoneError(null);
       }
@@ -487,7 +487,7 @@ const RegistrationForm: React.FC = () => {
   };
 
   const validatePhoneNumber = (number: string) => {
-    const phoneRegex = /^\d{10}$/; // Adjust regex for your requirements (10 digits)
+    const phoneRegex = /^\d{11}$/; // Adjust regex for your requirements (10 digits)
     return phoneRegex.test(number);
   };
 
@@ -627,7 +627,7 @@ const RegistrationForm: React.FC = () => {
               placeholder="Phone Number"
               value={formData.phoneNumber}
               onChange={(e) => {
-                if (e.target.value.length <= 10) {
+                if (e.target.value.length <= 11) {
                   handleChange(e);
                 }
               }}
