@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -197,7 +195,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               {isEmailVerified ? (
                 <VerifiedUser sx={{ marginLeft: 1, color: 'success.main' }} />
               ) : (
-                <Button variant="plain" color="primary" onClick={() => setShowEmailModal(true)} sx={{ marginLeft: 1, backgroundColor: 'blue', color: 'black' }}>
+                <Button variant="plain" color="primary" onClick={() => setShowEmailModal(true)} sx={{ marginLeft: 1, backgroundColor:'skyblue' , color: 'black' }}>
                   Verify Email
                 </Button>
               )}
@@ -209,19 +207,19 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </Typography>
             )}
 
-          
+           
             {showAlert && (
               <Card variant="outlined" sx={{ mt: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
                 <CardContent>
-                  <Alert color="warning" sx={{ mb: 2 }}>
+                  <Alert color="warning" sx={{ mb: 2, fontSize:'20px'}}>
                     <b>You cannot book a slot until your email/phone number is verified. Please verify your email/phone number to continue.</b>
                   </Alert>
-                  <Button onClick={handleCloseAlert} variant="outlined" sx={{ backgroundColor: 'blue',color:'black' }}>OK</Button>
+                  <Button onClick={handleCloseAlert} variant="outlined" sx={{ backgroundColor: 'green',color:'black', width:'80px',marginLeft:'350px'}}>OK</Button>
                 </CardContent>
               </Card>
             )}
 
-           
+            
             <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -241,7 +239,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </ModalDialog>
             </Modal>
 
-          
+            
             <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -249,7 +247,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
               </ModalDialog>
             </Modal>
 
-           
+       
             <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />

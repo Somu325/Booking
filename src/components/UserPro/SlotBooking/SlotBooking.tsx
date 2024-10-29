@@ -158,10 +158,12 @@ export default function SlotBooking() {
         setError('User not logged in.')
         return
       }
+      console.log(userId);
 
       try {
         const response = await axios.get(`${Domain_URL}/children/user/${userId}`)
         setSubusers(response.data)
+       
       } catch (error) {
         console.error('Error fetching subusers:', error)
         setError('Failed to fetch subsets. Please try again.')
@@ -374,7 +376,7 @@ export default function SlotBooking() {
               <Typography><strong>Name:</strong> {coachDetails.name}</Typography>
               {/* <Typography><strong>Expertise:</strong> {coachDetails.expertise}</Typography> */}
               <Typography><strong>Profession:</strong> {coachDetails.profession}</Typography>
-              <Typography><strong>Mobile Numer:</strong> {coachDetails.phoneNumber}</Typography>
+              <Typography><strong>Mobile Number:</strong> {coachDetails.phoneNumber}</Typography>
              {/* <Typography><strong>Experience:</strong> {coachDetails.experience}</Typography> */}
               <Typography><strong>Bio:</strong> {coachDetails.bio}</Typography>
             </Box>
@@ -435,19 +437,7 @@ export default function SlotBooking() {
                   </Option>
                 ))}
               </Select>
-              {/* <Select
-                placeholder="Select subuser 2 (optional)"
-                value={selectedSubuser2}
-                onChange={(_, newValue) => setSelectedSubuser2(newValue as string)}
-                sx={{ mb: 2 }}
-              >
-                <Option value="">No subuser</Option>
-                {subsets.map((subuser) => (
-                  <Option key={subuser.childId} value={subuser.childId}>
-                    {subuser.name}
-                  </Option>
-                ))}
-              </Select> */}
+             
               <Button
                 onClick={handleConfirmBooking}
                 sx={{ mt: 2 }}
@@ -466,4 +456,3 @@ export default function SlotBooking() {
     </CssVarsProvider>
   )
 }
-
