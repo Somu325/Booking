@@ -34,7 +34,7 @@ interface Coach {
   id: string
   name: string
   expertise: string
-  profession: string
+  sport: string
   age: number
   phoneNumber: string
   experience: string
@@ -378,7 +378,7 @@ export default function SlotBooking() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography><strong>Name:</strong> {coachDetails.name}</Typography>
               {/* <Typography><strong>Expertise:</strong> {coachDetails.expertise}</Typography> */}
-              <Typography><strong>Profession:</strong> {coachDetails.profession}</Typography>
+              <Typography><strong>Sport:</strong> {coachDetails.sport}</Typography>
               <Typography><strong>Mobile Number:</strong> {coachDetails.phoneNumber}</Typography>
              {/* <Typography><strong>Experience:</strong> {coachDetails.experience}</Typography> */}
               <Typography><strong>Bio:</strong> {coachDetails.bio}</Typography>
