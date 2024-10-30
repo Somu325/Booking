@@ -64,65 +64,69 @@ const Schedule = () => {
   };
   const coachid = localStorage.getItem('coachId');
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // Prepare the payload
-  const payload = {
-    coachId: coachid,
-    startTime,
-    duration: 60,
-    endTime,
-    slotType,
-    ...(scheduleType === 'daily'
-        ? { date }
-        : {
-            startdate: startDate,
-            enddate: endDate,
-            daysOfWeek,
-        }),
-    ...(comment ? { comment } : {}), // Include comment only if it exists
-  };
+    // Prepare the payload
+    const payload = {
+        coachId: coachid,
+        startTime,
+        duration: 60,
+        endTime,
+        slotType,
+        ...(scheduleType === 'daily'
+            ? { date }
+            : {
+                startdate: startDate,
+                enddate: endDate,
+                daysOfWeek,
+            }),
+        ...(slotType === 'personal' && { comment }),
+    };
 
-  try {
-    let endpoint;
+    try {
+        let endpoint;
 
-    if (scheduleType === 'daily') {
-      endpoint = `${Domain_URL}/slot/createSlot`;
-    } else {
-      endpoint = `${Domain_URL}/slot/create-weekly-slots`;
+        if (scheduleType === 'daily') {
+            endpoint = `${Domain_URL}/slot/createSlot`;
+        } else {
+            endpoint = `${Domain_URL}/slot/create-weekly-slots`;
+        }
+
+        const response = await axios.post(endpoint, payload, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        console.log('Response from API:', response.data);
+
+        // Check if the response indicates an error based on the message
+        if (response.data.message) {
+            // If there's a message indicating slots exist, show it as an error
+            setErrorMessage(response.data.message); // Set error message from response
+            setSuccessMessage(''); // Clear any previous success messages
+            return; // Early return to prevent further processing
+        }
+
+        // If we reach here, it means the operation was successful
+        if (scheduleType === 'daily') {
+            setSlots(response.data); // Use the entire response if it is a single slot
+        }
+        setSuccessMessage('Slots generated successfully!'); // Show success message
+        setErrorMessage(''); // Clear any previous error messages
+
+    } catch (error: any) {
+        console.error('Error creating slots:', error);
+        console.log('Full error:', error); 
+
+        // Handle unexpected errors
+        if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.message || 'An unexpected error occurred.'); // Set error message
+        } else {
+            setErrorMessage('An unexpected error occurred.'); // Fallback error message
+        }
+        setSuccessMessage(''); // Clear success message on error
     }
-
-    const response = await axios.post(endpoint, payload, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    console.log('Response from API:', response.data);
-
-    // Check if the response status is OK
-    if (response.status === 201) {
-      if (scheduleType === 'daily') {
-        setSlots(response.data); // Use the entire response if it is a single slot
-      }
-      setSuccessMessage('Slots generated successfully!'); // Show success message
-      setErrorMessage(''); // Clear any previous error messages
-    }
-  } catch (error: any) {
-    console.error('Error creating slots:', error);
-    console.log('Full error:', error); 
-
-    // Check if there's an error response and set the error message accordingly
-    if (error.response && error.response.data && error.response.data.error) {
-      setErrorMessage(error.response.data.error); // Set error message from response
-    } else {
-      setErrorMessage('An unexpected error occurred.'); // Fallback error message
-    }
-    setSuccessMessage(''); // Clear success message on error
-  }
 };
-
-  
-  
 
 
   return (
