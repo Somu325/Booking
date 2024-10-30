@@ -64,61 +64,66 @@ const Schedule = () => {
   };
   const coachid = localStorage.getItem('coachId');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const payload = {
-        coachId: coachid,
-        startTime,
-        duration: 60,
-        endTime,
-        slotType,
-        ...(scheduleType === 'daily'
-            ? { date }
-            : {
-                startdate: startDate,
-                enddate: endDate,
-                daysOfWeek,
-            }),
-        ...(slotType === 'personal' && { comment }),
-    };
-
-    try {
-        let endpoint;
-
-        if (scheduleType === 'daily') {
-            endpoint = `${Domain_URL}/api/slot/createSlot`;
-        } else {
-            endpoint = `${Domain_URL}/api/slot/create-weekly-slots`;
-        }
-
-        const response = await axios.post(endpoint, payload, {
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        console.log('Response from API:', response.data);
-
-        if (scheduleType === 'daily') {
-            setSlots(response.data); // Use the entire response if it is a single slot
-            setSuccessMessage('Slots generated successfully!'); // Show success message
-            setErrorMessage(''); // Clear any previous error messages
-        } else {
-            setSuccessMessage('Weekly slots generated successfully!'); // Show success message for weekly
-            setErrorMessage(''); // Clear any previous error messages
-        }
-    } catch (error: any) {
-        console.error('Error creating slots:', error);
-        // Log the entire error for debugging
-        console.log('Full error:', error); 
-        // Set the error message from the backend response, if available
-        if (error.response && error.response.data && error.response.data.error) {
-            setErrorMessage(error.response.data.error); // Set error message from response
-        } else {
-            setErrorMessage('An unexpected error occurred.'); // Fallback error message
-        }
-        setSuccessMessage(''); // Clear success message on error
-    }
+  // Prepare the payload
+  const payload = {
+    coachId: coachid,
+    startTime,
+    duration: 60,
+    endTime,
+    slotType,
+    ...(scheduleType === 'daily'
+        ? { date }
+        : {
+            startdate: startDate,
+            enddate: endDate,
+            daysOfWeek,
+        }),
+    ...(comment ? { comment } : {}), // Include comment only if it exists
   };
+
+  try {
+    let endpoint;
+
+    if (scheduleType === 'daily') {
+      endpoint = `${Domain_URL}/slot/createSlot`;
+    } else {
+      endpoint = `${Domain_URL}/slot/create-weekly-slots`;
+    }
+
+    const response = await axios.post(endpoint, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    console.log('Response from API:', response.data);
+
+    // Check if the response status is OK
+    if (response.status === 201) {
+      if (scheduleType === 'daily') {
+        setSlots(response.data); // Use the entire response if it is a single slot
+      }
+      setSuccessMessage('Slots generated successfully!'); // Show success message
+      setErrorMessage(''); // Clear any previous error messages
+    }
+  } catch (error: any) {
+    console.error('Error creating slots:', error);
+    console.log('Full error:', error); 
+
+    // Check if there's an error response and set the error message accordingly
+    if (error.response && error.response.data && error.response.data.error) {
+      setErrorMessage(error.response.data.error); // Set error message from response
+    } else {
+      setErrorMessage('An unexpected error occurred.'); // Fallback error message
+    }
+    setSuccessMessage(''); // Clear success message on error
+  }
+};
+
+  
+  
+
 
   return (
     <Box sx={{
