@@ -26,7 +26,8 @@ import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Domain_URL } from '../../config';
+
 
 // Define the Booking interface with the new date property
 interface Booking {
@@ -85,7 +86,7 @@ export default function CoachAnalytics() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const response = await axios.get<Booking[]>(`http://localhost:4000/api/coaches/${CoachId}/bookings`);
+      const response = await axios.get<Booking[]>(`${Domain_URL}/coaches/${CoachId}/bookings`);
       setBookings(response.data);
       setError(null);
     } catch (err) {
@@ -186,7 +187,7 @@ export default function CoachAnalytics() {
               },
             }}
           >
-            <ArrowBackIcon/>Back to Dashboard
+            Back to Dashboard
           </Button>
 
           {/* Display logged-in coach information */}
