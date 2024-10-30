@@ -236,9 +236,7 @@ const [upcomingSlots ] = useState<Slot[]>([]);
 
  
 
-  const handleCreateSlotsClick = () => {
-    navigate('/Create-slot'); // Navigate to the create-slots page
-  };
+
 
   const handleProfileClick = () => {
     navigate('/Coach-Profile');
