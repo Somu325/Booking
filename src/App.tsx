@@ -16,7 +16,7 @@ import ManageCoach from "./components/admin/ManageCoach/ManageCoach";
 import ManageUser from "./components/admin/user/ManageUser";
 import BookingList from "./components/admin/BookingList/BookingList";
 import CoachProfile from "./components/Coach/Coachprofile/Coachprofile";
-import TimeSlotPicker from "./components/Coach/Createslots/Createslots";
+
 import CombinedApp from "./components/Coach/Homepage/Homepage";
 import Loginn from "./components/Coach/login/Login";
 import Reset from "./components/Coach/Resetpassword/Resetpassword";
@@ -53,7 +53,7 @@ function App() {
         <Route path="/Coach-Profile" element={<CoachProfile />} />
         <Route path="/Coach-Dashboard" element={<CombinedApp />} />
         <Route path="/Email-Otpp" element={<SendOtpp />} />
-        <Route path="/Create-slot" element={<TimeSlotPicker />} />
+
         <Route path="/Coach-Analytics" element={<CoachAnalytics />} />
         <Route path="/Adminlogin" element={<Login />} />
         <Route path="/Schedule" element={<Schedule/>} />
