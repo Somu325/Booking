@@ -77,11 +77,55 @@
 //   const [showPassword, setShowPassword] = useState(false);
 //   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 //   const navigate = useNavigate();
+//   const [nameError, setNameError] = useState<string | null>(null); // New state for name validation
+//   const [emailError, setEmailError] = useState<string | null>(null); // Email error state
+//   const [phoneError, setPhoneError] = useState<string | null>(null); // Phone error state
+
 
 //   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 //     const { name, value } = e.target;
 //     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+//     // Name validation
+//     if (name === 'name') {
+//       const alphanumericNameRegex = /^[a-zA-Z\s]*$/; // Only letters and spaces
+//       if (!alphanumericNameRegex.test(value)) {
+//         setNameError('Name should contain only alphabets');
+//       } else {
+//         setNameError(null);
+//       }
+//     }
+
+//     // Email validation
+//     if (name === 'email') {
+//       if (!validateEmail(value)) {
+//         setEmailError('Please enter a valid email address.');
+//       } else {
+//         setEmailError(null);
+//       }
+//     }
+
+//     // Phone validation
+//     if (name === 'phoneNumber') {
+//       if (!validatePhoneNumber(value)) {
+//         setPhoneError('Please enter a valid phone number.');
+//       } else {
+//         setPhoneError(null);
+//       }
+//     }
 //   };
+
+//   const validateEmail = (email: string) => {
+//     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+//     return emailRegex.test(email);
+//   };
+
+//   const validatePhoneNumber = (number: string) => {
+//     const phoneRegex = /^\d{11}$/; // Adjust regex for your requirements (10 digits)
+//     return phoneRegex.test(number);
+//   };
+
+
 
 //    const handleSubmit = async (event: React.FormEvent) => {
 //     event.preventDefault();
@@ -90,7 +134,7 @@
 //       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
 
 //     if (!alphanumericNameRegex.test(formData.name)) {
-//     setError('Name should contain only letters and spaces.');
+//     setError('');
 //    return;
 //    }
  
@@ -118,7 +162,7 @@
 //     try {
 //       const response = await axios.post(`${Domain_URL}/coach/createCoache`, requiredFields);
 //       if (response.status === 201) {
-//         setSuccess('User registered successfully!');
+//         setSuccess('Coach registered successfully!');
 //         setTimeout(() => navigate('/Coach-login'), 2000);
 //       }
 //     } catch (error) {
@@ -169,16 +213,20 @@
 //             </Alert>
 //           )}
 
-//           <FormControl sx={{ mb: 2 }}>
+//            <FormControl sx={{ mb: 2 }}>
 //             <FormLabel>Name</FormLabel>
 //             <Input
 //               name="name"
 //               placeholder="Name"
 //               value={formData.name}
 //               onChange={handleChange}
-//               required
 //               startDecorator={<Person />}
 //             />
+//             {nameError && (
+//               <Typography color="danger" fontSize="sm">
+//                 {nameError}
+//               </Typography>
+//             )}
 //           </FormControl>
 
 //           <FormControl sx={{ mb: 2 }}>
@@ -205,22 +253,28 @@
 //           </FormControl>
 
 //           <FormControl sx={{ mb: 2 }}>
-//                   <FormLabel>
-//              Phone Number <Typography component="span" color="danger">*</Typography>
+//             <FormLabel>
+//               Phone Number <Typography component="span" color="danger">*</Typography>
 //             </FormLabel>
 //             <Input
-//             name="phoneNumber"
-//             placeholder="Phone Number"
+//               name="phoneNumber"
+//               placeholder="Phone Number"
 //               value={formData.phoneNumber}
-//              onChange={(e) => {
-//              if (e.target.value.length <= 10) {
-//             handleChange(e);
-//              }
-//             }}
-//           required
-//             startDecorator={<Phone />}
+//               onChange={(e) => {
+//                 if (e.target.value.length <= 11) {
+//                   handleChange(e);
+//                 }
+//               }}
+//               required
+//               startDecorator={<Phone />}
 //             />
+//             {phoneError && (
+//               <Typography color="danger" fontSize="sm">
+//                 {phoneError}
+//               </Typography>
+//             )}
 //           </FormControl>
+
 //           <FormControl sx={{ mb: 2 }}>
 //             <FormLabel>
 //               Email <Typography component="span" color="danger">*</Typography>
@@ -233,6 +287,11 @@
 //               required
 //               startDecorator={<Email />}
 //             />
+//             {emailError && (
+//               <Typography color="danger" fontSize="sm">
+//                 {emailError}
+//               </Typography>
+//             )}
 //           </FormControl>
 
 //           <FormControl sx={{ mb: 2 }}>
@@ -363,9 +422,6 @@
 // };
 
 // export default RegistrationForm;
-
-
-
 "use client";
 
 import React, { useState } from 'react';
@@ -527,13 +583,34 @@ const RegistrationForm: React.FC = () => {
 
     try {
       const response = await axios.post(`${Domain_URL}/coach/createCoache`, requiredFields);
+      
       if (response.status === 201) {
         setSuccess('Coach registered successfully!');
         setTimeout(() => navigate('/Coach-login'), 2000);
       }
-    } catch (error) {
-      setError('An error occurred during sign-up. Please try again.');
-      console.error(error);
+    } catch (error: any) {
+      if (error.response) {
+        // Handle specific status codes
+        const { status } = error.response;
+    
+        if (status === 400) {
+          setError('This email is already registered.');
+        } else if (status === 404) {
+          setError('The gateway is incorrect. Please check the URL.');
+        } else if (status === 500) {
+          setError('The server is currently offline. Please try again later.');
+        } else {
+          setError('An unexpected error occurred. Please try again.');
+        }
+      } else if (error.request) {
+        // Network error or no response received
+        setError('No response from the server. Please check your connection.');
+      } else {
+        // Any other errors (like code issues)
+        setError(`An error occurred: ${error.message}`);
+      }
+      
+      console.error('Error during sign-up:', error);
     }
   };
 
@@ -788,4 +865,3 @@ const RegistrationForm: React.FC = () => {
 };
 
 export default RegistrationForm;
-
