@@ -249,6 +249,11 @@ const [upcomingSlots ] = useState<Slot[]>([]);
   };
 
 
+  const handleScheduler = () => {
+    navigate('/Schedule'); // Navigate to the CoachAnalytics page
+  };
+
+
   const handleLogoutClick = () => {
     navigate('/Coach-login');
   }
@@ -314,6 +319,12 @@ const [upcomingSlots ] = useState<Slot[]>([]);
       text: 'Analytics',
       icon: <AnalyticsIcon sx={{ color: 'blue' }} />,
       onClick: handleAnalyticsClick, // Set the onClick handler here
+    },
+
+    {
+      text: 'Scheduler',
+      icon: <AnalyticsIcon sx={{ color: 'blue' }} />,
+      onClick: handleScheduler, // Set the onClick handler here
     },
 
     
