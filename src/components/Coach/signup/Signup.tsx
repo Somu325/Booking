@@ -500,7 +500,7 @@ const RegistrationForm: React.FC = () => {
       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
 
     if (!alphanumericNameRegex.test(formData.name)) {
-    setError('Name should contain only letters and spaces.');
+    setError('');
    return;
    }
  
