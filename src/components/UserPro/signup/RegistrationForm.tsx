@@ -90,7 +90,7 @@ export default function Component() {
     const maxDigits = 10;
     const phoneRegex = new RegExp(`^\\d{1,${maxDigits}}$`);
     if (!phoneRegex.test(number)) {
-      setMobileNumberError('Please enter a valid mobile number.');
+      setMobileNumberError('Please enter a valid 11 digit phone number.');
       return false;
     }
     setMobileNumberError(null);
@@ -99,21 +99,21 @@ export default function Component() {
 
   const validateName = (name: string) => {
     const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
-    setNameError(isValid ? null : 'Please enter a valid name (only alphabetic characters).');
+    setNameError(isValid ? null : 'Name shold contain only alphabets');
     return isValid;
   };
 
   const validatePassword = (password: string) => {
     const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
     setPasswordError(
-      isValid ? null : 'Password must contain at least 8 characters, including uppercase, lowercase, a number, and a special character.'
+      isValid ? null : 'Password should contain minimum 8-16  characters.'
     );
     return isValid;
   };
 
   const validateConfirmPassword = (confirmPassword: string) => {
     const isMatch = confirmPassword === password;
-    setConfirmPasswordError(isMatch ? null : 'Passwords do not match.');
+    setConfirmPasswordError(isMatch ? null : 'Enter same password.');
     return isMatch;
   };
 
@@ -192,7 +192,7 @@ export default function Component() {
           }}
         >
           <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
-            Create An Account
+            Create an Account
           </Typography>
 
           <FormControl sx={{ mb: 2 }}>
