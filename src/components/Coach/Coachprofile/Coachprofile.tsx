@@ -228,6 +228,15 @@ export default function CoachProfile() {
               InputLabelProps={{ style: { fontSize: '1.2rem' } }}
               inputProps={{ style: { fontSize: '1.2rem' } }}
             />
+             <TextField
+              label="Email"
+              fullWidth
+              value={updatedDetails.email || coachDetails?.email}
+              onChange={handleInputChange('email')}
+              sx={{ mb: 2 }}
+              InputLabelProps={{ style: { fontSize: '1.2rem' } }}
+              inputProps={{ style: { fontSize: '1.2rem' } }}
+            />
             <TextField
               label="Sport"
               fullWidth
