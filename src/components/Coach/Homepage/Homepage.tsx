@@ -307,11 +307,6 @@ const [upcomingSlots ] = useState<Slot[]>([]);
       icon: <AccountCircleIcon />,
       onClick: handleProfileClick,
     },
-    {
-      text: 'Create Slots', // This is the Create Slots button
-      icon: <CalendarTodayIcon />,
-      onClick: handleCreateSlotsClick, // Navigates to create slots page
-    },
 
     {
       text: 'Analytics',
