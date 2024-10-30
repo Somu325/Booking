@@ -102,7 +102,7 @@ button.close {
 /* Form Element Styling */
 label {
   display: block;
-  margin: 10px 0;
+/*   margin: 10px 0; */
   font-size: 14px;
 }
 
@@ -110,7 +110,7 @@ input[type='text'],
 input[type='email'],
 select {
   width: 100%;
-  padding: 8px;
+  padding: 10px 2px 13px 10px;
   margin-top: 5px;
   font-size: 14px;
   /* border: 1px solid #ccc; */
