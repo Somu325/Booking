@@ -793,8 +793,10 @@ const RegistrationForm: React.FC = () => {
           </FormControl>
 
           <FormControl sx={{ mb: 2 }}>
-        <FormLabel>Password</FormLabel>
-        <Input
+            <FormLabel>
+              Password <Typography component="span" color="danger">*</Typography>
+            </FormLabel>
+            <Input
           name="password"
           placeholder="Password"
           type={showPassword ? 'text' : 'password'}
@@ -802,9 +804,9 @@ const RegistrationForm: React.FC = () => {
           onChange={handleChange}
           required
           startDecorator={<Lock />}
-          endDecorator={
-            <Button
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              endDecorator={
+                <Button
+                  onClick={() => setShowPassword(!showPassword)}
                   sx={{
                     minWidth: 'auto',
                     p: 0,
@@ -815,16 +817,18 @@ const RegistrationForm: React.FC = () => {
                     },
                   }}
                 >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
                 </Button>
-          }
-        />
-        {passwordError && <Typography color="danger">{passwordError}</Typography>}
-      </FormControl>
+              }
+            />
+             {passwordError && <Typography color="danger">{passwordError}</Typography>}
+          </FormControl>
 
-      <FormControl sx={{ mb: 2 }}>
-        <FormLabel>Confirm Password</FormLabel>
-        <Input
+          <FormControl sx={{ mb: 2 }}>
+            <FormLabel>
+              Confirm Password <Typography component="span" color="danger">*</Typography>
+            </FormLabel>
+            <Input
           name="confirmPassword"
           placeholder="Confirm Password"
           type={showConfirmPassword ? 'text' : 'password'}
@@ -832,8 +836,8 @@ const RegistrationForm: React.FC = () => {
           onChange={handleChange}
           required
           startDecorator={<Lock />}
-          endDecorator={
-            <Button
+              endDecorator={
+                <Button
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   sx={{
                     minWidth: 'auto',
@@ -847,10 +851,12 @@ const RegistrationForm: React.FC = () => {
                 >
                   {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                 </Button>
-          }
-        />
-        {confirmPasswordError && <Typography color="danger">{confirmPasswordError}</Typography>}
-      </FormControl>
+              }
+            />
+             {confirmPasswordError && <Typography color="danger">{confirmPasswordError}</Typography>}
+          </FormControl>
+
+         
           <Button type="submit" fullWidth sx={{ mt: 2, py: 1.5 }}>
             Sign Up
           </Button>
