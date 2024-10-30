@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -49,6 +48,7 @@ const Reset: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ newPassword: string; confirmPassword: string }>({
     newPassword: '',
     confirmPassword: '',
@@ -105,6 +105,10 @@ const Reset: React.FC = () => {
 
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   return (
@@ -173,23 +177,42 @@ const Reset: React.FC = () => {
                 fullWidth
                 name="confirmPassword"
                 label="Confirm Password"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={handleToggleConfirmPasswordVisibility}
+                        edge="end"
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 4, mb: 2, py: 1.5, fontSize: '1.1rem' }}
-                disabled={loading}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
               >
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ mt: 4, mb: 2, py: 1, px: 3, fontSize: '1rem' }}
+                  disabled={loading}
+                >
+                  {loading ? 'Resetting...' : 'Reset Password'}
+                </Button>
+              </Box>
             </Box>
           </Box>
         </Paper>
