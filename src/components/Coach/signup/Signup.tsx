@@ -422,6 +422,8 @@
 // };
 
 // export default RegistrationForm;
+
+
 "use client";
 
 import React, { useState } from 'react';
@@ -502,40 +504,9 @@ const RegistrationForm: React.FC = () => {
   const [nameError, setNameError] = useState<string | null>(null); // New state for name validation
   const [emailError, setEmailError] = useState<string | null>(null); // Email error state
   const [phoneError, setPhoneError] = useState<string | null>(null); // Phone error state
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
 
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-
-    // Name validation
-    if (name === 'name') {
-      const alphanumericNameRegex = /^[a-zA-Z\s]*$/; // Only letters and spaces
-      if (!alphanumericNameRegex.test(value)) {
-        setNameError('Name should contain only alphabets');
-      } else {
-        setNameError(null);
-      }
-    }
-
-    // Email validation
-    if (name === 'email') {
-      if (!validateEmail(value)) {
-        setEmailError('Please enter a valid email address.');
-      } else {
-        setEmailError(null);
-      }
-    }
-
-    // Phone validation
-    if (name === 'phoneNumber') {
-      if (!validatePhoneNumber(value)) {
-        setPhoneError('Please enter a valid phone number.');
-      } else {
-        setPhoneError(null);
-      }
-    }
-  };
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -543,32 +514,67 @@ const RegistrationForm: React.FC = () => {
   };
 
   const validatePhoneNumber = (number: string) => {
-    const phoneRegex = /^\d{11}$/; // Adjust regex for your requirements (10 digits)
+    const phoneRegex = /^\d{11}$/; // 11-digit phone number validation
     return phoneRegex.test(number);
   };
 
+  const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
 
 
-   const handleSubmit = async (event: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  
+    // Name validation
+    if (name === 'name') {
+      const alphanumericNameRegex = /^[a-zA-Z\s]*$/;
+      setNameError(
+        !alphanumericNameRegex.test(value) ? 'Name should contain only alphabets.' : null
+      );
+    }
+  
+    // Email validation
+    if (name === 'email') {
+      setEmailError(!validateEmail(value) ? 'Please enter a valid email address.' : null);
+    }
+  
+    // Phone number validation
+    if (name === 'phoneNumber') {
+      setPhoneError(!validatePhoneNumber(value) ? 'Please enter a valid phone number.' : null);
+    }
+  
+    // Password validation
+    if (name === 'password') {
+      setPasswordError(
+        !passwordRegex.test(value)
+          ? 'Password must be 8-16 characters long'
+          : null
+      );
+  
+      // Check confirmPassword after changing password
+      if (formData.confirmPassword && value !== formData.confirmPassword) {
+        setConfirmPasswordError('Passwords do not match.');
+      } else {
+        setConfirmPasswordError(null); // Clear error if they match
+      }
+    }
+  
+    // Confirm password validation
+    if (name === 'confirmPassword') {
+      setConfirmPasswordError(
+        value !== formData.password ? 'Passwords do not match.' : null
+      );
+    }
+  };
+  
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const alphanumericNameRegex = /^[a-zA-Z\s]*$/; // Updated to allow only letters and spaces
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,16}$/;
-
-    if (!alphanumericNameRegex.test(formData.name)) {
-    setError('');
-   return;
-   }
- 
-     if (!passwordRegex.test(formData.password)) {
-     setError('Password must be 8-16 characters long, containing letters, numbers, and special characters.');
-   return;
-   }
-
-    if (formData.password !== formData.confirmPassword) {
-    setError('Passwords do not match.');
-    return;
-   }
+    if (passwordError || confirmPasswordError || nameError || emailError || phoneError) {
+      setError('Please fix the errors before submitting.');
+      return;
+    }
 
 
     const requiredFields = {
@@ -787,67 +793,48 @@ const RegistrationForm: React.FC = () => {
           </FormControl>
 
           <FormControl sx={{ mb: 2 }}>
-            <FormLabel>
-              Password <Typography component="span" color="danger">*</Typography>
-            </FormLabel>
-            <Input
-              name="password"
-              placeholder="Password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
-              required
-              startDecorator={<Lock />}
-              endDecorator={
-                <Button
-                  onClick={() => setShowPassword(!showPassword)}
-                  sx={{
-                    minWidth: 'auto',
-                    p: 0,
-                    backgroundColor: 'transparent',
-                    color: 'primary.500',
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                    },
-                  }}
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </Button>
-              }
-            />
-          </FormControl>
+        <FormLabel>Password</FormLabel>
+        <Input
+          name="password"
+          placeholder="Password"
+          type={showPassword ? 'text' : 'password'}
+          value={formData.password}
+          onChange={handleChange}
+          required
+          startDecorator={<Lock />}
+          endDecorator={
+            <Button
+              onClick={() => setShowPassword(!showPassword)}
+              sx={{ backgroundColor: 'transparent' }}
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </Button>
+          }
+        />
+        {passwordError && <Typography color="danger">{passwordError}</Typography>}
+      </FormControl>
 
-          <FormControl sx={{ mb: 2 }}>
-            <FormLabel>
-              Confirm Password <Typography component="span" color="danger">*</Typography>
-            </FormLabel>
-            <Input
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              startDecorator={<Lock />}
-              endDecorator={
-                <Button
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  sx={{
-                    minWidth: 'auto',
-                    p: 0,
-                    backgroundColor: 'transparent',
-                    color: 'primary.500',
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                    },
-                  }}
-                >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                </Button>
-              }
-            />
-          </FormControl>
-
+      <FormControl sx={{ mb: 2 }}>
+        <FormLabel>Confirm Password</FormLabel>
+        <Input
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          type={showConfirmPassword ? 'text' : 'password'}
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+          startDecorator={<Lock />}
+          endDecorator={
+            <Button
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              sx={{ backgroundColor: 'transparent' }}
+            >
+              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+            </Button>
+          }
+        />
+        {confirmPasswordError && <Typography color="danger">{confirmPasswordError}</Typography>}
+      </FormControl>
           <Button type="submit" fullWidth sx={{ mt: 2, py: 1.5 }}>
             Sign Up
           </Button>
