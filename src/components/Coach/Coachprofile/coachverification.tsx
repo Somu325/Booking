@@ -191,7 +191,7 @@ export default function CoachVerificationPage() {
                 }}
               >
                 <Alert color="warning" sx={{ mb: 2, fontSize: '20px', textAlign: 'center' }}>
-                  <b>You cannot book a slot until your email/phone number is verified. Please verify your email/phone number to continue.</b>
+                  <b>You cannot generate slots until your email is verified. Please verify your email/phone number to continue.</b>
                 </Alert>
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                   <Button
