@@ -26,6 +26,7 @@ import CoachAnalytics from "./components/Coach/CoachAnalytics/CoachAnalytics"
 import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
 import Generateslots from "./components/GenerateWeeklySlots/GenWeekSlots";
 import CoachVerification from "./components/Coach/Coachprofile/coachverification";
+import Schedule from "./components/GenerateWeeklySlots/scheduler";
 
 
 //import CombinedApp1 from "./components/Coach/Homepage/Homepage1";
@@ -55,6 +56,7 @@ function App() {
         <Route path="/Create-slot" element={<TimeSlotPicker />} />
         <Route path="/Coach-Analytics" element={<CoachAnalytics />} />
         <Route path="/Adminlogin" element={<Login />} />
+        <Route path="/Schedule" element={<Schedule/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/AdminOverview" element={<AdminOverview/>} />
         <Route path="/Analyst" element={<RealTime/>} />
