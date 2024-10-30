@@ -22,6 +22,8 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import moment from 'moment';
 import { Domain_URL } from '../config';
+import { useNavigate } from 'react-router-dom';
+import { ArrowBack } from '@mui/icons-material';
 
 interface Slot {
   slotId: string;
@@ -46,7 +48,9 @@ const Schedule = () => {
   const [scheduleType, setScheduleType] = useState<'daily' | 'weekly'>('daily');
   const [comment, setComment] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
+  
   // Reset relevant states when schedule type changes
   const handleScheduleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newScheduleType = e.target.value as 'daily' | 'weekly';
@@ -141,9 +145,13 @@ const Schedule = () => {
       flexDirection: 'column',
       alignItems: 'center'
     }}>
-      <IconButton sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }} onClick={() => { /* Your back logic here */ }}>
-        <ArrowBackIcon />
+      <IconButton
+      sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}
+        onClick={() => navigate('/Coach-Dashboard')}
+      >
+   <ArrowBack />
       </IconButton>
+
 
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
         Create Your Schedule
