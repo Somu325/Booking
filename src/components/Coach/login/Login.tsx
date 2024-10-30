@@ -256,7 +256,7 @@ export default function LoginForm() {
       
       }
       else{
-       navigate('/Coach-Profile');
+       navigate('/coach-verify');
 
       }
 
