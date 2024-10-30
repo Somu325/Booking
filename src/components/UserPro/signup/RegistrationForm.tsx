@@ -87,7 +87,7 @@ export default function Component() {
   };
 
   const validateMobileNumber = (number: string) => {
-    const maxDigits = 10;
+    const maxDigits = 11;
     const phoneRegex = new RegExp(`^\\d{1,${maxDigits}}$`);
     if (!phoneRegex.test(number)) {
       setMobileNumberError('Please enter a valid 11 digit phone number.');
@@ -99,14 +99,14 @@ export default function Component() {
 
   const validateName = (name: string) => {
     const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
-    setNameError(isValid ? null : 'Name shold contain only alphabets');
+    setNameError(isValid ? null : 'Name sholud contain only alphabets');
     return isValid;
   };
 
   const validatePassword = (password: string) => {
     const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
     setPasswordError(
-      isValid ? null : 'Password should contain minimum 8-16  characters.'
+      isValid ? null : 'Password should contains minimum 8-16  characters.'
     );
     return isValid;
   };
