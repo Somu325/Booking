@@ -25,6 +25,8 @@ import Sign from "./components/Coach/signup/Signup";
 import CoachAnalytics from "./components/Coach/CoachAnalytics/CoachAnalytics"
 import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
 import Generateslots from "./components/GenerateWeeklySlots/GenWeekSlots";
+import CoachVerification from "./components/Coach/Coachprofile/coachverification";
+
 
 //import CombinedApp1 from "./components/Coach/Homepage/Homepage1";
 
@@ -60,7 +62,7 @@ function App() {
         <Route path="/ManageUser" element={<ManageUser/>} />
         <Route path="/Booking" element={<BookingList/>} />
         <Route path="/Week-Slots" element={<Generateslots/>} />
-     
+        <Route path="/coach-verify" element={<CoachVerification/>} />
       </Routes>
     </Router>
   );
