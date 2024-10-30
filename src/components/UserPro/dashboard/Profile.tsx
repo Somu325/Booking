@@ -359,7 +359,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData)
         setIsEditMode(false)
         fetchUserData()
-        alert("New email verified. Please login with your new email and the same password.")
+       alert("New email verified. Please login with your new email and the same password.")
         // Navigate to userlogin page with alert message
         navigate('/user-login', { state: { message: "New email verified. Please login with your new email and the same password." } })
       }
@@ -540,7 +540,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
-                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender}>Add Sub Member</Button>
+                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender}>Add Child</Button>
                     </Box>
                   </CardContent>
                 </Card>
@@ -698,7 +698,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
               >
                 <ModalClose />
                 <Typography level="h4" color="success">
-                  OTP Verified Successfully!
+                  OTP Verified Successfully! 
+           New email verified. Please login with your new email and the same password.
                 </Typography>
               </ModalDialog>
             </Modal>
