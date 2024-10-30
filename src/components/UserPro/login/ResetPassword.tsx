@@ -79,7 +79,7 @@ export default function ResetPassword() {
     if (!validatePassword(newPassword)) {
       setErrors(prev => ({
         ...prev,
-        newPassword: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.'
+        newPassword: 'Password must contains atleast 8-16 characters '
       }));
       return;
     }
@@ -99,7 +99,7 @@ export default function ResetPassword() {
         navigate('/user-login');
       }
     } catch (error) {
-      alert('There was an error resetting the password. Please try again.');
+      alert('User not register. Please register .');
       console.error(error);
     } finally {
       setLoading(false);
@@ -151,6 +151,7 @@ export default function ResetPassword() {
                 label="New Password"
                 type={showPassword ? 'text' : 'password'}
                 id="newPassword"
+                sx={{}}
                 autoComplete="new-password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
