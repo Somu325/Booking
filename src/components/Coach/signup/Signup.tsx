@@ -804,11 +804,19 @@ const RegistrationForm: React.FC = () => {
           startDecorator={<Lock />}
           endDecorator={
             <Button
-              onClick={() => setShowPassword(!showPassword)}
-              sx={{ backgroundColor: 'transparent' }}
-            >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
-            </Button>
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  sx={{
+                    minWidth: 'auto',
+                    p: 0,
+                    backgroundColor: 'transparent',
+                    color: 'primary.500',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </Button>
           }
         />
         {passwordError && <Typography color="danger">{passwordError}</Typography>}
@@ -826,11 +834,19 @@ const RegistrationForm: React.FC = () => {
           startDecorator={<Lock />}
           endDecorator={
             <Button
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              sx={{ backgroundColor: 'transparent' }}
-            >
-              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-            </Button>
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  sx={{
+                    minWidth: 'auto',
+                    p: 0,
+                    backgroundColor: 'transparent',
+                    color: 'primary.500',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                    },
+                  }}
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </Button>
           }
         />
         {confirmPasswordError && <Typography color="danger">{confirmPasswordError}</Typography>}
