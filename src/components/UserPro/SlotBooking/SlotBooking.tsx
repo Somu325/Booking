@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -120,7 +121,6 @@ export default function SlotBooking() {
   const [coachDetails, setCoachDetails] = useState<Coach | null>(null)
   const [subsets, setSubusers] = useState<Subset[]>([])
   const [selectedSubuser1, setSelectedSubuser1] = useState<string>('')
-  //const [selectedSubuser2, setSelectedSubuser2] = useState<string>('')
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null)
 
   const navigate = useNavigate()
@@ -144,7 +144,6 @@ export default function SlotBooking() {
         setSlots(filteredSlots)
       } catch (error) {
         console.error('Error fetching slots:', error)
-       // setError('Failed to fetch slots. Please try again.')
       } finally {
         setIsLoading(false)
       }
@@ -155,7 +154,6 @@ export default function SlotBooking() {
     const fetchSubsets = async () => {
       const userId = localStorage.getItem('userId')
       if (!userId) {
-        //setError('User not logged in.')
         return
       }
       console.log(userId);
@@ -166,7 +164,6 @@ export default function SlotBooking() {
        
       } catch (error) {
         console.error('Error fetching subusers:', error)
-        //setError('Failed to fetch subsets. Please try again.')
       }
     }
 
@@ -206,7 +203,6 @@ export default function SlotBooking() {
       
       if (response.data && response.data.message === "Invalid slot ID") {
         console.error('Error response:', response.data)
-        //setError('Invalid slot ID. Please try again.')
         return
       }
 
@@ -221,12 +217,17 @@ export default function SlotBooking() {
       setError('Booking successful!')
     } catch (error) {
       console.error('Error booking slot:', error)
-      setError('This slot has already been booked. Please refresh page and select a different time slot')
+      setError('This slot has already been booked. Please select a different time slot')
       if (axios.isAxiosError(error) && error.response) {
         console.error('Error response:', error.response.data)
-       // setError('Booking failed. Please try again.')
+        setError('This slot has already been booked. Please select a different time slot')
+        // Automatically close the pop-up after 3 seconds
+        setTimeout(() => {
+          setIsSubsetModalOpen(false)
+          setError(null)
+        }, 3000)
       } else {
-       // setError('Booking failed. Please try again.')
+        setError('Booking failed. Please try again.')
       }
     }
   }
@@ -242,7 +243,6 @@ export default function SlotBooking() {
       setCoachDetails(response.data)
     } catch (error) {
       console.error('Error fetching coach details:', error)
-     // setError('Failed to fetch coach details. Please try again.')
     }
     setIsModalOpen(true)
   }
@@ -278,15 +278,6 @@ export default function SlotBooking() {
           <Typography level="h2" sx={{ mb: 4, textAlign: 'center' }}>
             Select a Slot for {new Date(selectedDate!).toLocaleDateString()}
           </Typography>
-          {error && (
-            <Typography
-              level="body-md"
-              color={error.includes('successful') ? 'success' : 'danger'}
-              sx={{ mb: 4, textAlign: 'center' }}
-            >
-              {error}
-            </Typography>
-          )}
           <Grid container spacing={3}>
             {slots.length > 0 ? (
               slots.map((slot) => (
@@ -378,10 +369,8 @@ export default function SlotBooking() {
           {coachDetails ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Typography><strong>Name:</strong> {coachDetails.name}</Typography>
-              {/* <Typography><strong>Expertise:</strong> {coachDetails.expertise}</Typography> */}
               <Typography><strong>Sport:</strong> {coachDetails.sport}</Typography>
               <Typography><strong>Mobile Number:</strong> {coachDetails.phoneNumber}</Typography>
-             {/* <Typography><strong>Experience:</strong> {coachDetails.experience}</Typography> */}
               <Typography><strong>Bio:</strong> {coachDetails.bio}</Typography>
             </Box>
           ) : (
@@ -413,7 +402,7 @@ export default function SlotBooking() {
             variant="outlined"
             sx={{
               top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/4 * var(--IconButton-size))',
+              right: 'calc(-1/25 * var(--IconButton-size))',
               boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
               borderRadius: '50%',
               bgcolor: 'background.body',
@@ -435,6 +424,7 @@ export default function SlotBooking() {
                 sx={{ mb: 2 }}
               >
                 <Option value="" disabled>Add Child</Option>
+                
                 {subsets.map((subuser) => (
                   <Option key={subuser.childId} value={subuser.childId}>
                     {subuser.name}
@@ -455,6 +445,44 @@ export default function SlotBooking() {
           ) : (
             <Typography>No Childrens available. Please Add Childrens In Your Profile</Typography>
           )}
+        </Sheet>
+      </Modal>
+
+      <Modal
+        aria-labelledby="error-modal-title"
+        aria-describedby="error-modal-desc"
+        open={!!error}
+        onClose={() => setError(null)}
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Sheet
+          variant="outlined"
+          sx={{
+            width: 400,
+            maxWidth: '90%',
+            borderRadius: 'md',
+            p: 3,
+            boxShadow: 'lg',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <ModalClose
+            variant="outlined"
+            sx={{
+              top: 'calc(-1/4 * var(--IconButton-size))',
+              right: 'calc(-1/25 * var(--IconButton-size))',
+              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
+              borderRadius: '50%',
+              bgcolor: 'background.body',
+            }}
+          />
+          <Typography component="h2" id="error-modal-title" level="h4" textColor="inherit" fontWeight="lg" mb={2}>
+            Booking Status
+          </Typography>
+          <Typography id="error-modal-desc" textColor="text.tertiary">
+            {error}
+          </Typography>
         </Sheet>
       </Modal>
     </CssVarsProvider>
