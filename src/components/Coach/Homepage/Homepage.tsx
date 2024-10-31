@@ -555,7 +555,7 @@ const Coachdashboard: React.FC = () => {
   const fetchSlots = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${Domain_URL}/slots/${coachId}`);
+      const response = await axios.get(`${Domain_URL}/slots-g-p/${coachId}`);
       setSlots(response.data);
       setError(null);
     } catch (err: any) {
