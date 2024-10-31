@@ -115,6 +115,10 @@
   padding: 2rem;
 }
 
+.logout-item {
+  color: red;
+}
+
 .calendar-icon {
   font-size: 2rem;
   cursor: pointer;
