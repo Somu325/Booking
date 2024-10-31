@@ -613,13 +613,13 @@ const Coachdashboard: React.FC = () => {
             <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
-            <li onClick={() => {
-              localStorage.removeItem('coachId');
-              localStorage.removeItem('email');
-              navigate('/Coach-login');
+           <li className="logout" onClick={() => {
+             localStorage.removeItem('coachId');
+             localStorage.removeItem('email');
+             navigate('/Coach-login');
             }}>
-              Logout
-            </li>
+             Logout
+          </li>
           </ul>
         </nav>
       </div>
