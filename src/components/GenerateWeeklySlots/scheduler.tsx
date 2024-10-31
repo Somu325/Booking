@@ -19,7 +19,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import moment from 'moment';
 import { Domain_URL } from '../config';
-
+import { ArrowBack } from '@mui/icons-material';
 // interface Slot {
 //   slotId: string;
 //   date: string; // Keep as string to match API response
@@ -42,7 +42,8 @@ const Schedule = () => {
   const [comment, setComment] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+ const navigate = useNavigate();
+  
   const handleScheduleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newScheduleType = e.target.value as 'daily' | 'weekly';
     setScheduleType(newScheduleType);
@@ -133,8 +134,11 @@ const Schedule = () => {
       flexDirection: 'column',
       alignItems: 'center'
     }}>
-      <IconButton sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }} onClick={() => { /* Your back logic here */ }}>
-        <ArrowBackIcon />
+     <IconButton
+      sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}
+        onClick={() => navigate('/Coach-Dashboard')}
+      >
+   <ArrowBack />
       </IconButton>
 
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
