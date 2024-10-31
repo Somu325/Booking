@@ -541,7 +541,6 @@ const Coachdashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const coachId = localStorage.getItem('coachId');
-  const email = localStorage.getItem('email');
   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
 
   const handleNext = () => setStartDate((prev) => addDays(prev, 5));
@@ -553,15 +552,6 @@ const Coachdashboard: React.FC = () => {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
 
-  const handleProfileClick = () => navigate('/Coach-Profile');
-  const handleAnalyticsClick = () => navigate('/Coach-Analytics');
-  const handleScheduler = () => navigate('/Schedule');
-  const handleLogoutClick = () => {
-    localStorage.removeItem('coachId');
-    localStorage.removeItem('email');
-    navigate('/Coach-login');
-  };
-
   const fetchSlots = async () => {
     setLoading(true);
     try {
@@ -570,7 +560,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('No slots available');
+      setError('Failed to load slots. Please try again later.');
       setSlots([]);
     } finally {
       setLoading(false);
@@ -597,6 +587,8 @@ const Coachdashboard: React.FC = () => {
         return 'status-upcoming'; // yellow
       case 'cancelled':
         return 'status-cancelled'; // gray
+      case 'booked':
+        return 'status-booked'; // blue
       default:
         return '';
     }
@@ -610,16 +602,14 @@ const Coachdashboard: React.FC = () => {
         </button>
         <nav>
           <ul>
-            <li onClick={handleProfileClick}>
-              Profile
-            </li>
-            <li onClick={handleAnalyticsClick}>
-              Analytics
-            </li>
-            <li onClick={handleScheduler}>
-              Scheduler
-            </li>
-            <li onClick={handleLogoutClick}>
+            <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
+            <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
+            <li onClick={() => navigate('/Schedule')}>Scheduler</li>
+            <li onClick={() => {
+              localStorage.removeItem('coachId');
+              localStorage.removeItem('email');
+              navigate('/Coach-login');
+            }}>
               Logout
             </li>
           </ul>
@@ -669,11 +659,11 @@ const Coachdashboard: React.FC = () => {
                 className="filter-dropdown"
               >
                 <option value="All">All</option>
-
                 <option value="completed">Completed</option>
                 <option value="available">Available</option>
                 <option value="upcoming">Upcoming</option>
                 <option value="cancelled">Cancelled</option>
+                <option value="booked">Booked</option>
               </select>
             </div>
           </div>
