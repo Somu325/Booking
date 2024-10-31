@@ -224,24 +224,24 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Enable loading state
     setError(''); // Reset error message
-
+  
     try {
       const response = await axios.post(
         `${Domain_URL}/coach/coachLogin`,
         { email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
-
+  
       console.log('Login successful:', response.data);
-
+  
       // Store coach data in local storage
       localStorage.setItem('coachId', response.data.coach.coachId);
       localStorage.setItem('email', response.data.coach.email);
-
+  
       // Store token in cookies (if provided)
       if (response.data.token) {
         Cookies.set('token', response.data.token, {
@@ -251,24 +251,46 @@ export default function LoginForm() {
         });
         console.log('Token stored:', Cookies.get('token'));
       }
-       if(response.data.coach.emailVerified === true){
-      navigate('/Coach-Dashboard');
-      
+  
+      if (response.data.coach.emailVerified === true) {
+        navigate('/Coach-Dashboard');
+      } else {
+        navigate('/coach-verify');
       }
-      else{
-       navigate('/coach-verify');
-
-      }
-
-      // Navigate to Coach Dashboard on success
-     // navigate('/Coach-Dashboard');
+  
     } catch (error) {
       console.error('Login error:', error);
-      setError('Invalid email or password. Please try again.');
+  
+      // Check for specific error responses
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with a status code outside the 2xx range
+          if (error.response.status === 401) {
+            setError('Incorrect Email OR Password');
+          } else if (error.response.status === 404) {
+            setError('You are not registered. Please sign up.');
+          } else if (error.response.status === 500) {
+            setError('The server is currently offline. Please try again later.');
+          } else {
+            setError('An unexpected error occurred. Please try again.');
+          }
+        } else if (error.request) {
+          // Request was made but no response was received
+          setError('No response from the server. Please check your connection.');
+        } else {
+          // Something happened in setting up the request
+          setError('An error occurred while logging in. Please try again.');
+        }
+      } else {
+        // Not an Axios error
+        setError('An error occurred. Please try again later.');
+      }
     } finally {
       setLoading(false); // Disable loading state
     }
   };
+
+      
 
   return (
     <ThemeProvider theme={theme}>
