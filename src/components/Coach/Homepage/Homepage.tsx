@@ -560,7 +560,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('Failed to load slots. Please try again later.');
+      setError('No slots are availble for the selected date');
       setSlots([]);
     } finally {
       setLoading(false);
