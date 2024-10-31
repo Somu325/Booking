@@ -549,12 +549,6 @@ const Coachdashboard: React.FC = () => {
     if (newStartDate >= new Date()) setStartDate(newStartDate);
   };
 
-    const handleLogoutClick = () => {
-    localStorage.removeItem('coachId');
-    localStorage.removeItem('email');
-    navigate('/Coach-login');
-  };
-
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
 
@@ -566,7 +560,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('No slots are available');
+      setError('Failed to load slots. Please try again later.');
       setSlots([]);
     } finally {
       setLoading(false);
@@ -577,24 +571,32 @@ const Coachdashboard: React.FC = () => {
     if (coachId) fetchSlots();
   }, [coachId]);
 
+  const convertToLocalDate = (dateString: string) => {
+    const localDate = new Date(dateString);
+    return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+  };
+
   const filteredSlots = slots.filter((slot) => {
-    const slotDate = new Date(slot.date);
-    return (filter === 'All' || slot.status === filter) && slotDate.toDateString() === selectedDate.toDateString();
+    const slotDate = convertToLocalDate(slot.date);
+    const isStatusMatch = filter === 'All' || slot.status === filter;
+    const isSlotTypeMatch = filter === 'personal' ? slot.slotType === 'personal' : true;
+
+    return isStatusMatch && isSlotTypeMatch && slotDate.toDateString() === selectedDate.toDateString();
   });
 
   // Function to get the class name based on slot status
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'available':
-        return 'status-available'; // green
+        return 'status-available';
       case 'completed':
-        return 'status-completed'; // red
+        return 'status-completed';
       case 'upcoming':
-        return 'status-upcoming'; // yellow
+        return 'status-upcoming';
       case 'cancelled':
-        return 'status-cancelled'; // gray
+        return 'status-cancelled';
       case 'booked':
-        return 'status-booked'; // blue
+        return 'status-booked';
       default:
         return '';
     }
@@ -611,9 +613,13 @@ const Coachdashboard: React.FC = () => {
             <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
-           <li onClick={handleLogoutClick} style={{ color: 'red' }}>
-                Logout
-              </li>
+            <li onClick={() => {
+              localStorage.removeItem('coachId');
+              localStorage.removeItem('email');
+              navigate('/Coach-login');
+            }}>
+              Logout
+            </li>
           </ul>
         </nav>
       </div>
@@ -622,7 +628,7 @@ const Coachdashboard: React.FC = () => {
           <div className="menu-icon" onClick={toggleMenu}>
             &#9776;
           </div>
-          <h2>Welcome, Coach</h2>      
+          <h2>Welcome, Coach</h2>
           <div className="notification-icon-container">
             <div className="notification-icon">&#128276;</div>
             <div className="notification-cancel-line"></div>
@@ -663,14 +669,14 @@ const Coachdashboard: React.FC = () => {
                 <option value="All">All</option>
                 <option value="completed">Completed</option>
                 <option value="available">Available</option>
-{/*                 <option value="upcoming">Upcoming</option>
-                <option value="cancelled">Cancelled</option> */}
+                <option value="upcoming">Upcoming</option>
+                <option value="cancelled">Cancelled</option>
                 <option value="booked">Booked</option>
+                <option value="personal">Personal</option>
               </select>
             </div>
           </div>
 
-          {/* Slots Table */}
           <div className="slots-table-container">
             {loading ? (
               <div className="loading">Loading slots...</div>
