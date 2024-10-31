@@ -1,0 +1,294 @@
+/* General Container Styling */
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: #f0f4f8;
+  font-family: Arial, sans-serif;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Side Menu Styles */
+.side-menu {
+  position: fixed;
+  left: -100%; /* Hidden by default */
+  top: 0;
+  width: 250px; /* Fixed width for desktops */
+  height: 100%;
+  background-color: #535a62;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  transition: left 0.3s;
+  z-index: 1000;
+}
+
+.side-menu.open {
+  left: 0; /* Slide in */
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.close-btn:hover {
+  transform: scale(1.2); /* Slight zoom effect on hover */
+}
+
+/* Side Menu Navigation */
+.side-menu nav ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+
+.side-menu nav ul li {
+  margin: 1rem 0;
+  cursor: pointer;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+/* Content Layout */
+.content {
+  flex: 1;
+  margin-left: 10%; /* Matches side menu width */
+  transition: margin-left 0.3s;
+}
+
+.side-menu:not(.open) ~ .content {
+  margin-left: 0;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.6em 1.5rem;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+.menu-icon {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.notification-icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-icon {
+  font-size: 24px;
+}
+
+.notification-cancel-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: red;
+  transform: rotate(-45deg);
+}
+
+/* Main Content Styling */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 2rem;
+}
+
+.calendar-icon {
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.calendar-filter-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-evenly;
+}
+
+.calendar {
+  display: flex;
+  align-items: center;
+  gap: 8rem;
+}
+
+.dates-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-grow: 1;
+}
+
+.date {
+  font-size: 1rem;
+  color: #007aff;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.date.selected {
+  background-color: #007bffb3;
+  color: #fff;
+  font-weight: bold;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #007aff;
+  padding: 0.2rem 0.5rem;
+  transition: color 0.3s;
+}
+
+.arrow:hover {
+  color: #005bb5;
+}
+
+/* Filter container styles */
+
+.filter-container {
+  display: flex;
+  align-items: center;
+}
+
+.filter-label {
+  margin-right: 0.5rem;
+  margin-left: 6rem;
+  font-weight: bold;
+}
+
+.filter-dropdown {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Slots Table Container */
+.slots-table-container {
+  width: 95%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+
+.slots-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.slots-table th,
+.slots-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.slots-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.slots-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.slots-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.loading,
+.error,
+.no-slots {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+}
+
+.status-available {
+  color: green;
+}
+
+.status-completed {
+  color: red;
+}
+
+
+.status-upcoming {
+  color: rgb(8, 178, 235);
+}
+.status-cancelled {
+  color: rgb(0, 0, 0);
+}
+@media (max-width: 768px) {
+  /* Side Menu */
+  .side-menu {
+    width: 100%; /* Full width on smaller screens */
+    padding: 1.5rem;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  /* Header */
+  .header {
+    display: flex; /* Ensure header is a flex container */
+    flex-direction: row; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+    padding: 0.6em;
+    width: 100%; /* Ensure it takes full width */
+  }
+
+  /* Calendar */
+  .calendar {
+    display: flex; /* Make sure calendar is also a flex container */
+    flex-direction: row; /* Stack items */
+    gap: 1rem;
+  }
+
+  /* Filter and Calendar Stack */
+  .calendar-filter-container {
+    display: flex; /* Make sure filter container is a flex container */
+    flex-direction: column;
+    gap: 3rem;
+    align-items: stretch;
+  }
+
+  /* Slots Table */
+  .slots-table-container {
+    padding-top: 50px;
+  }
+
+  .slots-table th,
+  .slots-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
