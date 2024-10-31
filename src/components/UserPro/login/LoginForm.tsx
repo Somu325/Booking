@@ -1,10 +1,10 @@
 
-
 "use client"
 
 import  { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   TextField,
   Button,
@@ -65,25 +65,24 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
       const { data } = await axios.post(`${Domain_URL}/user/login`, {
         email,
         password,
       });
       console.log('Login successful:', data);
-
+  
       // Store user information in localStorage
       localStorage.setItem('email', data.user.email);
       localStorage.setItem('userId', data.user.id);
-      console.log( "id is",localStorage.getItem('userId'));
-      console.log( "verifyed is",data.user.id.verified);
-     
-
+      console.log("id is", localStorage.getItem('userId'));
+      console.log("verified is", data.user.verified);
+  
       // Set the cookie with the user token (assuming your backend sends it)
       if (data.token) {
         Cookies.set('token', data.token, {
@@ -93,7 +92,7 @@ export default function LoginForm() {
         });
         console.log('Token stored in cookie:', Cookies.get('token'));
       }
-
+  
       if (data.user.verified === false) {
         navigate('/verifyemail');
       } else {
@@ -101,7 +100,31 @@ export default function LoginForm() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Incorrect Email OR Password');
+  
+      // Check for specific error responses
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with a status code outside the 2xx range
+          if (error.response.status === 401) {
+            setError('Incorrect email or password.');
+          } else if (error.response.status === 404) {
+            setError('You are not registered. Please sign up.');
+          } else if (error.response.status === 500) {
+            setError('The server is currently offline. Please try again later.');
+          } else {
+            setError('An unexpected error occurred. Please try again.');
+          }
+        } else if (error.request) {
+          // Request was made but no response was received
+          setError('The server is currently offline. Please try again later.');
+        } else {
+          // Something happened in setting up the request
+          setError('An error occurred while logging in. Please try again.');
+        }
+      } else {
+        // Not an Axios error
+        setError('An error occurred. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -190,15 +213,14 @@ export default function LoginForm() {
                   ),
                 }}
               />
-              <Button
-                component="a"
-                href="/Sendotp"
-                variant="text"
-                color="primary"
-                sx={{ textAlign: 'right', display: 'block', mt: 1 }}
-              >
-                Forgot Password?
-              </Button>
+
+               <div style={{ display: 'flex', justifyContent: 'end' }}>
+             <Link to="/Sendotp">
+            <button>
+               Forgot Password?
+           </button>
+             </Link>
+                </div>
               <Button
                 type="submit"
                 fullWidth

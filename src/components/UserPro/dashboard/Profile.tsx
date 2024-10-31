@@ -201,11 +201,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   const validateName = (name: string) => {
     if (name.length < 2) {
-      setNameError('Name must be at least 2 characters long')
+      setNameError('Name should contain only Alphabets')
       return false
     }
     if (!/^[a-zA-Z\s]+$/.test(name)) {
-      setNameError('Name should only contain letters and spaces')
+      setNameError('Name should contain only Alphabets')
       return false
     }
     setNameError('')
@@ -213,21 +213,22 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   }
 
   const validatePhoneNumber = (phone: string) => {
-    if (!/^\d{10}$/.test(phone)) {
-      setPhoneError('Phone number must be 10 digits')
+    if (!/^\d{11}$/.test(phone)) {
+      setPhoneError('Plase enter a valid Phone number ')
       return false
     }
     setPhoneError('')
     return true
   }
 
+
   const validateChildName = (name: string) => {
     if (name.length < 2) {
-      setChildNameError('Name must be at least 2 characters long')
+      setChildNameError('Name should contain only Alphabets')
       return false
     }
     if (!/^[a-zA-Z\s]+$/.test(name)) {
-      setChildNameError('Name should only contain letters and spaces')
+      setChildNameError('Name should contain only Alphabets')
       return false
     }
     setChildNameError('')
@@ -236,8 +237,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   const validateChildAge = (age: string) => {
     const ageNum = parseInt(age, 10)
-    if (isNaN(ageNum) || ageNum < 0 || ageNum > 18) {
-      setChildAgeError('Age must be between 0 and 18')
+    if (isNaN(ageNum) || ageNum < 3 || ageNum > 18) {
+      setChildAgeError('Age must be between 3 and 18')
       return false
     }
     setChildAgeError('')
@@ -359,9 +360,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData)
         setIsEditMode(false)
         fetchUserData()
-       alert("New email verified. Please login with your new email and the same password.")
-        // Navigate to userlogin page with alert message
-        navigate('/user-login', { state: { message: "New email verified. Please login with your new email and the same password." } })
+       
+        if (response.status === 200) {
+    
+          setTimeout(() => navigate('/user-login'), 5000); // 5-second delay
+        }
       }
     } catch (error) {
       console.error('Error verifying OTP:', error)
@@ -447,14 +450,18 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                     />
                     {nameError && <Typography color="danger">{nameError}</Typography>}
                     <Input
-                      placeholder="Phone Number"
-                      value={tempPhoneNumber}
-                      onChange={(e) => {
-                        setTempPhoneNumber(e.target.value)
-                        validatePhoneNumber(e.target.value)
-                      }}
-                      error={!!phoneError}
-                    />
+  placeholder="Phone Number"
+  value={tempPhoneNumber}
+  onChange={(e) => {
+    const input = e.target.value;
+    // Allow only up to 11 digits
+    if (input.length <= 11 && /^\d*$/.test(input)) {
+      setTempPhoneNumber(input);
+      validatePhoneNumber(input);
+    }
+  }}
+  error={!!phoneError}
+/>
                     <Input
                        placeholder="Email"
                        value={tempEmail}
@@ -698,9 +705,11 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
               >
                 <ModalClose />
                 <Typography level="h4" color="success">
-                  OTP Verified Successfully! 
-           New email verified. Please login with your new email and the same password.
-                </Typography>
+                 OTP Verified Successfully! 
+                 </Typography>
+              <Typography level="body-md" color="success" sx={{ mt: 1 }}>
+               New email verified. Please login with your new email and the same password.
+              </Typography>
               </ModalDialog>
             </Modal>
 
