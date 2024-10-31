@@ -354,7 +354,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
 import { Textarea } from '@mui/joy';
-import './PasswordField.css'; // Import the CSS file here
+
 
 // Custom theme
 const theme = extendTheme({
