@@ -387,7 +387,7 @@ const Schedule = () => {
       console.log('Full error:', error);
 
       if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message || 'An unexpected error occurred.'); // Set error message
+        setErrorMessage(error.response.data.message || 'Slots already exist for the specified date and time range.'); // Set error message
       } else {
         setErrorMessage('Slots already exist for the specified date and time range.'); // Fallback error message
       }
