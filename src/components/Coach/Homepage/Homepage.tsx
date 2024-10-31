@@ -669,10 +669,9 @@ const Coachdashboard: React.FC = () => {
                 <option value="All">All</option>
                 <option value="completed">Completed</option>
                 <option value="available">Available</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="cancelled">Cancelled</option>
+              
                 <option value="booked">Booked</option>
-                <option value="personal">Personal</option>
+        
               </select>
             </div>
           </div>
@@ -688,7 +687,7 @@ const Coachdashboard: React.FC = () => {
               <table className="slots-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
+        
                     <th>Time</th>
                     <th>Status</th>
                     <th>Duration</th>
@@ -698,7 +697,7 @@ const Coachdashboard: React.FC = () => {
                 <tbody>
                   {filteredSlots.map((slot, index) => (
                     <tr key={index}>
-                      <td>{format(new Date(slot.date), 'MMM d, yyyy')}</td>
+                    
                       <td>{`${slot.startTime} - ${slot.endTime}`}</td>
                       <td className={getStatusClass(slot.status)}>{slot.status}</td>
                       <td>{slot.duration} mins</td>
