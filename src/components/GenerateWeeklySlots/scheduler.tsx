@@ -11,9 +11,6 @@ import {
   TextField,
   Grid,
   Button,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
   RadioGroup,
   FormControlLabel,
@@ -22,116 +19,107 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import moment from 'moment';
 import { Domain_URL } from '../config';
-import { useNavigate } from 'react-router-dom';
-import { ArrowBack } from '@mui/icons-material';
 
-interface Slot {
-  slotId: string;
-  date: string; // Keep as string to match API response
-  startTime: string;
-  endTime: string;
-  duration: number;
-  slotType: string;
-  coachId: string; // Added for completeness based on your data
-}
+// interface Slot {
+//   slotId: string;
+//   date: string; // Keep as string to match API response
+//   startTime: string;
+//   endTime: string;
+//   duration: number;
+//   slotType: string;
+//   coachId: string; // Added for completeness based on your data
+// }
 
 const Schedule = () => {
   const [startTime, setStartTime] = useState('09:00');
-  const [errorMessage, setErrorMessage] = useState('');
   const [endTime, setEndTime] = useState('10:00');
-  const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
-  const [startDate, setStartDate] = useState(moment().format('YYYY-MM-DD'));
-  const [endDate, setEndDate] = useState(moment().add(7, 'days').format('YYYY-MM-DD'));
+  const [date, setDate] = useState(moment().format('MM/DD/YYYY'));
+  const [startDate, setStartDate] = useState(moment().format('MM/DD/YYYY'));
+  const [endDate, setEndDate] = useState(moment().add(7, 'days').format('MM/DD/YYYY'));
   const [daysOfWeek, setDaysOfWeek] = useState<string[]>([]);
   const [slotType, setSlotType] = useState('general');
-  const [slots, setSlots] = useState<Slot[]>([]);
   const [scheduleType, setScheduleType] = useState<'daily' | 'weekly'>('daily');
   const [comment, setComment] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const navigate = useNavigate();
 
-  
-  // Reset relevant states when schedule type changes
   const handleScheduleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newScheduleType = e.target.value as 'daily' | 'weekly';
     setScheduleType(newScheduleType);
-    // Resetting states
-    setSlots([]);            // Clear slots
     setSuccessMessage('');   // Clear success message
+    setErrorMessage('');     // Clear error message
     setDaysOfWeek([]);      // Clear selected days of the week if switching to daily
     if (newScheduleType === 'daily') {
-      setDate(moment().format('YYYY-MM-DD')); // Reset date to today
+      setDate(moment().format('MM/DD/YYYY')); // Reset date to today
     } else {
-      setStartDate(moment().format('YYYY-MM-DD')); // Reset start date
-      setEndDate(moment().add(7, 'days').format('YYYY-MM-DD')); // Reset end date
+      setStartDate(moment().format('MM/DD/YYYY')); // Reset start date
+      setEndDate(moment().add(7, 'days').format('MM/DD/YYYY')); // Reset end date
     }
   };
+
   const coachid = localStorage.getItem('coachId');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validation: Check end time is after start time
+    if (moment(endTime, "HH:mm").isBefore(moment(startTime, "HH:mm"))) {
+      setErrorMessage("End time must be after start time.");
+      return;
+    }
+
     // Prepare the payload
     const payload = {
-        coachId: coachid,
-        startTime,
-        duration: 60,
-        endTime,
-        slotType,
-        ...(scheduleType === 'daily'
-            ? { date }
-            : {
-                startdate: startDate,
-                enddate: endDate,
-                daysOfWeek,
-            }),
-        ...(slotType === 'personal' && { comment }),
+      coachId: coachid,
+      startTime,
+      duration: 60,
+      endTime,
+      slotType,
+      ...(scheduleType === 'daily'
+          ? { date: moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD') } // Format date for API
+          : {
+              startdate: moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD'), // Format start date for API
+              enddate: moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD'), // Format end date for API
+              daysOfWeek,
+          }),
     };
 
     try {
-        let endpoint;
+      let endpoint;
 
-        if (scheduleType === 'daily') {
-            endpoint = `${Domain_URL}/slot/createSlot`;
-        } else {
-            endpoint = `${Domain_URL}/slot/create-weekly-slots`;
-        }
+      if (scheduleType === 'daily') {
+        endpoint = `${Domain_URL}/slot/createSlot`;
+      } else {
+        endpoint = `${Domain_URL}/slot/create-weekly-slots`;
+      }
 
-        const response = await axios.post(endpoint, payload, {
-            headers: { 'Content-Type': 'application/json' },
-        });
+      const response = await axios.post(endpoint, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-        console.log('Response from API:', response.data);
+      console.log('Response from API:', response.data);
 
-        // Check if the response indicates an error based on the message
-        if (response.data.message) {
-            // If there's a message indicating slots exist, show it as an error
-            setErrorMessage(response.data.message); // Set error message from response
-            setSuccessMessage(''); // Clear any previous success messages
-            return; // Early return to prevent further processing
-        }
+      if (response.data.message) {
+        setErrorMessage(response.data.message); // Set error message from response
+        setSuccessMessage(''); // Clear any previous success messages
+        return; // Early return to prevent further processing
+      }
 
-        // If we reach here, it means the operation was successful
-        if (scheduleType === 'daily') {
-            setSlots(response.data); // Use the entire response if it is a single slot
-        }
-        setSuccessMessage('Slots generated successfully!'); // Show success message
-        setErrorMessage(''); // Clear any previous error messages
+      setSuccessMessage('Slots generated successfully!'); // Show success message
+      setErrorMessage(''); // Clear any previous error messages
 
     } catch (error: any) {
-        console.error('Error creating slots:', error);
-        console.log('Full error:', error); 
+      console.error('Error creating slots:', error);
+      console.log('Full error:', error);
 
-        // Handle unexpected errors
-        if (error.response && error.response.data) {
-            setErrorMessage(error.response.data.message || 'Slots already exist for this selected specified dates'); // Set error message
-        } else {
-            setErrorMessage('An unexpected error occurred.'); // Fallback error message
-        }
-        setSuccessMessage(''); // Clear success message on error
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || 'An unexpected error occurred.'); // Set error message
+      } else {
+        setErrorMessage('An unexpected error occurred.'); // Fallback error message
+      }
+      setSuccessMessage(''); // Clear success message on error
     }
-};
-
+  };
 
   return (
     <Box sx={{
@@ -145,13 +133,9 @@ const Schedule = () => {
       flexDirection: 'column',
       alignItems: 'center'
     }}>
-      <IconButton
-      sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}
-        onClick={() => navigate('/Coach-Dashboard')}
-      >
-   <ArrowBack />
+      <IconButton sx={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }} onClick={() => { /* Your back logic here */ }}>
+        <ArrowBackIcon />
       </IconButton>
-
 
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
         Create Your Schedule
@@ -188,8 +172,8 @@ const Schedule = () => {
         {scheduleType === 'daily' ? (
           <Grid item xs={12} sm={6}>
             <TextField
-              label="Date" type="date" value={date}
-              onChange={e => setDate(e.target.value)}
+              label="Date" type="date" value={moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+              onChange={e => setDate(moment(e.target.value).format('MM/DD/YYYY'))}
               InputLabelProps={{ shrink: true }} fullWidth sx={{ mb: 2 }}
             />
           </Grid>
@@ -198,15 +182,15 @@ const Schedule = () => {
             <Grid item xs={12} container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Start Date" type="date" value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
+                  label="Start Date" type="date" value={moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+                  onChange={e => setStartDate(moment(e.target.value).format('MM/DD/YYYY'))}
                   InputLabelProps={{ shrink: true }} fullWidth sx={{ mb: 2 }}
                 />
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="End Date" type="date" value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
+                  label="End Date" type="date" value={moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+                  onChange={e => setEndDate(moment(e.target.value).format('MM/DD/YYYY'))}
                   InputLabelProps={{ shrink: true }} fullWidth sx={{ mb: 2 }}
                 />
               </Grid>
@@ -246,59 +230,36 @@ const Schedule = () => {
           />
         </Grid>
 
-        {slotType === 'personal' && (
-          <Grid item xs={12}>
+        <Grid item xs={12}>
+          {slotType === 'personal' && (
             <TextField
-              label="Comments"
-              value={comment}
+              label="Comment" multiline rows={4} value={comment}
               onChange={e => setComment(e.target.value)}
-              fullWidth
-              sx={{ mb: 2 }}
-              inputProps={{
-                maxLength: 25, // Limit to 25 characters
-              }}
-              InputProps={{
-                style: {
-                  height: '56px', // This is the default height for standard TextFields
-                  display: 'flex',
-                  alignItems: 'center', // Centers text vertically
-                },
-              }}
+              fullWidth sx={{ mb: 2 }}
             />
-          </Grid>
-        )}
+          )}
+          <Typography variant="body2" sx={{ color: 'gray', mt: 1 }} hidden={slotType !== 'personal'}>
+            Note: You can generate slots per day for daily scheduling.
+          </Typography>
+        </Grid>
       </Grid>
-
-      <Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
-        Schedule
-      </Button>
-
-      {scheduleType === 'daily' && slots.length > 0 && (
-        <List sx={{ mt: 2, width: '100%' }}>
-          {slots.map((slot: Slot) => (
-            <ListItem key={slot.slotId}>
-              <ListItemText
-                primary={`${slot.startTime} - ${slot.endTime} (${slot.slotType})`}
-                secondary={`Date: ${moment(slot.date).format('YYYY-MM-DD')}`} // Format date to readable form
-              />
-            </ListItem>
-          ))}
-        </List>
-      )}
-
-      {successMessage && (
-        <Typography variant="body2" sx={{ color: 'green', mt: 2 }}>
-          {successMessage}
-        </Typography>
-      )}
 
       {errorMessage && (
         <Typography variant="body2" sx={{ color: 'red', mt: 2 }}>
           {errorMessage}
         </Typography>
       )}
+      {successMessage && (
+        <Typography variant="body2" sx={{ color: 'green', mt: 2 }}>
+          {successMessage}
+        </Typography>
+      )}
+
+      <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 3 }}>
+        Submit
+      </Button>
     </Box>
   );
-};  
+};
 
 export default Schedule;
