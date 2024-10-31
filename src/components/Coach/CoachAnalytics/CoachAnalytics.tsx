@@ -159,7 +159,6 @@ export default function CoachAnalytics() {
   // Calculate the total number of pages
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
 
-  // Get the current items to display
   const currentItems = filteredBookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
