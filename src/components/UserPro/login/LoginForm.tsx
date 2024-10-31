@@ -214,13 +214,15 @@ export default function LoginForm() {
                 }}
               />
 
-               <div style={{ display: 'flex', justifyContent: 'end' }}>
-             <Link to="/Sendotp">
-            <button>
-               Forgot Password?
-           </button>
-             </Link>
-                </div>
+              <Button
+                component="a"
+                href="/Sendotp"
+                variant="text"
+               // color="primary"
+                sx={{ textAlign: 'right', display: 'block', mt: 1 }}
+              >
+                Forgot Password?
+              </Button>
               <Button
                 type="submit"
                 fullWidth
