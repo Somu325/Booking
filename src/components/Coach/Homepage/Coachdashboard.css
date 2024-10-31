@@ -243,6 +243,14 @@
   color: red;
 }
 
+.logout {
+  color: red; /* Change the text color to red */
+  cursor: pointer; /* Change cursor to pointer for better UX */
+}
+
+.logout:hover {
+  text-decoration: underline; /* Optional: Add underline on hover for better UX */
+}
 
 .status-booked {
   color: rgb(8, 178, 235);
