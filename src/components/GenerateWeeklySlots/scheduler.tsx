@@ -389,7 +389,7 @@ const Schedule = () => {
       if (error.response && error.response.data) {
         setErrorMessage(error.response.data.message || 'An unexpected error occurred.'); // Set error message
       } else {
-        setErrorMessage('An unexpected error occurred.'); // Fallback error message
+        setErrorMessage('Slots already exist for the specified date and time range.'); // Fallback error message
       }
       setSuccessMessage(''); // Clear success message on error
     }
