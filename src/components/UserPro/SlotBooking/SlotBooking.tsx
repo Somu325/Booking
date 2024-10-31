@@ -221,6 +221,7 @@ export default function SlotBooking() {
       setError('Booking successful!')
     } catch (error) {
       console.error('Error booking slot:', error)
+      setError('This slot has already been booked. Please refresh page and select a different time slot')
       if (axios.isAxiosError(error) && error.response) {
         console.error('Error response:', error.response.data)
        // setError('Booking failed. Please try again.')
@@ -365,7 +366,7 @@ export default function SlotBooking() {
             variant="outlined"
             sx={{
               top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/4 * var(--IconButton-size))',
+              right: 'calc(-1/25 * var(--IconButton-size))',
               boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
               borderRadius: '50%',
               bgcolor: 'background.body',

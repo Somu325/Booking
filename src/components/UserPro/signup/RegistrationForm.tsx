@@ -1,6 +1,7 @@
-"use client"
 
-import React, { useState } from 'react'
+"use client";
+
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -12,9 +13,9 @@ import {
   IconButton,
   CssVarsProvider,
   extendTheme,
-} from '@mui/joy'
-import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material'
-import axios from 'axios'
+} from '@mui/joy';
+import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 // Assume Domain_URL is imported from a config file
@@ -85,33 +86,34 @@ export default function Component() {
   };
 
   const validateMobileNumber = (number: string) => {
-    const maxDigits = 11;
-    const phoneRegex = new RegExp(`^\\d{1,${maxDigits}}$`);
-    if (!phoneRegex.test(number)) {
-      setMobileNumberError('Please enter a valid 11 digit phone number.');
+    if (number.length > 11) return;
+
+    setMobileNumber(number);
+
+    if (number.length < 11) {
+      setMobileNumberError('Please enter a valid phone number.');
       return false;
+    } else {
+      setMobileNumberError(null);
+      return true;
     }
-    setMobileNumberError(null);
-    return true;
   };
 
   const validateName = (name: string) => {
     const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
-    setNameError(isValid ? null : 'Name sholud contain only alphabets');
+    setNameError(isValid ? null : 'Name should contain only alphabets');
     return isValid;
   };
 
   const validatePassword = (password: string) => {
-    const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
-    setPasswordError(
-      isValid ? null : 'Password should contains minimum 8-16  characters.'
-    );
+    const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
+    setPasswordError(isValid ? null : 'Password should contain 8-16 characters.');
     return isValid;
   };
 
   const validateConfirmPassword = (confirmPassword: string) => {
     const isMatch = confirmPassword === password;
-    setConfirmPasswordError(isMatch ? null : 'Enter same password.');
+    setConfirmPasswordError(isMatch ? null : 'Enter the same password.');
     return isMatch;
   };
 
@@ -129,7 +131,7 @@ export default function Component() {
     }
 
     if (!validateMobileNumber(mobileNumber)) {
-      setError('Please enter a valid 10-digit mobile number.');
+      setError('Please enter a valid phone number.');
       return;
     }
 
@@ -152,15 +154,37 @@ export default function Component() {
 
     try {
       const response = await axios.post(`${Domain_URL}/user/signup`, userData);
-      if (response.status === 201) {
-        setSuccess('User registered successfully!');
-        setTimeout(() => navigate('/user-login'), 2000);
-      }
-    } catch (error) {
-      setError('Email already registered.');
-      console.error(error);
+ 
+  if (response.status === 201) {
+    setSuccess(' User registered successfully!');
+    setTimeout(() => navigate('/user-login'), 2000);
+  }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} catch (error: any) {
+  if (error.response) {
+    // Handle specific status codes
+    const { status } = error.response;
+
+    if (status === 400) {
+      setError('This email is already registered.');
+    } else if (status === 404) {
+      setError('The gateway is incorrect. Please check the URL.');
+    } else if (status === 500) {
+      setError('The server is currently offline. Please try again later.');
+    } else {
+      setError('An unexpected error occurred. Please try again.');
     }
-  };
+  } else if (error.request) {
+    // Network error or no response received
+    setError('No response from the server. Please check your connection.');
+  } else {
+    // Any other errors (like code issues)
+    //setError(`An error occurred: ${error.message}`);
+  }
+  
+  console.error('Error during sign-up:', error);
+}
+};
 
   return (
     <CssVarsProvider theme={theme}>
@@ -189,9 +213,22 @@ export default function Component() {
             boxShadow: 'lg',
           }}
         >
+          
           <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
             Create an Account
           </Typography>
+
+          {error && (
+            <Alert color="danger" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert color="success" sx={{ mb: 2 }}>
+              {success}
+            </Alert>
+          )}
+
 
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Email <Typography component="span" color="danger">*</Typography></FormLabel>
@@ -236,10 +273,7 @@ export default function Component() {
             <Input
               placeholder="Mobile Number"
               value={mobileNumber}
-              onChange={(e) => {
-                setMobileNumber(e.target.value);
-                validateMobileNumber(e.target.value);
-              }}
+              onChange={(e) => validateMobileNumber(e.target.value)}
               type="tel"
               required
               startDecorator={<Phone />}
@@ -257,8 +291,10 @@ export default function Component() {
               placeholder="Password"
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value);
-                validatePassword(e.target.value);
+                if (e.target.value.length <= 16) {
+                  setPassword(e.target.value);
+                  validatePassword(e.target.value);
+                }
               }}
               type={showPassword ? 'text' : 'password'}
               required
@@ -282,8 +318,10 @@ export default function Component() {
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                validateConfirmPassword(e.target.value);
+                if (e.target.value.length <= 16) {
+                  setConfirmPassword(e.target.value);
+                  validateConfirmPassword(e.target.value);
+                }
               }}
               type={showConfirmPassword ? 'text' : 'password'}
               required
@@ -301,23 +339,11 @@ export default function Component() {
             )}
           </FormControl>
 
-          <Button type="submit" fullWidth sx={{ mt: 2, py: 1.5 }}>
+          <Button type="submit" fullWidth color="primary" sx={{ mb: 2 }}>
             Sign Up
           </Button>
-
-          {error && (
-            <Alert color="danger" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {success && (
-            <Alert color="success" sx={{ mt: 2 }}>
-              {success}
-            </Alert>
-          )}
-
           <Typography level="body-md" sx={{ mt: 3, textAlign: 'center' }}>
-            Already have an account?{' '}
+           Already have an account?{' '}
             <Typography
               component="a"
               href="/user-login"
@@ -326,10 +352,10 @@ export default function Component() {
             >
               Log In
             </Typography>
-          </Typography>
+         </Typography>
+
         </Box>
       </Box>
     </CssVarsProvider>
   );
 }
-

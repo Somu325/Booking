@@ -27,7 +27,6 @@ import {
   CalendarToday,
   Person,
   AccessTime,
-  Category,
 } from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
@@ -42,7 +41,7 @@ interface Booking {
   startTime: string
   endTime: string
   slotId: number
-  slotType: string
+ // slotType: string
   date: string
   bookingType: 'single' | 'group'
   groupId: number | null
@@ -62,7 +61,7 @@ export default function BookingHistory() {
   const [error, setError] = useState<string | null>(null)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [dateFilter, setDateFilter] = useState<string>('')
-  const [typeFilter, setTypeFilter] = useState<string>('')
+  //const [typeFilter, setTypeFilter] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('')
   const navigate = useNavigate()
 
@@ -79,7 +78,7 @@ export default function BookingHistory() {
   useEffect(() => {
     filterBookings()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookings, dateFilter, typeFilter, statusFilter])
+  }, [bookings, dateFilter,  statusFilter])
 
   const fetchBookings = async () => {
     if (!userId) {
@@ -109,9 +108,9 @@ export default function BookingHistory() {
     if (dateFilter) {
       filtered = filtered.filter((booking) => booking.date === dateFilter)
     }
-    if (typeFilter) {
-      filtered = filtered.filter((booking) => booking.slotType === typeFilter)
-    }
+    // if (typeFilter) {
+    //   filtered = filtered.filter((booking) => booking.slotType === typeFilter)
+    // }
     if (statusFilter) {
       filtered = filtered.filter(
         (booking) =>
@@ -131,7 +130,7 @@ export default function BookingHistory() {
   }
 
   const uniqueDates = [...new Set(bookings.map((booking) => booking.date))]
-  const uniqueTypes = [...new Set(bookings.map((booking) => booking.slotType))]
+ // const uniqueTypes = [...new Set(bookings.map((booking) => booking.slotType))]
   const uniqueStatuses = [...new Set(bookings.map((booking) => booking.status))]
 
   return (
@@ -198,7 +197,7 @@ export default function BookingHistory() {
               </Select>
             </FormControl>
             
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
+            {/* <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Type</FormLabel>
               <Select
                 value={typeFilter}
@@ -211,7 +210,7 @@ export default function BookingHistory() {
                   </Option>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
 
             <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Status</FormLabel>
@@ -250,7 +249,7 @@ export default function BookingHistory() {
                     <th>Coach Name</th>
                     <th>Slot Date</th>
                     <th>Slot</th>
-                    <th>Type</th>
+                    {/* <th>Type</th> */}
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -285,12 +284,12 @@ export default function BookingHistory() {
                           {booking.startTime} - {booking.endTime}
                         </Box>
                       </td>
-                      <td>
+                      {/* <td>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Category fontSize="small" />
                           {booking.slotType}
                         </Box>
-                      </td>
+                      </td> */}
                       <td>
                         <Chip
                           variant="soft"
@@ -318,7 +317,7 @@ export default function BookingHistory() {
               <Typography>Coach Name:</Typography><Typography>{selectedBooking.coachName}</Typography>
               <Typography>Slot Date:</Typography><Typography>{new Date(selectedBooking.date).toLocaleDateString('en-US')}</Typography>
               <Typography>Slot Time:</Typography><Typography>{selectedBooking.startTime} - {selectedBooking.endTime}</Typography>
-              <Typography>Type:</Typography><Typography>{selectedBooking.slotType}</Typography>
+              {/* <Typography>Type:</Typography><Typography>{selectedBooking.slotType}</Typography> */}
               <Typography>Group ID:</Typography><Typography>{selectedBooking.groupId || 'N/A'}</Typography>
               <Typography>Status:</Typography><Typography>{selectedBooking.status}</Typography>
             </Box>
