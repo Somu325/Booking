@@ -549,6 +549,12 @@ const Coachdashboard: React.FC = () => {
     if (newStartDate >= new Date()) setStartDate(newStartDate);
   };
 
+    const handleLogoutClick = () => {
+    localStorage.removeItem('coachId');
+    localStorage.removeItem('email');
+    navigate('/Coach-login');
+  };
+
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
 
@@ -605,13 +611,9 @@ const Coachdashboard: React.FC = () => {
             <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
-            <li onClick={() => {
-              localStorage.removeItem('coachId');
-              localStorage.removeItem('email');
-              navigate('/Coach-login');
-            }}>
-              Logout
-            </li>
+           <li onClick={handleLogoutClick} style={{ color: 'red' }}>
+                Logout
+              </li>
           </ul>
         </nav>
       </div>
