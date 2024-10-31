@@ -16,8 +16,6 @@ import ManageCoach from "./components/admin/ManageCoach/ManageCoach";
 import ManageUser from "./components/admin/user/ManageUser";
 import BookingList from "./components/admin/BookingList/BookingList";
 import CoachProfile from "./components/Coach/Coachprofile/Coachprofile";
-
-import CombinedApp from "./components/Coach/Homepage/Homepage";
 import Loginn from "./components/Coach/login/Login";
 import Reset from "./components/Coach/Resetpassword/Resetpassword";
 import SendOtpp from "./components/Coach/Resetpassword/Sendemailotp";
@@ -27,6 +25,7 @@ import BookingHistory from "./components/UserPro/BookingHistory/BookingHistory";
 import Generateslots from "./components/GenerateWeeklySlots/GenWeekSlots";
 import CoachVerification from "./components/Coach/Coachprofile/coachverification";
 import Schedule from "./components/GenerateWeeklySlots/scheduler";
+import Coachdashboard from "./components/Coach/Homepage/Homepage";
 
 
 //import CombinedApp1 from "./components/Coach/Homepage/Homepage1";
@@ -51,7 +50,7 @@ function App() {
         <Route path="/Coach-Signup" element={<Sign />} />
         <Route path="/Reset-password" element={<Reset />} />
         <Route path="/Coach-Profile" element={<CoachProfile />} />
-        <Route path="/Coach-Dashboard" element={<CombinedApp />} />
+        <Route path="/Coach-Dashboard" element={<Coachdashboard />} />
         <Route path="/Email-Otpp" element={<SendOtpp />} />
 
         <Route path="/Coach-Analytics" element={<CoachAnalytics />} />
