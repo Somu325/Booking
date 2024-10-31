@@ -570,7 +570,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('Failed to load slots. Please try again later.');
+      setError('No slots available');
       setSlots([]);
     } finally {
       setLoading(false);
@@ -685,7 +685,7 @@ const Coachdashboard: React.FC = () => {
             ) : error ? (
               <div className="error">{error}</div>
             ) : filteredSlots.length === 0 ? (
-              <div className="no-slots">No slots available for this coach.</div>
+              <div className="no-slots">No slots available</div>
             ) : (
               <table className="slots-table">
                 <thead>
