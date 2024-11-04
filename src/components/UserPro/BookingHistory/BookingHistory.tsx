@@ -329,6 +329,12 @@
 // }
 
 
+
+
+
+
+
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -367,6 +373,7 @@ interface Booking {
   coachId: number
   userName: string
   coachName: string
+  childName:string
   startTime: string
   endTime: string
   slotId: number
@@ -400,10 +407,12 @@ export default function BookingHistory() {
 
   useEffect(() => {
     if (userId) fetchBookings()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
   useEffect(() => {
     filterBookings()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookings, dateFilter, statusFilter])
 
   const fetchBookings = async () => {
@@ -562,54 +571,68 @@ export default function BookingHistory() {
                   <tr>
                     <th>User Name</th>
                     <th>Coach Name</th>
+                    <th>Child Name</th>
                     <th>Slot Date</th>
                     <th>Slot</th>
                     <th>Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredBookings.map((booking) => (
-                    <tr
-                      key={booking.id}
-                      onClick={() => setSelectedBooking(booking)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.userName}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.coachName}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarToday fontSize="small" />
-                          {convertToLocalDate(booking.date).toLocaleDateString('en-US')}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTime fontSize="small" />
-                          {booking.startTime} - {booking.endTime}
-                        </Box>
-                      </td>
-                      <td>
-                        <Chip
-                          variant="soft"
-                          color={getStatusColor(booking.status)}
-                          size="sm"
-                        >
-                          {booking.status}
-                        </Chip>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                
+
+ <tbody>
+  {filteredBookings
+    .slice() // creates a shallow copy to avoid mutating the original array
+    .reverse() // reverses the copy of the array
+    .map((booking) => (
+      <tr
+        key={booking.id}
+        onClick={() => setSelectedBooking(booking)}
+        style={{ cursor: 'pointer' }}
+      >
+        <td>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Person fontSize="small" />
+            {booking.userName}
+          </Box>
+        </td>
+        <td>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Person fontSize="small" />
+            {booking.coachName}
+          </Box>
+        </td>
+        <td>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Person fontSize="small" />
+            {booking.childName}
+          </Box>
+        </td>
+        <td>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CalendarToday fontSize="small" />
+            {convertToLocalDate(booking.date).toLocaleDateString('en-US')}
+          </Box>
+        </td>
+        <td>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AccessTime fontSize="small" />
+            {booking.startTime} - {booking.endTime}
+          </Box>
+        </td>
+        <td>
+          <Chip
+            variant="soft"
+            color={getStatusColor(booking.status)}
+            size="sm"
+          >
+            {booking.status}
+          </Chip>
+        </td>
+      </tr>
+    ))}
+</tbody> 
+
+
               </Table>
             </Sheet>
           )}
@@ -629,6 +652,11 @@ export default function BookingHistory() {
                 <Typography>
                   <strong>Coach:</strong> {selectedBooking.coachName}
                 </Typography>
+
+                <Typography>
+                  <strong>Child Name:</strong> {selectedBooking.childName}
+                </Typography>
+
                 <Typography>
                   <strong>Date:</strong>{' '}
                   {convertToLocalDate(selectedBooking.date).toLocaleDateString('en-US')}
