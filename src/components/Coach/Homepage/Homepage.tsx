@@ -726,7 +726,7 @@ import axios from 'axios';
 import './Coachdashboard.css';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { Domain_URL } from '../../../api_requests/config';
+import { Domain_URL } from '../../config';
 import DatePicker from 'react-datepicker'; // Import the DatePicker component
 import 'react-datepicker/dist/react-datepicker.css';
 
