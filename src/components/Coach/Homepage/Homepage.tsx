@@ -523,12 +523,212 @@
 // export default CombinedApp; 
 
 
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import './Coachdashboard.css';
+// import { format, addDays } from 'date-fns';
+// import { useNavigate } from 'react-router-dom';
+// import { Domain_URL } from '../../config';
+
+// const Coachdashboard: React.FC = () => {
+//   const [startDate, setStartDate] = useState<Date>(new Date());
+//   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+//   const [filter, setFilter] = useState<string>('All');
+//   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+//   const [slots, setSlots] = useState<any[]>([]);
+//   const [loading, setLoading] = useState<boolean>(true);
+//   const [error, setError] = useState<string | null>(null);
+//   const navigate = useNavigate();
+
+//   const coachId = localStorage.getItem('coachId');
+//   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
+
+//   const handleNext = () => setStartDate((prev) => addDays(prev, 5));
+//   const handlePrevious = () => {
+//     const newStartDate = addDays(startDate, -5);
+//     if (newStartDate >= new Date()) setStartDate(newStartDate);
+//   };
+
+//   const toggleMenu = () => setMenuOpen((prev) => !prev);
+//   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
+
+//   const fetchSlots = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await axios.get(`${Domain_URL}/slots-g-p/${coachId}`);
+//       setSlots(response.data);
+//       setError(null);
+//     } catch (err: any) {
+//       console.error('Error fetching slots:', err.message);
+//       setError('No slots are availble for the selected date');
+//       setSlots([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (coachId) fetchSlots();
+//   }, [coachId]);
+
+//   const convertToLocalDate = (dateString: string) => {
+//     const localDate = new Date(dateString);
+//     return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+//   };
+
+//   const filteredSlots = slots.filter((slot) => {
+//     const slotDate = convertToLocalDate(slot.date);
+//     const isStatusMatch = filter === 'All' || slot.status === filter;
+//     const isSlotTypeMatch = filter === 'personal' ? slot.slotType === 'personal' : true;
+
+//     return isStatusMatch && isSlotTypeMatch && slotDate.toDateString() === selectedDate.toDateString();
+//   });
+
+//   // Function to get the class name based on slot status
+//   const getStatusClass = (status: string) => {
+//     switch (status) {
+//       case 'available':
+//         return 'status-available';
+//       case 'completed':
+//         return 'status-completed';
+//       case 'upcoming':
+//         return 'status-upcoming';
+//       case 'cancelled':
+//         return 'status-cancelled';
+//       case 'booked':
+//         return 'status-booked';
+//       default:
+//         return '';
+//     }
+//   };
+
+//   return (
+//     <div className="container">
+//       <div className={`side-menu ${menuOpen ? 'open' : ''}`}>
+//         <button className="close-btn" onClick={toggleMenu}>
+//           &times;
+//         </button>
+//         <nav>
+//           <ul>
+//             <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
+//             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
+//             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
+//            <li className="logout" onClick={() => {
+//              localStorage.removeItem('coachId');
+//              localStorage.removeItem('email');
+//              navigate('/Coach-login');
+//             }}>
+//              Logout
+//           </li>
+//           </ul>
+//         </nav>
+//       </div>
+//       <div className="content">
+//         <header className="header">
+//           <div className="menu-icon" onClick={toggleMenu}>
+//             &#9776;
+//           </div>
+//           <h2>Welcome, Coach</h2>
+//           <div className="notification-icon-container">
+//             <div className="notification-icon">&#128276;</div>
+//             <div className="notification-cancel-line"></div>
+//           </div>
+//         </header>
+//         <main className="main-content">
+//           <div className="calendar-filter-container">
+//             <div className="calendar">
+//               <div className="calendar-icon">&#128197;</div>
+//               <div className="dates-row">
+//                 <span className="arrow" onClick={handlePrevious}>
+//                   &#10094;
+//                 </span>
+//                 {dates.map((date, index) => (
+//                   <span
+//                     key={index}
+//                     className={`date ${date.getTime() === selectedDate.getTime() ? 'selected' : ''}`}
+//                     onClick={() => setSelectedDate(date)}
+//                   >
+//                     {format(date, 'MMM d yyyy')}
+//                   </span>
+//                 ))}
+//                 <span className="arrow" onClick={handleNext}>
+//                   &#10095;
+//                 </span>
+//               </div>
+//             </div>
+//             <div className="filter-container">
+//               <label htmlFor="filter" className="filter-label">
+//                 Filter:
+//               </label>
+//               <select
+//                 id="filter"
+//                 value={filter}
+//                 onChange={handleFilterChange}
+//                 className="filter-dropdown"
+//               >
+//                 <option value="All">All</option>
+//                 <option value="completed">Completed</option>
+//                 <option value="available">Available</option>
+              
+//                 <option value="booked">Booked</option>
+        
+//               </select>
+//             </div>
+//           </div>
+
+//           <div className="slots-table-container">
+//             {loading ? (
+//               <div className="loading">Loading slots...</div>
+//             ) : error ? (
+//               <div className="error">{error}</div>
+//             ) : filteredSlots.length === 0 ? (
+//               <div className="no-slots">No slots available</div>
+//             ) : (
+//               <table className="slots-table">
+//                 <thead>
+//                   <tr>
+        
+//                     <th>Time</th>
+//                     <th>Status</th>
+//                     <th>Duration</th>
+//                     <th>Slot Type</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {filteredSlots.map((slot, index) => (
+//                     <tr key={index}>
+                    
+//                       <td>{`${slot.startTime} - ${slot.endTime}`}</td>
+//                       <td className={getStatusClass(slot.status)}>{slot.status}</td>
+//                       <td>{slot.duration} mins</td>
+//                       <td>{slot.slotType}</td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//             )}
+//           </div>
+//         </main>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Coachdashboard;
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Coachdashboard.css';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { Domain_URL } from '../../config';
+import { Domain_URL } from '../../../api_requests/config';
+import DatePicker from 'react-datepicker'; // Import the DatePicker component
+import 'react-datepicker/dist/react-datepicker.css';
 
 const Coachdashboard: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -538,19 +738,30 @@ const Coachdashboard: React.FC = () => {
   const [slots, setSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false); // State to toggle date picker
   const navigate = useNavigate();
 
   const coachId = localStorage.getItem('coachId');
   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
 
   const handleNext = () => setStartDate((prev) => addDays(prev, 5));
-  const handlePrevious = () => {
-    const newStartDate = addDays(startDate, -5);
-    if (newStartDate >= new Date()) setStartDate(newStartDate);
-  };
+
+  // Allow going back to any date
+  const handlePrevious = () => setStartDate((prev) => addDays(prev, -5));
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    setIsCalendarOpen(false); // Close the calendar after selecting a date
+
+    // Ensure the selected date is shown in the date row
+    const daysDifference = differenceInDays(date, startDate);
+    if (daysDifference < 0 || daysDifference >= 5) {
+      setStartDate(date);
+    }
+  };
 
   const fetchSlots = async () => {
     setLoading(true);
@@ -560,7 +771,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('No slots are availble for the selected date');
+      setError('Failed to load slots. Please try again later.');
       setSlots([]);
     } finally {
       setLoading(false);
@@ -570,6 +781,9 @@ const Coachdashboard: React.FC = () => {
   useEffect(() => {
     if (coachId) fetchSlots();
   }, [coachId]);
+
+
+
 
   const convertToLocalDate = (dateString: string) => {
     const localDate = new Date(dateString);
@@ -584,7 +798,6 @@ const Coachdashboard: React.FC = () => {
     return isStatusMatch && isSlotTypeMatch && slotDate.toDateString() === selectedDate.toDateString();
   });
 
-  // Function to get the class name based on slot status
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'available':
@@ -613,13 +826,13 @@ const Coachdashboard: React.FC = () => {
             <li onClick={() => navigate('/Coach-Profile')}>Profile</li>
             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
-           <li className="logout" onClick={() => {
-             localStorage.removeItem('coachId');
-             localStorage.removeItem('email');
-             navigate('/Coach-login');
+            <li  className="logout" onClick={() => {
+              localStorage.removeItem('coachId');
+              localStorage.removeItem('email');
+              navigate('/Coach-login');
             }}>
-             Logout
-          </li>
+              Logout
+            </li>
           </ul>
         </nav>
       </div>
@@ -637,11 +850,11 @@ const Coachdashboard: React.FC = () => {
         <main className="main-content">
           <div className="calendar-filter-container">
             <div className="calendar">
-              <div className="calendar-icon">&#128197;</div>
+              <span className="calendar-icon" onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                &#128197;
+              </span>
               <div className="dates-row">
-                <span className="arrow" onClick={handlePrevious}>
-                  &#10094;
-                </span>
+                <span className="arrow" onClick={handlePrevious}>&#10094;</span>
                 {dates.map((date, index) => (
                   <span
                     key={index}
@@ -651,9 +864,7 @@ const Coachdashboard: React.FC = () => {
                     {format(date, 'MMM d yyyy')}
                   </span>
                 ))}
-                <span className="arrow" onClick={handleNext}>
-                  &#10095;
-                </span>
+                <span className="arrow" onClick={handleNext}>&#10095;</span>
               </div>
             </div>
             <div className="filter-container">
@@ -669,12 +880,21 @@ const Coachdashboard: React.FC = () => {
                 <option value="All">All</option>
                 <option value="completed">Completed</option>
                 <option value="available">Available</option>
-              
                 <option value="booked">Booked</option>
-        
               </select>
             </div>
           </div>
+
+          {isCalendarOpen && (
+            <div className="calendar-datePicker">
+              <DatePicker
+                selected={selectedDate}
+                onChange={handleDateChange}
+                inline
+                className="custom-datepicker"
+              />
+            </div>
+          )}
 
           <div className="slots-table-container">
             {loading ? (
@@ -687,7 +907,7 @@ const Coachdashboard: React.FC = () => {
               <table className="slots-table">
                 <thead>
                   <tr>
-        
+                    <th>Date</th> {/* New Date column */}
                     <th>Time</th>
                     <th>Status</th>
                     <th>Duration</th>
@@ -697,7 +917,7 @@ const Coachdashboard: React.FC = () => {
                 <tbody>
                   {filteredSlots.map((slot, index) => (
                     <tr key={index}>
-                    
+                      <td>{format(selectedDate, 'MMM d, yyyy')}</td>
                       <td>{`${slot.startTime} - ${slot.endTime}`}</td>
                       <td className={getStatusClass(slot.status)}>{slot.status}</td>
                       <td>{slot.duration} mins</td>
