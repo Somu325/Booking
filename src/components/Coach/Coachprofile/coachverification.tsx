@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -74,8 +75,9 @@ export default function CoachVerificationPage() {
   const [showOtpSentModal, setShowOtpSentModal] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showErrorModal, setShowErrorModal] = useState<boolean>(false);
-  const [showAlert, setShowAlert] = useState<boolean>(true); // Set to true to show alert on load
+  const [showAlert, setShowAlert] = useState<boolean>(true);
   const [timer, setTimer] = useState<number>(0);
+  const [isVerifyEnabled, setIsVerifyEnabled] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // Load coachId and email from localStorage
@@ -165,7 +167,7 @@ export default function CoachVerificationPage() {
                 variant="plain"
                 color="primary"
                 onClick={handleSendOTP}
-                disabled={timer > 0}
+                disabled={timer > 0 || !isVerifyEnabled}
                 sx={{ marginLeft: 1, backgroundColor: 'skyblue', color: 'black' }}
               >
                 {timer > 0 ? `Resend OTP (${timer}s)` : 'Verify Email'}
@@ -185,9 +187,9 @@ export default function CoachVerificationPage() {
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center', // Center horizontally
-                  justifyContent: 'space-between', // Space between alert and button
-                  height: '100%', // Allow the content to fill the card
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  height: '100%',
                 }}
               >
                 <Alert color="warning" sx={{ mb: 2, fontSize: '20px', textAlign: 'center' }}>
@@ -195,9 +197,12 @@ export default function CoachVerificationPage() {
                 </Alert>
                 <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                   <Button
-                    onClick={() => setShowAlert(false)}
+                    onClick={() => {
+                      setShowAlert(false);
+                      setIsVerifyEnabled(true);
+                    }}
                     variant="outlined"
-                    sx={{ backgroundColor: 'green', color: 'black', width: '80px', marginTop: 2 }} // Add marginTop for spacing
+                    sx={{ backgroundColor: 'green', color: 'black', width: '80px', marginTop: 2 }}
                   >
                     OK
                   </Button>
@@ -206,8 +211,8 @@ export default function CoachVerificationPage() {
             </Card>
           )}
 
-          {/* Email Verification Modal */}
-          <Modal open={showEmailModal} onClose={null}>
+       
+          <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
             <ModalDialog
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
             >
@@ -232,8 +237,8 @@ export default function CoachVerificationPage() {
             </ModalDialog>
           </Modal>
 
-          {/* OTP Sent Modal */}
-          <Modal open={showOtpSentModal} onClose={null}>
+         
+          <Modal open={showOtpSentModal} onClose={() => setShowOtpSentModal(false)}>
             <ModalDialog
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
             >
@@ -242,8 +247,8 @@ export default function CoachVerificationPage() {
             </ModalDialog>
           </Modal>
 
-          {/* Success Modal */}
-          <Modal open={showSuccessModal} onClose={null}>
+          
+          <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
             <ModalDialog
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
             >
@@ -252,8 +257,8 @@ export default function CoachVerificationPage() {
             </ModalDialog>
           </Modal>
 
-          {/* Error Modal */}
-          <Modal open={showErrorModal} onClose={null}>
+       
+          <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
             <ModalDialog
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
             >

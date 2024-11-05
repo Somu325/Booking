@@ -87,7 +87,21 @@ export default function CoachAnalytics() {
     try {
       setLoading(true);
       const response = await axios.get<Booking[]>(`${Domain_URL}/coaches/${CoachId}/bookings`);
-      setBookings(response.data);
+  
+      // Sort bookings first by date, then by start time
+      const sortedBookings = response.data.sort((a, b) => {
+        const dateA = new Date(a.date || '').getTime();
+        const dateB = new Date(b.date || '').getTime();
+        const startTimeA = a.startTime ? new Date(`1970-01-01T${a.startTime}`) : new Date(0);
+        const startTimeB = b.startTime ? new Date(`1970-01-01T${b.startTime}`) : new Date(0);
+  
+        if (dateA === dateB) {
+          return startTimeA.getTime() - startTimeB.getTime(); // Sort by start time if dates are equal
+        }
+        return dateA - dateB; // Sort by date
+      });
+  
+      setBookings(sortedBookings);
       setError(null);
     } catch (err) {
       console.error('Error fetching bookings:', err);
@@ -96,6 +110,7 @@ export default function CoachAnalytics() {
       setLoading(false);
     }
   };
+  
 
   const filterBookings = () => {
     let filtered = bookings;
@@ -343,7 +358,8 @@ export default function CoachAnalytics() {
               <Typography><strong>User Name:</strong> {selectedBooking.userName}</Typography>
               <Typography><strong>Child Name:</strong> {selectedBooking.childName}</Typography>
               <Typography><strong>Coach Name:</strong> {selectedBooking.coachName}</Typography>
-              <Typography><strong>Date:</strong> {selectedBooking.date}</Typography>
+              <Typography><strong>Date:</strong> {selectedBooking.date?.split('T')[0]}</Typography>
+
               <Typography><strong>Start Time:</strong> {selectedBooking.startTime}</Typography>
               <Typography><strong>End Time:</strong> {selectedBooking.endTime}</Typography>
               <Typography><strong>Slot Type:</strong> {selectedBooking.slotType}</Typography>
@@ -359,9 +375,3 @@ export default function CoachAnalytics() {
     </CssVarsProvider>
   );
 }
-
-
-
-
-
-
