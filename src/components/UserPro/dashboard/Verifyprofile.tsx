@@ -1,4 +1,4 @@
-
+'use client'
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -93,7 +93,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 // Main component
-export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }) {
+export default function Component({ userEmail = '' }: { userEmail?: string }) {
   const [email, setEmail] = useState<string | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -105,6 +105,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
   const [showAlert, setShowAlert] = useState(false);
   const [showOtpSentModal, setShowOtpSentModal] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [isVerifyEnabled, setIsVerifyEnabled] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -195,6 +196,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
 
   const handleCloseAlert = () => {
     setShowAlert(false);
+    setIsVerifyEnabled(true);
   };
 
   return (
@@ -214,7 +216,7 @@ export default function VerifyProfile({ userEmail = '' }: { userEmail?: string }
                   variant="plain" 
                   color="primary" 
                   onClick={verifyEmail} 
-                  disabled={timer > 0}
+                  disabled={timer > 0 || !isVerifyEnabled}
                   sx={{ marginLeft: 1, backgroundColor:'skyblue' , color: 'black' }}
                 >
                   {timer > 0 ? `Resend OTP (${timer}s)` : 'Verify Email'}
