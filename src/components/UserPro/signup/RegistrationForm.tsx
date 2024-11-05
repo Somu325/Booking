@@ -86,11 +86,21 @@ export default function Component() {
   };
 
   const validateMobileNumber = (number: string) => {
-    if (number.length > 11) return;
+    if (number.length > 10) return;
 
     setMobileNumber(number);
+    if (number.startsWith("0")) {
+      setMobileNumberError("Mobile number cannot start with 0.");
+      setMobileNumber(""); // Reset to empty if it starts with "0"
+    } else if (/^\d*$/.test(number)) {
+      // Only update the value if it is numeric
+      setMobileNumber(number);
+      setMobileNumberError(""); // Clear any existing error
+    } else {
+      setMobileNumberError("Please enter a valid number.");
+    }
 
-    if (number.length < 11) {
+    if (number.length < 10) {
       setMobileNumberError('Please enter a valid phone number.');
       return false;
     } else {
