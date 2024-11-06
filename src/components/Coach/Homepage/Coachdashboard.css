@@ -304,3 +304,62 @@
     font-size: 0.9rem;
   }
 }
+
+
+
+/ Modal Background /
+.custom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); / Semi-transparent background /
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; / Ensure the modal appears on top /
+}
+
+/ Modal Content (Smaller Size) /
+.modal-content {
+  background-color: white;
+  padding: 15px; / Reduced padding for a more compact look /
+  border-radius: 8px;
+  width: 350px; / Set to a smaller width /
+  max-width: 90%; / Max width to ensure it doesn't stretch on smaller screens /
+  position: relative; / Needed to position the close button inside /
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); / Slight shadow for a better look /
+}
+
+/ Close Button Inside Modal /
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px; / Reduced font size /
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: red; / Change color on hover to indicate it's clickable /
+}
+
+button:focus {
+  outline: none;
+}
+
+/ Modal Content Styling /
+h3 {
+  margin-top: 0;
+  font-size: 18px; / Adjusted font size for the title /
+  text-align: center;
+}
+
+p {
+  font-size: 14px; / Adjusted font size for the text /
+  margin-bottom: 8px; / Spacing between paragraphs /
+}
