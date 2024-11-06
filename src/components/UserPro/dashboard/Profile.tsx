@@ -213,7 +213,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   }
 
   const validatePhoneNumber = (phone: string) => {
-    if (!/^\d{11}$/.test(phone)) {
+    if (!/^\d{10}$/.test(phone)) {
       setPhoneError('Plase enter a valid Phone number ')
       return false
     }
@@ -237,8 +237,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   const validateChildAge = (age: string) => {
     const ageNum = parseInt(age, 10)
-    if (isNaN(ageNum) || ageNum < 3 || ageNum > 18) {
-      setChildAgeError('Age must be between 3 and 18')
+    if (isNaN(ageNum) || ageNum < 6 || ageNum > 15) {
+      setChildAgeError('Age must be between 6 and 15')
       return false
     }
     setChildAgeError('')
@@ -453,9 +453,12 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   placeholder="Phone Number"
   value={tempPhoneNumber}
   onChange={(e) => {
-    const input = e.target.value;
-    // Allow only up to 11 digits
-    if (input.length <= 11 && /^\d*$/.test(input)) {
+    let input = e.target.value;
+    if (input.startsWith("0")) {
+       input = input.slice(1);
+    }
+    // Allow only up to 10 digits
+    if (input.length <= 10 && /^\d*$/.test(input)) {
       setTempPhoneNumber(input);
       validatePhoneNumber(input);
     }
@@ -705,7 +708,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
               >
                 <ModalClose />
                 <Typography level="h4" color="success">
-                 OTP Verified Successfully! 
+                 OTP Veriffied Successfully! 
                  </Typography>
               <Typography level="body-md" color="success" sx={{ mt: 1 }}>
                New email verified. Please login with your new email and the same password.

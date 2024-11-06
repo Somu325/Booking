@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Coachdashboard.css';
@@ -9,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Box, Button, Chip, Modal, ModalClose, ModalDialog, Typography } from '@mui/joy';
 
 const Coachdashboard: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -22,8 +18,6 @@ const Coachdashboard: React.FC = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-
-
 
   interface Booking {
     bookingId: string;
@@ -42,7 +36,7 @@ const Coachdashboard: React.FC = () => {
     endTime: string | null;
     slotType: string | null;
     slotDuration: string | null;
-    date: string | null; // Add date property
+    date: string | null;
   }
 
   const coachId = localStorage.getItem('coachId');
@@ -52,7 +46,6 @@ const Coachdashboard: React.FC = () => {
   const handlePrevious = () => setStartDate((prev) => addDays(prev, -5));
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
-
 
   const handleRowClick = (slot: any) => {
     if (slot.status === 'booked') {
@@ -64,14 +57,13 @@ const Coachdashboard: React.FC = () => {
     if (date) {
       setSelectedDate(date);
       setIsCalendarOpen(false);
-  
+
       const daysDifference = differenceInDays(date, startDate);
       if (daysDifference < 0 || daysDifference >= 5) {
         setStartDate(date);
       }
     }
   };
-  
 
   const fetchSlots = async () => {
     setLoading(true);
@@ -81,7 +73,7 @@ const Coachdashboard: React.FC = () => {
       setError(null);
     } catch (err: any) {
       console.error('Error fetching slots:', err.message);
-      setError('Failed to load slots. Please try again later.');
+      setError('No slots available for the selected date.');
       setSlots([]);
     } finally {
       setLoading(false);
@@ -127,25 +119,6 @@ const Coachdashboard: React.FC = () => {
         return '';
     }
   };
-
-  // Add this function to determine the color of the Chip based on slot status
-// const getStatusColor = (status: string) => {
-//   switch (status) {
-//     case 'available':
-//       return 'success';
-//     case 'completed':
-//       return 'primary';
-//     case 'upcoming':
-//       return 'info';
-//     case 'cancelled':
-//       return 'danger';
-//     case 'booked':
-//       return 'warning';
-//     default:
-//       return 'neutral';
-//   }
-// };
-
 
   return (
     <div className="container">
@@ -263,32 +236,30 @@ const Coachdashboard: React.FC = () => {
         </main>
       </div>
 
-      {/* Modal for booking details */}
-<Modal open={Boolean(selectedBooking)} onClose={() => setSelectedBooking(null)}>
-  <ModalDialog>
-    <ModalClose />
-    <Typography>Booking Details</Typography>
-    {selectedBooking && (
-      <Box sx={{ mt: 2 }}>
-        <Typography><strong>User Name:</strong> {selectedBooking.userName}</Typography>
-        <Typography><strong>Child Name:</strong> {selectedBooking.childName}</Typography>
+      {/ Custom Modal Implementation /}
+      {selectedBooking && (
+  <div className="custom-modal">
+    <div className="modal-content">
+      {/ Close Button /}
+      <button className="close-modal" onClick={() => setSelectedBooking(null)}>
+        &times;
+      </button>
+      
+      <h3>Booking Details</h3>
+      <br></br>
+      <div>
+        <p><strong>User Name:</strong> {selectedBooking.userName}</p>
+        <p><strong>Child Name:</strong> {selectedBooking.childName}</p>
+        <p><strong>Date:</strong> {selectedBooking.date?.split('T')[0]}</p>
+        <p><strong>Start Time:</strong> {selectedBooking.startTime}</p>
+        <p><strong>End Time:</strong> {selectedBooking.endTime}</p>
+        <p><strong>Slot Type:</strong> {selectedBooking.slotType}</p>
      
-        <Typography><strong>Date:</strong> {selectedBooking.date?.split('T')[0]}</Typography>
-        <Typography><strong>Start Time:</strong> {selectedBooking.startTime}</Typography>
-        <Typography><strong>End Time:</strong> {selectedBooking.endTime}</Typography>
-        <Typography><strong>Slot Type:</strong> {selectedBooking.slotType}</Typography>
-        <Typography><strong>Duration:</strong> {selectedBooking.slotDuration}</Typography>
-        <Typography><strong>Status:</strong> 
-          <Chip >{selectedBooking.status}</Chip>
-        </Typography>
-      </Box>
-    )}
-    <Button variant="outlined" onClick={() => setSelectedBooking(null)} sx={{ mt: 2 }}>
-      Close
-    </Button>
-  </ModalDialog>
-</Modal>
-
+        <p><strong>Status:</strong> <span>{selectedBooking.status}</span></p>
+      </div>
+    </div>
+  </div>
+)}
 
     </div>
   );
