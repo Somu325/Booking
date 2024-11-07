@@ -298,8 +298,11 @@ export default function SlotBooking() {
                       level="body-md"
                       sx={{
                         mb: 2,
-                        color: slot.status === 'booked' ? 'danger.500' : 'success.500',
-                        fontWeight: 'bold',
+                        color: 
+                        slot.status === 'booked' ? 'danger.500' : 
+                        slot.status === 'completed' ? 'orange' : 
+                        'green',
+                      fontWeight: 'bold',
                       }}
                     >
                       {slot.status}
@@ -417,39 +420,43 @@ export default function SlotBooking() {
             Select Children for  Booking Coach
           </Typography>
 
-          {subsets.length > 0  ? (
-            <>
-              <Typography id="subuser-modal-desc" textColor="text.tertiary" mb={2}>
-                You can select Children for this booking.
-              </Typography>
-              <Select
-                placeholder="Select subuser 1"
-                value={selectedSubuser1}
-                onChange={(_, newValue) => setSelectedSubuser1(newValue as string)}
-                sx={{ mb: 2 }}
-              >
-                <Option value="" disabled>Add Child</Option>
-                
-                {subsets.map((subuser) => (
-                  <Option key={subuser.childId} value={subuser.childId}>
-                    {subuser.name}
-                  </Option>
-                ))}
-              </Select>
-             
-              <Button
-                onClick={handleConfirmBooking}
-                sx={{ mt: 2 }}
-                fullWidth
-                variant="solid"
-                color="primary"
-              >
-                Confirm Booking
-              </Button>
-            </>
-          ) : (
-            <Typography>No Childrens available. Please Add Childrens In Your Profile</Typography>
-          )}
+
+{subsets.length > 0 ? (
+  <>
+    <Typography id="subuser-modal-desc" textColor="text.tertiary" mb={2}>
+      You can select Children for this booking.
+    </Typography>
+    <Select
+      placeholder="Select subuser 1"
+      value={selectedSubuser1}
+      onChange={(_, newValue) => setSelectedSubuser1(newValue as string)}
+      sx={{ mb: 2 }}
+    >
+      <Option value="" disabled>Add Child</Option>
+      {subsets.map((subuser) => (
+        <Option key={subuser.childId} value={subuser.childId}>
+          {subuser.name}
+        </Option>
+      ))}
+    </Select>
+
+    <Button
+      onClick={handleConfirmBooking}
+      sx={{ mt: 2 }}
+      fullWidth
+      variant="solid"
+      color="primary"
+      disabled={!selectedSubuser1} // Disable if no child is selected
+    >
+      Confirm Booking
+    </Button>
+  </>
+) : (
+  <Typography>No Children available. Please add children in your profile.</Typography>
+)}
+
+
+
         </Sheet>
       </Modal>
 

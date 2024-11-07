@@ -465,11 +465,23 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   }}
   error={!!phoneError}
 />
-                    <Input
-                       placeholder="Email"
-                       value={tempEmail}
-                       onChange={(e) => setTempEmail(e.target.value)}
-                     />
+<Input
+  placeholder="Email"
+  value={tempEmail}
+  onChange={(e) => {
+    const updatedEmail = e.target.value;
+
+    // Allow digits if the email format is not fully set, else restrict digits
+    if (/^\S+@\S+\.\S+$/.test(tempEmail) && /\d/.test(updatedEmail.slice(-1))) {
+      // If email format is set and the new character is a digit, do nothing
+      return;
+    } else {
+      // Otherwise, allow updating the email
+      setTempEmail(updatedEmail);
+    }
+  }}
+/>
+
                     {phoneError && <Typography color="danger">{phoneError}</Typography>}
                     <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError}>Update Profile</Button>
                   </Box>
@@ -701,7 +713,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
             <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
               <ModalDialog
                 sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backgroundColor: 'rgba(255, 255, 255 0.9)',
                   backdropFilter: 'blur(10px)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
                 }}
