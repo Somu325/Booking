@@ -648,14 +648,27 @@ const Schedule = () => {
     return selectedDateTime.isSameOrAfter(currentDateInLocal.add(12, 'hours'));
   };
 
+  const isValidWeeklyDays = (startDate, endDate, selectedDays) => {
+    const start = moment(startDate, 'MM/DD/YYYY');
+    const end = moment(endDate, 'MM/DD/YYYY');
+    const validDays = selectedDays.map(day => moment().day(day).format('dddd'));
+    
+    // Loop through each date in the range and check if it matches any of the selected days
+    let isValid = false;
+    for (let m = moment(start); m.isBefore(end) || m.isSame(end, 'day'); m.add(1, 'days')) {
+      if (validDays.includes(m.format('dddd'))) {
+        isValid = true;
+        break;
+      }
+    }
+    
+    return isValid;
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // Prevent multiple submissions
-    if (isSubmitting) {
-      return;
-    }
-  
+    
+    if (isSubmitting) return;
     setIsSubmitting(true);
   
     try {
@@ -663,7 +676,6 @@ const Schedule = () => {
         throw new Error("End time must be after start time.");
       }
   
-      // Validate selected dates
       if (scheduleType === 'daily') {
         if (!isDateInFuture(date)) {
           throw new Error("Please select a future date for daily scheduling.");
@@ -672,34 +684,17 @@ const Schedule = () => {
           throw new Error("Please select a time at least 12 hours in advance.");
         }
       } else {
-        // Validate weekly schedule: check that the start date and end date are valid
+        if (moment(startDate).isAfter(moment(endDate))) {
+          throw new Error("End date must be after start date.");
+        }
         if (!isDateInFuture(startDate) || !isDateInFuture(endDate)) {
           throw new Error("Please select future dates for weekly scheduling.");
         }
-  
-        // Validate that the selected date range matches the days of the week
-        const start = moment(startDate, 'MM/DD/YYYY');
-        const end = moment(endDate, 'MM/DD/YYYY');
-  
-        const selectedDays = daysOfWeek.map(day => {
-          return moment().day(day).format('dddd'); // Get the day name in full format
-        });
-  
-        // Loop through the range and check if the selected days match the date range
-        let validDays = false;
-        for (let m = moment(start); m.isBefore(end) || m.isSame(end, 'day'); m.add(1, 'days')) {
-          if (selectedDays.includes(m.format('dddd'))) {
-            validDays = true;
-            break;
-          }
-        }
-  
-        if (!validDays) {
-          throw new Error("The selected days of the week do not match the date range.");
-        }
-  
         if (daysOfWeek.length === 0) {
           throw new Error("Please select at least one day of the week.");
+        }
+        if (!isValidWeeklyDays(startDate, endDate, daysOfWeek)) {
+          throw new Error("The selected days of the week do not match the date range.");
         }
       }
   
@@ -711,12 +706,12 @@ const Schedule = () => {
         slotType,
         comment: slotType === 'personal' ? comment : '',
         ...(scheduleType === 'daily'
-            ? { date: moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD') }
-            : {
-                startdate: moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD'),
-                enddate: moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD'),
-                daysOfWeek,
-            }),
+          ? { date: moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD') }
+          : {
+              startdate: moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD'),
+              enddate: moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD'),
+              daysOfWeek,
+          }),
       };
   
       const endpoint = scheduleType === 'daily' 
@@ -726,8 +721,6 @@ const Schedule = () => {
       const response = await axios.post(endpoint, payload, {
         headers: { 'Content-Type': 'application/json' },
       });
-  
-      console.log('Response from API:', response.data);
   
       if (response.data.message) {
         setErrorMessage(response.data.message);
@@ -743,32 +736,35 @@ const Schedule = () => {
       }, 5000);
   
     } catch (error: any) {
-      console.error('Error creating slots:', error);
+      console.error('Error creating slots:', error.message);
   
       if (axios.isAxiosError(error)) {
-        if (error.code === 'ERR_NETWORK') {
-          console.log('Server is offline, please wait...');
+        if (error.response?.status === 400) {
+          setErrorMessage('Slots already generated in the specified date range.');
+        } else if (error.code === 'ERR_NETWORK') {
           alert('Server Offline. Please wait...');
           setServerOffline(true);
         } else {
           setServerOffline(false);
+          setErrorMessage(error.response?.data?.message || 'An unexpected error occurred.');
         }
+      } else {
+        setErrorMessage(error.message);
       }
   
-      const errorMsg = 'Slots already exist for the specified date and time range.';
-      setErrorMessage(errorMsg);
       setSuccessMessage('');
-  
       setTimeout(() => {
         setErrorMessage('');
       }, 5000);
+  
     } finally {
-      // Reset submission state after a delay to prevent rapid re-submissions
       setTimeout(() => {
         setIsSubmitting(false);
       }, 1000);
     }
   };
+  
+  
   
   
 
