@@ -86,28 +86,35 @@ export default function Component() {
   };
 
   const validateMobileNumber = (number: string) => {
-    if (number.length > 10) return;
+    // Remove any non-numeric characters
+    const numericNumber = number.replace(/\D/g, "");
 
-    setMobileNumber(number);
-    if (number.startsWith("0")) {
-      setMobileNumberError("Mobile number cannot start with 0.");
-      setMobileNumber(""); // Reset to empty if it starts with "0"
-    } else if (/^\d*$/.test(number)) {
-      // Only update the value if it is numeric
-      setMobileNumber(number);
-      setMobileNumberError(""); // Clear any existing error
-    } else {
-      setMobileNumberError("Please enter a valid number.");
+    // Check for starting with zero
+    if (numericNumber.startsWith("0")) {
+        setMobileNumberError("Mobile number cannot start with 0.");
+        setMobileNumber(""); // Reset to empty if it starts with "0"
+        return false;
     }
 
-    if (number.length < 10) {
-      setMobileNumberError('Please enter a valid phone number.');
-      return false;
-    } else {
-      setMobileNumberError(null);
-      return true;
+    // Limit input to 10 characters
+    if (numericNumber.length > 10) {
+        setMobileNumberError("");
+        return false;
     }
-  };
+
+    // If it passes all checks, update the mobile number and clear any errors
+    setMobileNumber(numericNumber);
+    
+    // Check for minimum length requirement of 10 digits
+    if (numericNumber.length < 10) {
+        setMobileNumberError("Please enter a valid 10-digit phone number.");
+        return false;
+    }
+
+    setMobileNumberError(""); // Clear any existing error
+    return true;
+};
+
 
   const validateName = (name: string) => {
     const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
