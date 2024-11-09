@@ -28,6 +28,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { Domain_URL } from "../../config";
 import { ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom'; 
 
 // Updated User interface with userId, isOnHold, isNotAvailable, and status fields
 interface User {
@@ -50,7 +51,7 @@ const ManageUser: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
@@ -180,7 +181,9 @@ const ManageUser: React.FC = () => {
   const toggleCoachMenu = () => {
     setCoachOpen(!coachOpen);
   };
-
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
+  };
   const toggleBookingMenu = () => {
     setBookingOpen(!bookingOpen);
   };
@@ -269,6 +272,11 @@ const ManageUser: React.FC = () => {
                 </ListItemButton>
               </List>
             </Collapse>
+
+            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
           </List>
         </Box>
       </Drawer>
