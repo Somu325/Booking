@@ -26,6 +26,7 @@ import Generateslots from "./components/GenerateWeeklySlots/GenWeekSlots";
 import CoachVerification from "./components/Coach/Coachprofile/coachverification";
 import Schedule from "./components/GenerateWeeklySlots/scheduler";
 import Coachdashboard from "./components/Coach/Homepage/Homepage";
+import BookingTable from "./components/admin/Booking-cancel/Bookingcancel";
 
 
 //import CombinedApp1 from "./components/Coach/Homepage/Homepage1";
@@ -64,6 +65,7 @@ function App() {
         <Route path="/Booking" element={<BookingList/>} />
         <Route path="/Week-Slots" element={<Generateslots/>} />
         <Route path="/coach-verify" element={<CoachVerification/>} />
+        <Route path="/Booking-cancel" element={<BookingTable/>} />
       </Routes>
     </Router>
   );
