@@ -19,6 +19,7 @@ import NotificationsOff from '@mui/icons-material/NotificationsOff';
 
 import { Domain_URL } from '../../config';
 
+// Define interfaces for type checking
 interface Person {
   id: string;
   name: string;
@@ -33,14 +34,22 @@ interface SideMenuProps {
   onClose: () => void;
 }
 
+// Custom theme configuration
 const theme = extendTheme({
   // your existing theme configuration
 });
 
+// SideMenu component for navigation
 function SideMenu({ isOpen, onClose }: SideMenuProps) {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState({
+    profile: false,
+    bookingHistory: false,
+    logout: false,
+  });
 
+  // Effect to handle clicking outside the menu to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -57,6 +66,26 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
     };
   }, [isOpen, onClose]);
 
+  // Function to handle button clicks with loading state
+  const handleButtonClick = (action: 'profile' | 'bookingHistory' | 'logout') => {
+    setLoading(prev => ({ ...prev, [action]: true }));
+    setTimeout(() => {
+      setLoading(prev => ({ ...prev, [action]: false }));
+      switch (action) {
+        case 'profile':
+          navigate('/userprofile');
+          break;
+        case 'bookingHistory':
+          navigate('/booking-history');
+          break;
+        case 'logout':
+          handleLogout();
+          break;
+      }
+    }, 400);
+  };
+
+  // Function to handle logout
   const handleLogout = () => {
     localStorage.clear();
     document.cookie.split(";").forEach((c) => {
@@ -91,7 +120,8 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
         variant="plain"
         color="neutral"
         sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
-        onClick={() => navigate('/userprofile')}
+        onClick={() => handleButtonClick('profile')}
+        loading={loading.profile}
       >
         Profile
       </Button>
@@ -100,7 +130,8 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
         variant="plain"
         color="neutral"
         sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
-        onClick={() => navigate('/booking-history')}
+        onClick={() => handleButtonClick('bookingHistory')}
+        loading={loading.bookingHistory}
       >
         BookingHistory
       </Button>
@@ -109,7 +140,8 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
         variant="plain"
         color="danger"
         sx={{ justifyContent: 'flex-start', mt: 'auto', width: '150px' }}
-        onClick={handleLogout}
+        onClick={() => handleButtonClick('logout')}
+        loading={loading.logout}
       >
         Logout
       </Button>
@@ -117,24 +149,30 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
   );
 }
 
+// Main Screen component
 export default function Screen() {
+  // State variables
   const [people, setPeople] = useState<Person[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredPeople, setFilteredPeople] = useState<Person[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
   const navigate = useNavigate();
 
+  // Fetch coach data on component mount
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Filter people when search term or people list changes
   useEffect(() => {
     handleSearch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, people]);
 
+  // Function to fetch coach data from API
   const fetchData = async () => {
     try {
       const response = await axios.get(`${Domain_URL}/coach/getAllCoaches`);
@@ -145,6 +183,7 @@ export default function Screen() {
     }
   };
 
+  // Function to handle search functionality
   const handleSearch = () => {
     const filtered = people.filter((person) => {
       const nameMatch = person.name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false;
@@ -154,12 +193,14 @@ export default function Screen() {
     setFilteredPeople(filtered);
   };
 
+  // Function to format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return `${months[date.getUTCMonth()]} ${date.getUTCDate()} ${date.getUTCFullYear()}`;
   };
 
+  // Function to generate an array of dates for display
   const generateDates = () => {
     const startDate = new Date(selectedDate);
     return Array.from({ length: 5 }, (_, i) => {
@@ -169,6 +210,7 @@ export default function Screen() {
   };
   const dates = generateDates();
 
+  // Function to handle date change
   const handleDateChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const newDate = event.target.value;
     if (new Date(newDate).toString() !== 'Invalid Date') {
@@ -179,6 +221,7 @@ export default function Screen() {
     }
   };
 
+  // Function to handle date navigation
   const handleDateNavigation = (direction: 'back' | 'forward') => {
     const currentDate = new Date(selectedDate);
     const newDate = new Date(currentDate);
@@ -188,6 +231,15 @@ export default function Screen() {
       newDate.setDate(currentDate.getDate() + 5);
     }
     setSelectedDate(newDate.toISOString().split('T')[0]);
+  };
+
+  // Function to handle view slot button click with loading state
+  const handleViewSlot = (coachId: string) => {
+    setLoading(prev => ({ ...prev, [coachId]: true }));
+    setTimeout(() => {
+      setLoading(prev => ({ ...prev, [coachId]: false }));
+      navigate(`/selectslot/${coachId}?date=${selectedDate}`);
+    }, 500);
   };
 
   return (
@@ -205,6 +257,7 @@ export default function Screen() {
           ...(isMenuOpen && { pl: '260px' }),
         }}
       >
+        {/* Header section with menu, search, and notifications */}
         <Box sx={{
           display: 'flex',
           alignItems: 'center',
@@ -255,6 +308,7 @@ export default function Screen() {
           </IconButton>
         </Box>
 
+        {/* Date selection section */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, width: '100%', maxWidth: '1200px', overflowX: 'auto' }}>
           <IconButton
             onClick={() => handleDateNavigation('back')}
@@ -316,6 +370,7 @@ export default function Screen() {
           </IconButton>
         </Box>
 
+        {/* Coach cards section */}
         <Box sx={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -334,7 +389,8 @@ export default function Screen() {
                 fullWidth
                 variant="solid"
                 color="primary"
-                onClick={() => navigate(`/selectslot/${person.coachId}?date=${selectedDate}`)}
+                onClick={() => handleViewSlot(person.coachId)}
+                loading={loading[person.coachId]}
               >
                 View Slot
               </Button>
@@ -342,6 +398,7 @@ export default function Screen() {
           ))}
         </Box>
 
+        {/* Calendar modal */}
         <Modal open={isCalendarOpen} onClose={() => setIsCalendarOpen(false)}>
           <ModalDialog sx={{
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -363,6 +420,7 @@ export default function Screen() {
           </ModalDialog>
         </Modal>
 
+        {/* Side menu component */}
         <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       </Box>
     </CssVarsProvider>

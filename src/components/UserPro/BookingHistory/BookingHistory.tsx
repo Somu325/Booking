@@ -31,7 +31,10 @@ import axios from 'axios'
 import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
 
+// Define the structure of a Booking object
 interface Booking {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  bookingId(bookingId: any): unknown
   id: number
   userId: number
   coachId: number
@@ -48,11 +51,13 @@ interface Booking {
   createdAt: string
 }
 
+// Create a custom theme (not implemented in this snippet)
 const theme = extendTheme({
   // Theme configuration
 })
 
 export default function BookingHistory() {
+  // State variables
   const [bookings, setBookings] = useState<Booking[]>([])
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([])
   const [userId, setUserId] = useState<string | null>(null)
@@ -64,21 +69,25 @@ export default function BookingHistory() {
 
   const navigate = useNavigate()
 
+  // Effect to get userId from localStorage
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId')
     setUserId(storedUserId)
   }, [])
 
+  // Effect to fetch bookings when userId is available
   useEffect(() => {
     if (userId) fetchBookings()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 
+  // Effect to filter bookings when bookings, dateFilter, or statusFilter change
   useEffect(() => {
     filterBookings()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookings, dateFilter, statusFilter])
 
+  // Function to fetch bookings from the API
   const fetchBookings = async () => {
     if (!userId) {
       setError('User ID not found. Please log in again.')
@@ -91,6 +100,19 @@ export default function BookingHistory() {
       const response = await axios.get<Booking[]>(
         `${Domain_URL}/bookings/user/${userId}`
       )
+      const uniqueDates = new Set();
+
+response.data.forEach((booking) => {
+  const dateOnly = new Date(booking.date).toISOString().split('T')[0];
+  
+  // Only log and add to the set if the date is not already present
+  if (!uniqueDates.has(dateOnly)) {
+    uniqueDates.add(dateOnly);
+    console.log(dateOnly);
+  }
+});
+
+
       setBookings(response.data)
       setError(null)
     } catch (err) {
@@ -101,29 +123,42 @@ export default function BookingHistory() {
     }
   }
 
+  // Function to filter and sort bookings based on date, status, and completion
   const filterBookings = () => {
     let filtered = bookings
 
     if (dateFilter) {
-      filtered = filtered.filter((booking) => booking.date === dateFilter)
+      filtered = filtered.filter((booking) => {
+        const bookingDate = new Date(booking.date).toISOString().split('T')[0]
+        return bookingDate === dateFilter
+      })
     }
 
     if (statusFilter) {
       filtered = filtered.filter(
-        (booking) =>
-          booking.status.toLowerCase() === statusFilter.toLowerCase()
+        (booking) => booking.status.toLowerCase() === statusFilter.toLowerCase()
       )
     }
 
+    // Sort filtered bookings by date, then by start time
     filtered.sort((a, b) => {
       const dateA = new Date(a.date)
       const dateB = new Date(b.date)
-      return dateA.getTime() - dateB.getTime()
+      if (dateA.getTime() !== dateB.getTime()) {
+        return dateA.getTime() - dateB.getTime()
+      }
+      // If dates are the same, sort by start time
+      return a.startTime.localeCompare(b.startTime)
     })
+
+    // Move completed bookings to the bottom
+    const completedBookings = filtered.filter(booking => booking.status.toLowerCase() === 'completed')
+    const otherBookings = filtered.filter(booking => booking.status.toLowerCase() !== 'completed')
     
-    setFilteredBookings(filtered)
+    setFilteredBookings([...otherBookings, ...completedBookings])
   }
 
+  // Function to get color for status chip
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, 'primary' | 'success' | 'danger' | 'neutral'> = {
       progress: 'primary',
@@ -133,11 +168,19 @@ export default function BookingHistory() {
     return statusColors[status.toLowerCase()] || 'neutral'
   }
 
-  const uniqueDates = Array.from(new Set(bookings.map((booking) => booking.date))).sort()
+  // Get unique dates and statuses for filter options
+ 
+  const uniqueDates = Array.from(
+    new Set(
+      bookings.map((booking) => new Date(booking.date).toISOString().split('T')[0])
+    )
+  ).sort()
+  console.log("hrl",uniqueDates);
   const uniqueStatuses = [...new Set(bookings.map((booking) => booking.status))]
 
+  // Function to convert UTC date to local date
   const convertToLocalDate = (dateString: string) => {
-    const date = new Date(dateString)
+    const date = new Date(dateString.split(' ')[0])
     return new Date(date.getTime() + date.getTimezoneOffset() * 60000)
   }
 
@@ -152,6 +195,7 @@ export default function BookingHistory() {
         }}
       >
         <Box sx={{ maxWidth: '100%', mb: 2 }}>
+          {/* Back to Dashboard button */}
           <Button
             startDecorator={<ArrowBack />}
             onClick={() => navigate('/screen')}
@@ -169,6 +213,7 @@ export default function BookingHistory() {
           >
             Back to Dashboard
           </Button>
+          {/* Page title */}
           <Typography
             level="h2"
             sx={{
@@ -181,6 +226,7 @@ export default function BookingHistory() {
             Booking History
           </Typography>
 
+          {/* Filter controls */}
           <Box
             sx={{
               display: 'flex',
@@ -190,6 +236,7 @@ export default function BookingHistory() {
               justifyContent: { xs: 'center', md: 'flex-end' },
             }}
           >
+            {/* Date filter */}
             <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Date</FormLabel>
               <Select
@@ -199,12 +246,13 @@ export default function BookingHistory() {
                 <Option value="">All Dates</Option>
                 {uniqueDates.map((date) => (
                   <Option key={date} value={date}>
-                    {convertToLocalDate(date).toLocaleDateString('en-US')}
+                    {new Date(date).toLocaleDateString('en-US')}
                   </Option>
                 ))}
               </Select>
             </FormControl>
 
+            {/* Status filter */}
             <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
               <FormLabel>Filter by Status</FormLabel>
               <Select
@@ -221,6 +269,7 @@ export default function BookingHistory() {
             </FormControl>
           </Box>
 
+          {/* Display loading spinner, error message, or bookings table */}
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', height: 200 }}>
               <CircularProgress size="lg" />
@@ -274,7 +323,7 @@ export default function BookingHistory() {
                       <td>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <CalendarToday fontSize="small" />
-                          {convertToLocalDate(booking.date).toLocaleDateString('en-US')}
+                          {new Date(booking.date).toLocaleDateString('en-US')}
                         </Box>
                       </td>
                       <td>
@@ -300,6 +349,7 @@ export default function BookingHistory() {
           )}
         </Box>
 
+        {/* Modal for displaying booking details */}
         <Modal open={Boolean(selectedBooking)} onClose={() => setSelectedBooking(null)}>
           <ModalDialog sx={{ minWidth: 'sm' }}>
             <ModalClose />
@@ -319,7 +369,7 @@ export default function BookingHistory() {
                 </Typography>
                 <Typography>
                   <strong>Date:</strong>{' '}
-                  {convertToLocalDate(selectedBooking.date).toLocaleDateString('en-US')}
+                  {convertToLocalDate(selectedBooking.date.split(' ')[0]).toLocaleDateString('en-US')}
                 </Typography>
                 <Typography>
                   <strong>Time:</strong> {selectedBooking.startTime} - {selectedBooking.endTime}
