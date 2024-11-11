@@ -289,7 +289,7 @@ const BookingTable: React.FC = () => {
 
     setIsLoading(true); // Start loading
     try {
-      await axios.post(`${Domain_URL}/bookings/${bookingToCancel}/cancel`, { comment: cancelComment });
+      await axios.patch(`${Domain_URL}/bookings/${bookingToCancel}/cancel`, { comment: cancelComment });
       setFilteredBookings(filteredBookings.map(b =>
         b.bookingId === bookingToCancel ? { ...b, status: 'canceled' } : b
       ));
