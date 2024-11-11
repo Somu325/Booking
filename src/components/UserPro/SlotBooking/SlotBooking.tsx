@@ -27,7 +27,7 @@ interface Slot {
   startTime: string
   endTime: string
   duration: number
-  status: 'booked' | 'Available' | 'completed'
+  status: 'booked' | 'Available' | 'completed' | 'unbooked'
   date: string
 }
 
@@ -323,7 +323,7 @@ export default function SlotBooking() {
                         startDecorator={<Person />}
                         sx={{ flexGrow: 1 }}
                         onClick={() => handleBook(slot)}
-                        disabled={slot.status === 'booked' || slot.status === 'completed'}
+                        disabled={slot.status === 'booked' || slot.status === 'completed'  || slot.status === 'unbooked'}
                       >
                         {slot.status === 'booked' ? 'Booked' : 'Book'}
                       </Button>
