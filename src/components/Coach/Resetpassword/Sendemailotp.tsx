@@ -339,7 +339,7 @@ export default function SendEmailOTP() {
   }
 
   const handleBackToLogin = () => {
-    navigate('/user-login')
+    navigate('/Coach-login')
   }
 
   return (

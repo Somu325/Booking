@@ -424,9 +424,14 @@
 // export default RegistrationForm;
 
 
+
+
+
+
+
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import {
   Box,
   Typography,
@@ -437,6 +442,7 @@ import {
   Alert,
   CssVarsProvider,
   extendTheme,
+  CircularProgress
 } from '@mui/joy';
 import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material';
 import axios from 'axios';
@@ -444,7 +450,10 @@ import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
 import { Textarea } from '@mui/joy';
 
-// Custom theme
+// Lazy load components
+const LazyButton = React.lazy(() => import('@mui/joy').then(module => ({ default: module.Button })));
+
+// Custom theme for MUI components
 const theme = extendTheme({
   colorSchemes: {
     light: {
@@ -496,21 +505,46 @@ const RegistrationForm: React.FC = () => {
     bio: '',
   });
 
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
-  const [nameError, setNameError] = useState<string | null>(null); // New state for name validation
-  const [emailError, setEmailError] = useState<string | null>(null); // Email error state
-  const [phoneError, setPhoneError] = useState<string | null>(null); // Phone error state
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  // State for error messages related to form submission
+const [error, setError] = useState<string | null>(null); 
+
+// State for success messages related to form submission
+const [success, setSuccess] = useState<string | null>(null); 
+
+// State to toggle visibility of the password input field
+const [showPassword, setShowPassword] = useState(false); 
+
+// State to toggle visibility of the confirm password input field
+const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
+
+// React Router hook to navigate to different routes
+const navigate = useNavigate(); 
+
+// State to indicate loading status, used to show a spinner or disable button during submission
+const [loading, setLoading] = useState(false); 
+
+// State for storing validation error specific to the name field
+const [nameError, setNameError] = useState<string | null>(null); 
+
+// State for storing validation error specific to the email field
+const [emailError, setEmailError] = useState<string | null>(null); 
+
+// State for storing validation error specific to the phone number field
+const [phoneError, setPhoneError] = useState<string | null>(null); 
+
+// State for storing validation error specific to the password field
+const [passwordError, setPasswordError] = useState<string | null>(null); 
+
+// State for storing validation error specific to the confirm password field
+const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null); 
 
 
+
+// Function to validate an email address format
   const validateEmail = (email: string) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
+    return emailRegex.test(email)
+;
   };
 
   // const validatePhoneNumber = (number: string) => {
@@ -527,29 +561,29 @@ const RegistrationForm: React.FC = () => {
 
   const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
 
-
+  // Handle form input changes and validations
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-  
-    // Name validation
+
+      // Name validation
     if (name === 'name') {
       const alphanumericNameRegex = /^[a-zA-Z\s]*$/;
       setNameError(
         !alphanumericNameRegex.test(value) ? 'Name should contain only alphabets.' : null
       );
     }
-  
+
     // Email validation
     if (name === 'email') {
       setEmailError(!validateEmail(value) ? 'Please enter a valid email address.' : null);
     }
-  
-    // Phone number validation
-    if (name === 'phoneNumber') {
-      setPhoneError(!validatePhoneNumber(value) ? 'Please enter a valid phone number ' : null);
-    }
-  
+
+      // Phone number validation
+      if (name === 'phoneNumber') {
+        setPhoneError(!validatePhoneNumber(value) ? 'Please enter a valid phone number ' : null);
+      }
+
     // Password validation
     if (name === 'password') {
       setPasswordError(
@@ -557,25 +591,24 @@ const RegistrationForm: React.FC = () => {
           ? 'Password must be 8-16 characters long'
           : null
       );
-  
-      // Check confirmPassword after changing password
-      if (formData.confirmPassword && value !== formData.confirmPassword) {
+
+       // Check confirmPassword after changing password
+       if (formData.confirmPassword && value !== formData.confirmPassword) {
         setConfirmPasswordError('Passwords do not match.');
       } else {
         setConfirmPasswordError(null); // Clear error if they match
       }
     }
-  
-    // Confirm password validation
-    if (name === 'confirmPassword') {
+
+     // Confirm password validation
+     if (name === 'confirmPassword') {
       setConfirmPasswordError(
         value !== formData.password ? 'Passwords do not match.' : null
       );
     }
   };
-  
 
-  const handleSubmit = async (event: React.FormEvent) => {
+   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (passwordError || confirmPasswordError || nameError || emailError || phoneError) {
@@ -583,7 +616,7 @@ const RegistrationForm: React.FC = () => {
       return;
     }
 
-
+    // Creates an object containing required fields for registration
     const requiredFields = {
       name: formData.name,
       email: formData.email,
@@ -594,18 +627,20 @@ const RegistrationForm: React.FC = () => {
       bio: formData.bio,
     };
 
+    setLoading(true); // Start loading when submit is clicked
+
     try {
       const response = await axios.post(`${Domain_URL}/coach/createCoache`, requiredFields);
-      
+
       if (response.status === 201) {
         setSuccess('Coach registered successfully!');
         setTimeout(() => navigate('/Coach-login'), 2000);
       }
     } catch (error: any) {
       if (error.response) {
-        // Handle specific status codes
+            // Handle specific status codes
         const { status } = error.response;
-    
+
         if (status === 400) {
           setError('This email is already registered.');
         } else if (status === 404) {
@@ -616,20 +651,23 @@ const RegistrationForm: React.FC = () => {
           setError('An unexpected error occurred. Please try again.');
         }
       } else if (error.request) {
-        // Network error or no response received
+          // Network error or no response received
         setError('No response from the server. Please check your connection.');
       } else {
-        // Any other errors (like code issues)
+            // Any other errors (like code issues)
         setError(`An error occurred: ${error.message}`);
       }
-      
       console.error('Error during sign-up:', error);
+    } finally {
+      setLoading(false); // Stop loading after the request is complete
     }
   };
 
   return (
+    // Provides custom theme to all nested components, allowing consistent styling
     <CssVarsProvider theme={theme}>
-      <Box
+       
+       <Box        //  Main container for the form, positioned centrally on the screen
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -654,22 +692,24 @@ const RegistrationForm: React.FC = () => {
             boxShadow: 'lg',
           }}
         >
-          <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
+           <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
            Create an Account
           </Typography>
 
-          {error && (
+          
+          {error && (          // If there is an error message, display it in an Alert
             <Alert color="danger" sx={{ mt: 2 }}>
               {error}
             </Alert>
           )}
-          {success && (
+          {success && (        // If there is a success message, display it in an Alert
             <Alert color="success" sx={{ mt: 2 }}>
               {success}
             </Alert>
           )}
 
-           <FormControl sx={{ mb: 2 }}>
+          {/* Name Input */}
+          <FormControl sx={{ mb: 2 }}>
             <FormLabel>Name</FormLabel>
             <Input
               name="name"
@@ -685,6 +725,7 @@ const RegistrationForm: React.FC = () => {
             )}
           </FormControl>
 
+          {/* Gender Selection */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Gender</FormLabel>
             <select
@@ -708,6 +749,7 @@ const RegistrationForm: React.FC = () => {
             </select>
           </FormControl>
 
+          {/* Phone */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>
               Phone Number <Typography component="span" color="danger">*</Typography>
@@ -731,6 +773,7 @@ const RegistrationForm: React.FC = () => {
             )}
           </FormControl>
 
+             {/* Email */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>
               Email <Typography component="span" color="danger">*</Typography>
@@ -750,6 +793,7 @@ const RegistrationForm: React.FC = () => {
             )}
           </FormControl>
 
+             {/* sport */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Sport</FormLabel>
             <select
@@ -772,6 +816,7 @@ const RegistrationForm: React.FC = () => {
             </select>
           </FormControl>
 
+               {/* Bio */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Bio</FormLabel>
             <Textarea
@@ -799,6 +844,8 @@ const RegistrationForm: React.FC = () => {
             </Typography>
           </FormControl>
 
+
+          {/* Password */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>
               Password <Typography component="span" color="danger">*</Typography>
@@ -831,6 +878,7 @@ const RegistrationForm: React.FC = () => {
              {passwordError && <Typography color="danger">{passwordError}</Typography>}
           </FormControl>
 
+          {/* Confirm Password */}
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>
               Confirm Password <Typography component="span" color="danger">*</Typography>
@@ -863,11 +911,21 @@ const RegistrationForm: React.FC = () => {
              {confirmPasswordError && <Typography color="danger">{confirmPasswordError}</Typography>}
           </FormControl>
 
-         
-          <Button type="submit" fullWidth sx={{ mt: 2, py: 1.5 }}>
-            Sign Up
-          </Button>
+          
 
+          {/* Submit Button */}
+          <Suspense fallback={<Button>Loading...</Button>}>
+            <LazyButton
+              fullWidth
+              type="submit"
+              
+              disabled={loading} // Disable button when loading
+            >
+              {loading ? <CircularProgress  /> : 'Sign Up'}
+            </LazyButton>
+          </Suspense>
+
+            {/* Display message asking if the user already has an account */}
           <Typography level="body-md" sx={{ mt: 3, textAlign: 'center' }}>
             Already have an account?{' '}
             <Typography component="a" href="/Coach-login" fontWeight="bold" color="primary">
