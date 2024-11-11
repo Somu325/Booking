@@ -1,12 +1,8 @@
-
-
-
 "use client";
 
 import { useState, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 import {
   TextField,
   Button,
@@ -55,7 +51,6 @@ const theme = createTheme({
 });
 
 const LoginForm = () => {
-  // State variables for email, password, error messages, loading status, and password visibility
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -63,61 +58,51 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Handle form submission for login
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);    // Set loading state to show spinner
-    setError(""); // Reset error state
+    setLoading(true);
+    setError("");
 
     try {
-      // API request to authenticate user
       const { data } = await axios.post(`${Domain_URL}/user/login`, { email, password });
       console.log("Login successful:", data);
 
-      // Store user details in local storage
       localStorage.setItem("email", data.user.email);
       localStorage.setItem("userId", data.user.id);
 
-      // Store authentication token in a secure cookie
       if (data.token) {
         Cookies.set("token", data.token, {
-          expires: 1, // Token expiry time (1 day)
-          secure: true, // Ensure token is only sent over HTTPS
-          sameSite: "strict", // Prevent CSRF attacks
+          expires: 1,
+          secure: true,
+          sameSite: "strict",
         });
         console.log("Token stored in cookie:", Cookies.get("token"));
       }
 
-      // Redirect user based on email verification status
       navigate(data.user.verified === false ? "/verifyemail" : "/screen");
     } catch (error) {
       console.error("Login failed:", error);
 
-      // Error handling based on Axios error response
       if (axios.isAxiosError(error)) {
-      if (error.response) {
-    // Server responded with a status code outside the 2xx range
-    const status = error.response.status;
-    if (status === 401) {
-      setError("Incorrect email or password.");
-    } else if (status === 404) {
-      setError("You are not registered. Please sign up.");
-    } else if (status === 500) {
-      setError("The server is currently offline. Please try again later.");
-    } else if (status === 403) {
-      setError("Your account is currently not available. Please contact Admin for help.");
-    } else {
-      setError("An unexpected error occurred. Please try again.");
+        if (error.response) {
+          const status = error.response.status;
+          if (status === 401) setError("Incorrect email or password.");
+          else if (status === 404) setError("You are not registered. Please sign up.");
+          else if (status === 500) setError("The server is currently offline. Please try again later.");
+          else if (status === 403) setError("Your account is currently not available. Please contact Admin for help.");
+          else setError("An unexpected error occurred. Please try again.");
+        } else if (error.request) {
+          setError("The server is currently offline. Please try again later.");
+        } else {
+          setError("An error occurred while logging in. Please try again.");
+        }
+      } else {
+        setError("An error occurred. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
     }
-  } else if (error.request) {
-    setError("The server is currently offline. Please try again later.");
-  } else {
-    setError("An error occurred while logging in. Please try again.");
-  }
-} else {
-  setError("An error occurred. Please try again later.");
-}
-    };
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -144,7 +129,6 @@ const LoginForm = () => {
               boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
             }}
           >
-            {/* Logo and title for the login page */}
             <img src="/cric.jpg" alt="Logo" width={100} height={100} style={{ marginBottom: "16px" }} />
             <Typography component="h1" variant="h4" fontWeight="bold" sx={{ mb: 2 }}>
               Welcome
@@ -153,12 +137,9 @@ const LoginForm = () => {
               Sign in to continue your journey
             </Typography>
 
-            {/* Display error message if login fails */}
             {error && <Alert severity="error" sx={{ borderRadius: "50px", mb: 2 }}>{error}</Alert>}
-            
-            {/* Form to input email and password */}
+
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: "100%" }}>
-              {/* Email input field */}
               <TextField
                 margin="normal"
                 required
@@ -178,7 +159,6 @@ const LoginForm = () => {
                   ),
                 }}
               />
-              {/* Password input field with visibility toggle */}
               <TextField
                 margin="normal"
                 required
@@ -209,7 +189,6 @@ const LoginForm = () => {
                   ),
                 }}
               />
-              {/* Forgot password link */}
               <Button
                 component="a"
                 href="/Sendotp"
@@ -218,7 +197,6 @@ const LoginForm = () => {
               >
                 Forgot Password?
               </Button>
-              {/* Submit button with loading indicator */}
               <Button
                 type="submit"
                 fullWidth
@@ -229,7 +207,6 @@ const LoginForm = () => {
               >
                 {loading ? <CircularProgress size={24} /> : "Sign In"}
               </Button>
-              {/* Link to sign-up page */}
               <Box sx={{ textAlign: "center", mt: 2 }}>
                 <Typography variant="body2">
                   Don&apos;t have an account?{" "}
@@ -247,4 +224,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-
