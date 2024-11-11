@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
 import CssBaseline from '@mui/joy/CssBaseline'
 import Box from '@mui/joy/Box'
@@ -17,10 +16,11 @@ import IconButton from '@mui/joy/IconButton'
 import Modal from '@mui/joy/Modal'
 import ModalDialog from '@mui/joy/ModalDialog'
 import ModalClose from '@mui/joy/ModalClose'
-import { Add, Edit, Delete, AccountCircle, VerifiedUser, ArrowBack } from '@mui/icons-material'
+import { Add, Edit, Delete, AccountCircle, VerifiedUser, ArrowBack, Save } from '@mui/icons-material'
 
 import { Domain_URL } from '../../config'
 
+// Define interfaces for User and EmailVerificationData
 interface User {
   userId: string
   name: string
@@ -37,6 +37,7 @@ interface EmailVerificationData {
   orderId: string
 }
 
+// Custom theme configuration
 const theme = extendTheme({
   colorSchemes: {
     light: {
@@ -95,6 +96,8 @@ const theme = extendTheme({
   },
 })
 
+
+// Error Boundary component for handling errors in the component tree
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
@@ -122,6 +125,7 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function UserProfile({ userEmail = '' }: { userEmail?: string }) {
+  // State variables for user data and UI control
   const [email, setEmail] = useState<string | null>(null)
   const [userData, setUserData] = useState<User | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -150,19 +154,24 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   const [childAgeError, setChildAgeError] = useState('')
   const [timer, setTimer] = useState(0)
   const [showVerificationPrompt, setShowVerificationPrompt] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
 
+   // Effect to set email from localStorage on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setEmail(localStorage.getItem('email'))
     }
   }, [])
 
+  // Function to fetch user data from the server
+
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`${Domain_URL}/user/email/${userEmail || email}`)
       const data: User = response.data
+        // Set user data and temporary state variables
       if (data) {
         setUserData(data)
         setTempName(data.name)
@@ -184,11 +193,13 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
+  // Effect to fetch user data when component mounts or email changes
   useEffect(() => {
     fetchUserData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail, email])
 
+    // Effect to handle OTP resend timer
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (timer > 0) {
@@ -199,6 +210,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return () => clearInterval(interval)
   }, [timer])
 
+
+  // Function to validate user name
   const validateName = (name: string) => {
     if (name.length < 2) {
       setNameError('Name should contain only Alphabets')
@@ -212,8 +225,9 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return true
   }
 
+// Function to validate phone number
   const validatePhoneNumber = (phone: string) => {
-    if (!/^\d{11}$/.test(phone)) {
+    if (!/^\d{10}$/.test(phone)) {
       setPhoneError('Plase enter a valid Phone number ')
       return false
     }
@@ -221,7 +235,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return true
   }
 
-
+// Function to validate childname
   const validateChildName = (name: string) => {
     if (name.length < 2) {
       setChildNameError('Name should contain only Alphabets')
@@ -234,22 +248,26 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     setChildNameError('')
     return true
   }
-
+ 
+  // Function to validate child age
   const validateChildAge = (age: string) => {
     const ageNum = parseInt(age, 10)
-    if (isNaN(ageNum) || ageNum < 3 || ageNum > 18) {
-      setChildAgeError('Age must be between 3 and 18')
+    if (isNaN(ageNum) || ageNum < 6 || ageNum > 15) {
+      setChildAgeError('Age must be between 6 and 15')
       return false
     }
     setChildAgeError('')
     return true
   }
 
+
+  // Function to update user data
   const updateUserData = async () => {
     if (!validateName(tempName) || !validatePhoneNumber(tempPhoneNumber)) {
       return
     }
 
+    setIsLoading(true)
     try {
       const updatedUserData = {
         name: tempName,
@@ -269,14 +287,20 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
       }
     } catch (error) {
       console.error('Error updating user data:', error)
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 3000)
     }
   }
 
+    // Function to update child data
   const handleUpdateChild = async (childId: string) => {
     if (!validateChildName(updatedChild.name) || !validateChildAge(updatedChild.age)) {
       return
     }
 
+    setIsLoading(true)
     try {
       const updatedChildData = {
         name: updatedChild.name,
@@ -288,14 +312,20 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
       fetchUserData()
     } catch (error) {
       console.error('Error updating child:', error)
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 3000)
     }
   }
 
+  // Function to add a new child
   const addChild = async () => {
     if (!validateChildName(newChildName) || !validateChildAge(newChildAge) || !newChildGender) {
       return
     }
 
+    setIsLoading(true)
     try {
       const childData = {
         name: newChildName,
@@ -311,18 +341,30 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
       setShowAddChildForm(false)
     } catch (error) {
       console.error('Error adding child:', error)
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 3000)
     }
   }
 
+
+   // Function to delete a child
   const handleDeleteChild = async (childId: string) => {
+    setIsLoading(true)
     try {
       await axios.delete(`${Domain_URL}/children/id/${childId}`)
       setChildDetails(prev => prev.filter(child => child.childId !== childId))
     } catch (error) {
       console.error('Error deleting child:', error)
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 3000)
     }
   }
 
+   // Function to initiate email verification process
   const verifyEmail = async () => {
     try {
       const response = await axios.post(`${Domain_URL}/api/send-otp1`, { email: tempEmail })
@@ -334,6 +376,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
+   // Function to confirm OTP and complete email verification
   const confirmOtp = async (email: string | undefined, otp: string, orderId: string) => {
     try {
       const response = await axios.post(`${Domain_URL}/api/verify-otp`, {
@@ -372,6 +415,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
+  // Function to update user's verified status  
   const updateVerifiedStatus = async (email: string | undefined) => {
     try {
       await axios.put(`${Domain_URL}/user/email/${email}`, {
@@ -394,6 +438,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
             padding: 4,
           }}
         >
+
+            {/* Back to Dashboard button */}
            <Button
             startDecorator={<ArrowBack />}
             onClick={() => navigate('/screen')}
@@ -413,6 +459,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
           </Button>
           <Box sx={{ maxWidth: 800, margin: 'auto' }}>
             <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
+                {/* User profile header */}
               <AccountCircle sx={{ fontSize: 80, color: 'primary.main' }} />
               <Typography level="h2" component="h1" sx={{ mt: 2 }}>
                 {userData?.name || 'User'}
@@ -433,7 +480,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                 )}
               </Box>
             </Box>
-
+  
+     {/* User profile edit form */}
             <Card variant="outlined" sx={{ mb: 4 }}>
               <CardContent>
                 {isEditMode ? (
@@ -453,22 +501,39 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   placeholder="Phone Number"
   value={tempPhoneNumber}
   onChange={(e) => {
-    const input = e.target.value;
-    // Allow only up to 11 digits
-    if (input.length <= 11 && /^\d*$/.test(input)) {
+    let input = e.target.value;
+    if (input.startsWith("0")) {
+       input = input.slice(1);
+    }
+    // Allow only up to 10 digits
+    if (input.length <= 10 && /^\d*$/.test(input)) {
       setTempPhoneNumber(input);
       validatePhoneNumber(input);
     }
   }}
   error={!!phoneError}
 />
-                    <Input
-                       placeholder="Email"
-                       value={tempEmail}
-                       onChange={(e) => setTempEmail(e.target.value)}
-                     />
+<Input
+  placeholder="Email"
+  value={tempEmail}
+  onChange={(e) => {
+    const updatedEmail = e.target.value;
+
+    // Allow digits if the email format is not fully set, else restrict digits
+    if (/^\S+@\S+\.\S+$/.test(tempEmail) && /\d/.test(updatedEmail.slice(-1))) {
+      // If email format is set and the new character is a digit, do nothing
+      return;
+    } else {
+      // Otherwise, allow updating the email
+      setTempEmail(updatedEmail);
+    }
+  }}
+/>
+
                     {phoneError && <Typography color="danger">{phoneError}</Typography>}
-                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError}>Update Profile</Button>
+                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError || isLoading}>
+                      {isLoading ? 'Updating...' : 'Update Profile'}
+                    </Button>
                   </Box>
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -483,7 +548,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                 )}
               </CardContent>
             </Card>
-
+ {/* Children section */}
             <Box sx={{ marginTop: 4 }}>
               <Box sx={{ display: 'flex', 
                 justifyContent: 'space-between',
@@ -503,7 +568,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
               <Typography level="body-lg" sx={{ mb: 2, fontWeight: 'bold' }}>
                 Total Children: {childDetails.length}
               </Typography>
-
+   
+              {/* Add child form */}
               {showAddChildForm && (
                 <Card variant="outlined" sx={{ marginBottom: 2 }}>
                   <CardContent>
@@ -547,12 +613,15 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                       </select>
-                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender}>Add Child</Button>
+                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender || isLoading}>
+                        {isLoading ? 'Adding...' : 'Add Child'}
+                      </Button>
                     </Box>
                   </CardContent>
                 </Card>
               )}
-
+ 
+         {/* List of children */}
               {childDetails.length > 0 ? (
                 childDetails.map((child) => (
                   <Card key={child.childId} variant="outlined" sx={{ marginBottom: 2 }}>
@@ -600,8 +669,13 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                           </select>
-                          <Button   sx={{width:'100px' ,  mx: 'auto' }} onClick={() => handleUpdateChild(child.childId)} disabled={!!childNameError || !!childAgeError}>
-                            Save
+                          <Button
+                            sx={{width:'100px' ,  mx: 'auto' }}
+                            onClick={() => handleUpdateChild(child.childId)}
+                            disabled={!!childNameError || !!childAgeError || isLoading}
+                            startDecorator={<Save />}
+                          >
+                            {isLoading ? 'Saving...' : 'Save'}
                           </Button>
                         </Box>
                       ) : (
@@ -630,7 +704,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                             >
                               <Edit />
                             </IconButton>
-                            <IconButton onClick={() => handleDeleteChild(child.childId)}>
+                            <IconButton onClick={() => handleDeleteChild(child.childId)} disabled={isLoading}>
                               <Delete />
                             </IconButton>
                           </Box>
@@ -645,7 +719,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                 </Typography>
               )}
             </Box>
-
+  
+  {/* Email verification modal */}
             <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
               <ModalDialog
                 sx={{
@@ -674,7 +749,8 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                 </Button>
               </ModalDialog>
             </Modal>
-
+ 
+   {/* Email verification prompt modal */}
             <Modal open={showVerificationPrompt} onClose={() => setShowVerificationPrompt(false)}>
               <ModalDialog
                 sx={{
@@ -695,24 +771,26 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
               </ModalDialog>
             </Modal>
 
+     {/* Success modal */}
             <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
               <ModalDialog
                 sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backgroundColor: 'rgba(255, 255, 255 0.9)',
                   backdropFilter: 'blur(10px)',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
                 }}
               >
                 <ModalClose />
                 <Typography level="h4" color="success">
-                 OTP Verified Successfully! 
+                 OTP Veriffied Successfully! 
                  </Typography>
               <Typography level="body-md" color="success" sx={{ mt: 1 }}>
                New email verified. Please login with your new email and the same password.
               </Typography>
               </ModalDialog>
             </Modal>
-
+  
+       {/* Error modal */}
             <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
               <ModalDialog
                 sx={{

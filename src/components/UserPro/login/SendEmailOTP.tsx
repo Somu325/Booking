@@ -1,7 +1,7 @@
 
 'use client'
 
-import  { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, Typography, Input, Button, Alert, CssVarsProvider, extendTheme } from '@mui/joy'
 import { Email, Lock, ArrowForward, ArrowBack } from '@mui/icons-material'
 import axios from 'axios'
@@ -9,7 +9,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Domain_URL } from '../../config'
 
-// Custom theme
+//Custom theme configuration for Material-UI Joy
+
 const theme = extendTheme({
   colorSchemes: {
     light: {
@@ -70,12 +71,14 @@ const theme = extendTheme({
   },
 })
 
-// Mock UserContext hook
+
+// Mock UserContext hook for setting user email
 const useUserContext = () => ({
   setUserEmail: (email: string) => console.log('Setting user email:', email),
 })
 
 export default function SendEmailOTP() {
+  // State variables for form inputs and UI control
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [orderId, setOrderId] = useState('')
@@ -84,9 +87,13 @@ export default function SendEmailOTP() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [timer, setTimer] = useState(0)
+
+  // Custom hook for setting user email
   const { setUserEmail } = useUserContext()
+  // Hook for programmatic navigation
   const navigate = useNavigate()
 
+  // Effect hook for managing the resend OTP timer
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (timer > 0) {
@@ -97,7 +104,9 @@ export default function SendEmailOTP() {
     return () => clearInterval(interval)
   }, [timer])
 
+  // Function to handle sending OTP
   const handleSendOTP = async () => {
+    // Input validation
     if (!email) {
       setError('Please enter your email')
       return
@@ -113,13 +122,16 @@ export default function SendEmailOTP() {
     setError(null)
 
     try {
+      // API call to send OTP
+     
       const response = await axios.post(`${Domain_URL}/api/send-otp1`, { email })
+      
       if (response.data.orderId) {
         setOrderId(response.data.orderId)
         setIsOTPSent(true)
         setSuccess('OTP sent successfully to your email')
         localStorage.setItem('email', email)
-        setTimer(120) // Reset the timer to 2 minutes
+        setTimer(120) // Set timer for 2 minutes
       } else {
         setError('Failed to send OTP')
       }
@@ -131,7 +143,9 @@ export default function SendEmailOTP() {
     }
   }
 
+  // Function to handle OTP verification
   const handleVerifyOTP = async () => {
+    // Input validation
     if (!otp) {
       setError('Please enter the OTP')
       return
@@ -146,6 +160,7 @@ export default function SendEmailOTP() {
     setError(null)
 
     try {
+      // API call to verify OTP
       const response = await axios.post(`${Domain_URL}/api/verify-otp`, {
         email,
         otp,
@@ -166,6 +181,7 @@ export default function SendEmailOTP() {
     }
   }
 
+  // Function to navigate back to login page
   const handleBackToLogin = () => {
     navigate('/user-login')
   }
@@ -174,6 +190,7 @@ export default function SendEmailOTP() {
     <CssVarsProvider theme={theme}>
       <Box
         sx={{
+          // Styles for the main container
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -184,6 +201,7 @@ export default function SendEmailOTP() {
       >
         <Box
           sx={{
+            // Styles for the form container
             width: '90%',
             maxWidth: 450,
             p: 4,
@@ -198,14 +216,17 @@ export default function SendEmailOTP() {
             },
           }}
         >
+          {/* Title of the form */}
           <Typography level="h3" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 800, color: 'primary.700' }}>
             {!isOTPSent ? 'Reset Password' : 'Verify OTP'}
           </Typography>
+          {/* Description text */}
           <Typography level="body-md" sx={{ mb: 4, textAlign: 'center', color: 'neutral.600' }}>
             {!isOTPSent ? 'Enter your email to receive a one-time password' : `Enter the OTP sent to ${email}`}
           </Typography>
           {!isOTPSent ? (
             <>
+              {/* Email input field */}
               <Input
                 placeholder="Enter your email"
                 value={email}
@@ -214,6 +235,7 @@ export default function SendEmailOTP() {
                 startDecorator={<Email sx={{ color: 'primary.500' }} />}
                 sx={{ mb: 3 }}
               />
+              {/* Send OTP button */}
               <Button
                 fullWidth
                 loading={loading}
@@ -227,14 +249,15 @@ export default function SendEmailOTP() {
             </>
           ) : (
             <>
+              {/* OTP input field */}
               <Input
                 placeholder="Enter OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                //type="number"
                 startDecorator={<Lock sx={{ color: 'primary.500' }} />}
                 sx={{ mb: 3 }}
               />
+              {/* Verify OTP button */}
               <Button
                 fullWidth
                 loading={loading}
@@ -245,6 +268,7 @@ export default function SendEmailOTP() {
               >
                 {loading ? 'Verifying...' : 'Verify OTP'}
               </Button>
+              {/* Resend OTP timer or button */}
               {timer > 0 ? (
                 <Typography level="body-sm" sx={{ mt: 2, textAlign: 'center', color: 'primary.600' }}>
                   Resend OTP in {timer} seconds
@@ -261,16 +285,19 @@ export default function SendEmailOTP() {
               )}
             </>
           )}
+          {/* Error message display */}
           {error && (
             <Alert color="danger" variant="soft" sx={{ mt: 3 }}>
               {error}
             </Alert>
           )}
+          {/* Success message display */}
           {success && (
             <Alert color="success" variant="soft" sx={{ mt: 3 }}>
               {success}
             </Alert>
           )}
+          {/* Back to Login button */}
           <Button
             fullWidth
             variant="outlined"
@@ -285,3 +312,5 @@ export default function SendEmailOTP() {
     </CssVarsProvider>
   )
 }
+
+

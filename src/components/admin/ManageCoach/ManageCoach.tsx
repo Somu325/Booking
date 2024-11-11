@@ -30,6 +30,7 @@ import { Link } from "react-router-dom";
 import "./ManageCoach.css";
 import { Domain_URL } from "../../config";
 import {  ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom'; 
 
 // Define interface for coach data
 interface Coach {
@@ -62,6 +63,7 @@ const ManageCoach: React.FC = () => {
   const [userOpen, setUserOpen] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -202,6 +204,9 @@ const ManageCoach: React.FC = () => {
   const toggleCoachMenu = () => {
     setCoachOpen(!coachOpen);
   };
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
+  };
 
   const toggleBookingMenu = () => {
     setBookingOpen(!bookingOpen);
@@ -288,6 +293,10 @@ const ManageCoach: React.FC = () => {
                 </ListItemButton>
               </List>
             </Collapse>
+            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
           </List>
         </Box>
       </Drawer>

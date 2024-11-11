@@ -33,6 +33,7 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { Domain_URL } from "../../config";
 import {  ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom'; 
 
 interface Booking {
   id: string; // Assuming each booking has a unique ID
@@ -51,6 +52,7 @@ const BookingList: React.FC = () => {
   const [userOpen, setUserOpen] = useState<boolean>(false);
   const [coachOpen, setCoachOpen] = useState<boolean>(false);
   const [bookingOpen, setBookingOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   // Pagination state
   const [page, setPage] = useState<number>(0);
@@ -83,6 +85,9 @@ const BookingList: React.FC = () => {
   // Toggle Sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
   };
 
   const toggleDashboardMenu = () => {
@@ -177,6 +182,11 @@ const BookingList: React.FC = () => {
               <InsertInvitationIcon />
               <ListItemText primary="Booking" />
             </ListItemButton>
+
+            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
           </List>
         </Box>
       </Drawer>

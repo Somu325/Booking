@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import "./Dashboard.css"
 import { Domain_URL } from "../../config";
 import {  ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom'; 
 
 // Weekday labels
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -26,6 +27,7 @@ function Dashboard () {
   const [userOpen, setUserOpen] = useState(false);
   const [coachOpen, setCoachOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,6 +77,10 @@ function Dashboard () {
 
   const toggleDashboardMenu = () => {
     setDashboardOpen(!dashboardOpen);
+  };
+
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
   };
 
   const toggleUserMenu = () => {
@@ -153,6 +159,11 @@ function Dashboard () {
               <InsertInvitationIcon />
               <ListItemText primary="Booking" />
             </ListItemButton>
+
+            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
           </List>
         </Box>
       </Drawer>

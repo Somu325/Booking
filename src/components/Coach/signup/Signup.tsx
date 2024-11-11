@@ -547,11 +547,17 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
 ;
   };
 
+  // const validatePhoneNumber = (number: string) => {
+  //   const phoneRegex = /^\d{10}$/; // 10-digit phone number validation
+  //   return phoneRegex.test(number);
+  // };
+
   const validatePhoneNumber = (number: string) => {
     // Updated regex: starts with 1-9 followed by 9 more digits, for a total of 10 digits
     const phoneRegex = /^[1-9]\d{9}$/;
     return phoneRegex.test(number);
   };
+  
 
   const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
 
@@ -818,7 +824,7 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
               placeholder="Bio"
               value={formData.bio}
               onChange={(e) => {
-                if (e.target.value.length <= 750) {
+                if (e.target.value.length <= 500) {
                   handleChange(e);
                 }
               }}

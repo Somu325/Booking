@@ -29,6 +29,7 @@ import axios from 'axios';
 import "./AdminOverview.css";
 import { Domain_URL } from "../../config";
 import {  ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom'; 
 // Chart.js imports
 import {
   Chart as ChartJS,
@@ -58,6 +59,7 @@ ChartJS.register(
 
 const AdminOverview = () => {
   // States for navigation and data
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dashboardOpen, setDashboardOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
@@ -157,6 +159,10 @@ const AdminOverview = () => {
     booking.bookingId.toString().includes(filter) || booking.userId.toString().includes(filter)
   );
 
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
+  };
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -243,6 +249,11 @@ const AdminOverview = () => {
           <ListItemButton component={Link} to="/Booking" onClick={toggleSidebar}>
             <InsertInvitationIcon />
             <ListItemText primary="Booking" />
+          </ListItemButton>
+
+          <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
           </ListItemButton>
         </List>
       </Drawer>
