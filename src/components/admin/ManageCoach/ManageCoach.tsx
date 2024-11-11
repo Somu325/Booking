@@ -2,16 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "react-modal";
 import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Collapse,
   Box,
-  Typography,
   Table,
   TableBody,
   TableCell,
@@ -20,16 +11,10 @@ import {
   TableRow,
   TablePagination,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
-import { Link } from "react-router-dom";
+import { FaArrowLeft } from 'react-icons/fa';
 import "./ManageCoach.css";
 import { Domain_URL } from "../../config";
-import {  ListItemButton } from '@mui/joy';
+
 import { useNavigate } from 'react-router-dom'; 
 
 // Define interface for coach data
@@ -58,11 +43,7 @@ const ManageCoach: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCoach, setCurrentCoach] = useState<Coach | null>(null);
   const [isAddingCoach, setIsAddingCoach] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
-  const [coachOpen, setCoachOpen] = useState(false);
-  const [bookingOpen, setBookingOpen] = useState(false);
+
   const navigate = useNavigate();
 
   // Pagination state
@@ -151,7 +132,7 @@ const ManageCoach: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`${Domain_URL}/coach/${id}`);
+      await axios.delete(`${Domain_URL}/coach/coaches/${id}/softDelete`);
       setCoaches(coaches.filter(coach => coach.coachId !== id));
       setFilteredCoaches(filteredCoaches.filter(coach => coach.coachId !== id));
     } catch (error) {
@@ -168,50 +149,31 @@ const ManageCoach: React.FC = () => {
     }
   };
 
-  const handleToggleStatus = async (coach: Coach) => {
-    try {
-      // Determine the new status
-      const updatedStatus: 'Active' | 'Inactive' = coach.status === 'Active' ? 'Inactive' : 'Active';
+  // const handleToggleStatus = async (coach: Coach) => {
+  //   try {
+  //     // Determine the new status
+  //     const updatedStatus: 'Active' | 'Inactive' = coach.status === 'Active' ? 'Inactive' : 'Active';
   
-      // Send a request to update the status
-      await axios.put(`${Domain_URL}/coach/update-status/${coach.coachId}`, { status: updatedStatus });
+  //     // Send a request to update the status
+  //     await axios.put(`${Domain_URL}/coach/coaches/${coach.coachId}/softDelete`, { status: updatedStatus });
   
-      // Map through coaches to create the updated list
-      const updatedCoaches: Coach[] = coaches.map(c =>
-        c.coachId === coach.coachId ? { ...c, status: updatedStatus } : c
-      );
+  //     // Map through coaches to create the updated list
+  //     const updatedCoaches: Coach[] = coaches.map(c =>
+  //       c.coachId === coach.coachId ? { ...c, status: updatedStatus } : c
+  //     );
   
-      // Update state with the new coach list
-      setCoaches(updatedCoaches);
-      setFilteredCoaches(updatedCoaches);
-    } catch (error) {
-      console.error("Error toggling coach status", error);
-    }
-  };
+  //     // Update state with the new coach list
+  //     setCoaches(updatedCoaches);
+  //     setFilteredCoaches(updatedCoaches);
+  //   } catch (error) {
+  //     console.error("Error toggling coach status", error);
+  //   }
+  // };
   
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
-  const toggleDashboardMenu = () => {
-    setDashboardOpen(!dashboardOpen);
+  const goBackToDashboard = () => {
+    navigate('/dashboard');
   };
-
-  const toggleUserMenu = () => {
-    setUserOpen(!userOpen);
-  };
-
-  const toggleCoachMenu = () => {
-    setCoachOpen(!coachOpen);
-  };
-  const gotoBookingcancel = () => {
-    navigate('/Booking-cancel');
-  };
-
-  const toggleBookingMenu = () => {
-    setBookingOpen(!bookingOpen);
-  };
-
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -222,84 +184,10 @@ const ManageCoach: React.FC = () => {
   return (
     <div>
  
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleSidebar}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Manage Coach
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
-
-      <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar}>
-        <Box sx={{ width: 250 }} role="presentation">
-          <List>
-            <ListItemButton onClick={toggleDashboardMenu}>
-              <DashboardIcon />
-              <ListItemText primary="Dashboard" />
-              {dashboardOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={dashboardOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/AdminOverview">
-                  <ListItemText primary="Overview" />
-                </ListItemButton>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/Analyst">
-                  <ListItemText primary="Analytics" />
-                </ListItemButton>
-              </List>
-            </Collapse>
-
-            <ListItemButton onClick={toggleUserMenu}>
-              <GroupIcon />
-              <ListItemText primary="Manage Coach" />
-              {userOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={userOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageCoach">
-                  <ListItemText primary="Coach Profile" />
-                </ListItemButton>
-              </List>
-            </Collapse>
-
-            <ListItemButton onClick={toggleCoachMenu}>
-              <PersonIcon />
-              <ListItemText primary="Manage User" />
-              {coachOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={coachOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageUser">
-                  <ListItemText primary="User Profile" />
-                </ListItemButton>
-              </List>
-            </Collapse>
-
-            <ListItem>
-      <ListItemButton onClick={toggleBookingMenu}>
-        <InsertInvitationIcon />
-        <ListItemText primary="Manage Bookings" />
-        {bookingOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-    </ListItem>
-            <Collapse in={bookingOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/Booking">
-                  <ListItemText primary="Booking Profile" />
-                </ListItemButton>
-              </List>
-            </Collapse>
-            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
-            <InsertInvitationIcon />
-            <ListItemText primary="Booking Cancel" />
-          </ListItemButton>
-          </List>
-        </Box>
-      </Drawer>
+ <button onClick={goBackToDashboard} className="go-back-button">
+        <FaArrowLeft /> Go Back to Dashboard
+      </button>
+         <h2> Manage Coach</h2>
 
 
       <Box sx={{ p: 2 }}>
@@ -331,9 +219,6 @@ const ManageCoach: React.FC = () => {
                 <TableCell>
                   <button onClick={() => handleEdit(coach)}>Edit</button>
                   <button onClick={() => handleDelete(coach.coachId)}>Delete</button>
-                  <button onClick={() => handleToggleStatus(coach)}>
-                    {coach.status === 'Active' ? 'Deactivate' : 'Activate'}
-                  </button>
                 </TableCell>
               </TableRow>
             ))}

@@ -6,6 +6,7 @@
 import { useState, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 import {
   TextField,
   Button,
@@ -94,24 +95,29 @@ const LoginForm = () => {
 
       // Error handling based on Axios error response
       if (axios.isAxiosError(error)) {
-        if (error.response) {
-          const status = error.response.status;
-          if (status === 401) setError("Incorrect email or password.");
-          else if (status === 404) setError("You are not registered. Please sign up.");
-          else if (status === 500) setError("The server is currently offline. Please try again later.");
-          else setError("An unexpected error occurred. Please try again.");
-        } else if (error.request) {
-          setError("The server is currently offline. Please try again later.");
-        } else {
-          setError("An error occurred while logging in. Please try again.");
-        }
-      } else {
-        setError("An error occurred. Please try again later.");
-      }
-    } finally {
-      setLoading(false); // Reset loading state after request completion
+      if (error.response) {
+    // Server responded with a status code outside the 2xx range
+    const status = error.response.status;
+    if (status === 401) {
+      setError("Incorrect email or password.");
+    } else if (status === 404) {
+      setError("You are not registered. Please sign up.");
+    } else if (status === 500) {
+      setError("The server is currently offline. Please try again later.");
+    } else if (status === 403) {
+      setError("Your account is currently not available. Please contact Admin for help.");
+    } else {
+      setError("An unexpected error occurred. Please try again.");
     }
-  };
+  } else if (error.request) {
+    setError("The server is currently offline. Please try again later.");
+  } else {
+    setError("An error occurred while logging in. Please try again.");
+  }
+} else {
+  setError("An error occurred. Please try again later.");
+}
+    };
 
   return (
     <ThemeProvider theme={theme}>
