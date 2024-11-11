@@ -54,7 +54,7 @@ interface Booking {
 // Create a custom theme (not implemented in this snippet)
 const theme = extendTheme({
   // Theme configuration
-})
+}) 
 
 export default function BookingHistory() {
   // State variables
