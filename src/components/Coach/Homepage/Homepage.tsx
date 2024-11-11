@@ -270,11 +270,40 @@ const Coachdashboard: React.FC = () => {
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
 
-  const handleRowClick = (slot: any) => {
-    if (slot.status === 'booked') {
-      setSelectedBooking(slot);
+  const handleRowClick = async (slot: any) => {
+    if (slot.status === 'booked' || slot.status === 'completed') {
+      try {
+        const response = await axios.get(`${Domain_URL}/bookings/slot/${slot.slotId}`);
+        const bookingData = response.data;
+        
+        // Populate the booking details from the response
+        const booking: Booking = {
+          bookingId: bookingData.bookingId,
+          userId: bookingData.userId,
+          childId: bookingData.childId,
+          childName: bookingData.child.name,
+          coachId: bookingData.coachId,
+          slotId: bookingData.slotId,
+          bookingType: bookingData.bookingType,
+          status: bookingData.status,
+          createdAt: bookingData.createdAt,
+          updatedAt: bookingData.updatedAt,
+          userName: bookingData.user.name,
+          coachName: bookingData.coachName,
+          startTime: bookingData.slot.startTime,
+          endTime: bookingData.slot.endTime,
+          slotType: bookingData.bookingType,
+          slotDuration: "60 min", // Assume 60 min for simplicity
+          date: bookingData.slot.date.split('T')[0], // Assuming it's in UTC format
+        };
+        
+        setSelectedBooking(booking);
+      } catch (error) {
+        console.error('Error fetching booking details:', error);
+      }
     }
   };
+  
 
   const handleDateChange = (date: Date | null) => {
     if (date) {
