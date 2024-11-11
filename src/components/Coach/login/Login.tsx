@@ -159,10 +159,10 @@
 
 
 
-"use client"
+"use client";
 
-import  { useState } from 'react'
-import axios from 'axios'
+import { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   TextField,
@@ -181,19 +181,26 @@ import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from 'react-bootstrap-i
 import { Domain_URL } from '../../config';
 import Cookies from 'js-cookie';
 
+import React, { Suspense, lazy } from 'react';
+
+// Lazy load the Button component for optimization
+const LazyButton = lazy(() => import('@mui/material/Button'));
 
 const theme = createTheme({
+   // Define custom colors for primary and secondary themes
   palette: {
     primary: {
-      main: '#6C63FF',
+      main: '#6C63FF',   // Custom primary color
     },
     secondary: {
       main: '#FF6584',
     },
   },
+   // Set default font family for typography
   typography: {
     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
   },
+    // Define component-specific style overrides
   components: {
     MuiButton: {
       styleOverrides: {
@@ -207,6 +214,7 @@ const theme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
+          // Style overrides specifically for outlined TextFields
           '& .MuiOutlinedInput-root': {
             borderRadius: '50px',
           },
@@ -216,6 +224,7 @@ const theme = createTheme({
   },
 });
 
+// Main LoginForm component
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -224,47 +233,50 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Enable loading state
     setError(''); // Reset error message
-  
+
     try {
+      // Send login request to the server
       const response = await axios.post(
         `${Domain_URL}/coach/coachLogin`,
         { email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
-  
+
       console.log('Login successful:', response.data);
-  
-      // Store coach data in local storage
+
+      // Store coach data in local storage for persistence
       localStorage.setItem('coachId', response.data.coach.coachId);
       localStorage.setItem('email', response.data.coach.email);
-  
-      // Store token in cookies (if provided)
+
+      // Store token in cookies if provided
       if (response.data.token) {
         Cookies.set('token', response.data.token, {
-          expires: 1, // 1-day expiration
+          expires: 1, // Token expires in 1 day
           secure: true, // Use HTTPS in production
           sameSite: 'strict', // Prevent CSRF attacks
         });
         console.log('Token stored:', Cookies.get('token'));
       }
-  
+
+      // Navigate based on email verification status
       if (response.data.coach.emailVerified === true) {
         navigate('/Coach-Dashboard');
       } else {
         navigate('/coach-verify');
       }
-  
+
     } catch (error) {
       console.error('Login error:', error);
-  
-      // Check for specific error responses
+
+      // Handle specific error responses from Axios
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          // Server responded with a status code outside the 2xx range
+          // Handle server response errors
           if (error.response.status === 401) {
             setError('Incorrect Email OR Password');
           } else if (error.response.status === 404) {
@@ -275,14 +287,14 @@ export default function LoginForm() {
             setError('An unexpected error occurred. Please try again.');
           }
         } else if (error.request) {
-          // Request was made but no response was received
+          // No response from the server
           setError('No response from the server. Please check your connection.');
         } else {
-          // Something happened in setting up the request
+          // Error in setting up the request
           setError('An error occurred while logging in. Please try again.');
         }
       } else {
-        // Not an Axios error
+        // Generic error message for non-Axios errors
         setError('An error occurred. Please try again later.');
       }
     } finally {
@@ -290,10 +302,10 @@ export default function LoginForm() {
     }
   };
 
-      
-
   return (
     <ThemeProvider theme={theme}>
+
+  {/* Main container for centering content and styling background */}
       <Box
         sx={{
           minHeight: '100vh',
@@ -304,7 +316,9 @@ export default function LoginForm() {
           backgroundSize: 'cover',
         }}
       >
+
         <Container maxWidth="xs">
+          {/* Box component to create a centered form container with specific styling */}
           <Box
             sx={{
               display: 'flex',
@@ -317,6 +331,7 @@ export default function LoginForm() {
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
             }}
           >
+            {/* Image component to display an image with specific dimensions */}
             <img src="/cric.jpg" alt="Description" width={100} height={100} style={{ marginBottom: '16px' }} />
             <Typography component="h1" variant="h4" fontWeight="bold" style={{ marginBottom: '16px' }}>
               Welcome
@@ -324,8 +339,13 @@ export default function LoginForm() {
             <Typography variant="subtitle1" color="text.secondary" style={{ marginBottom: '16px' }}>
               Sign in to continue your journey
             </Typography>
+
+            {/* Display error message if any */}
             {error && <Alert severity="error" style={{ borderRadius: '50px', marginBottom: '16px' }}>{error}</Alert>}
+
+            {/* Login form */}
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, width: '100%' }}>
+              {/* Email input field */}
               <TextField
                 margin="normal"
                 required
@@ -345,6 +365,8 @@ export default function LoginForm() {
                   ),
                 }}
               />
+
+              {/* Password input field */}
               <TextField
                 margin="normal"
                 required
@@ -375,6 +397,8 @@ export default function LoginForm() {
                   ),
                 }}
               />
+
+              {/* Forgot password link */}
               <Button
                 component="a"
                 href="/Email-Otpp"
@@ -384,16 +408,22 @@ export default function LoginForm() {
               >
                 Forgot Password?
               </Button>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2, py: 1.5 }}
-              >
-                {loading ? <CircularProgress size={24} /> : 'Sign In'}
-              </Button>
+
+              {/* Lazy loaded Submit button */}
+              <Suspense fallback={<CircularProgress size={24} />}>
+                <LazyButton
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  disabled={loading}
+                  sx={{ mt: 3, mb: 2, py: 1.5 }}
+                >
+                  {loading ? <CircularProgress size={24} /> : 'Sign In'}
+                </LazyButton>
+              </Suspense>
+
+              {/* Sign-up link */}
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2">
                   Don't have an account?{' '}
@@ -401,15 +431,11 @@ export default function LoginForm() {
                     Sign Up
                   </Button>
                 </Typography>
-              </Box>
+              </Box>l
             </Box>
           </Box>
         </Container>
       </Box>
     </ThemeProvider>
   );
-
 }
-
-
-
