@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -20,8 +21,8 @@ import { useNavigate } from 'react-router-dom';
 import ModalDialog from '@mui/joy/ModalDialog';
 import ModalClose from '@mui/joy/ModalClose';
 import { Domain_URL } from '../../config';
-
-// Interfaces for TypeScript
+// import { fetchUserData, sendOTP, verifyOTP, updateVerifiedStatus } from '../apiService';
+// Interfaces for TypeScript type checking
 interface User {
   userId: string;
   name: string;
@@ -38,23 +39,14 @@ interface EmailVerificationData {
   orderId: string;
 }
 
-// Custom theme configuration
+// Custom theme configuration for Material-UI Joy
 const theme = extendTheme({
   colorSchemes: {
     light: {
       palette: {
         background: { body: 'rgba(255, 255, 255, 0.8)' },
         primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
+          // ... (primary color shades)
         },
       },
     },
@@ -73,7 +65,7 @@ const theme = extendTheme({
   },
 });
 
-// Error boundary to handle component errors
+// Error boundary component to handle errors in child components
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
@@ -94,6 +86,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 
 // Main component
 export default function Component({ userEmail = '' }: { userEmail?: string }) {
+  // State variables
   const [email, setEmail] = useState<string | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -108,13 +101,14 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
   const [isVerifyEnabled, setIsVerifyEnabled] = useState(false);
   const navigate = useNavigate();
 
+  // Effect to set email from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setEmail(localStorage.getItem('email'));
     }
   }, []);
 
-  // Fetch user data from API
+  // Function to fetch user data from API
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`${Domain_URL}/user/email/${userEmail || email}`);
@@ -128,11 +122,13 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     }
   };
 
+  // Effect to fetch user data when email or userEmail changes
   useEffect(() => {
     fetchUserData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail, email]);
 
+  // Effect to show alert or navigate based on email verification status
   useEffect(() => {
     if (!isEmailVerified) {
       setShowAlert(true);
@@ -141,6 +137,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     }
   }, [isEmailVerified, navigate]);
 
+  // Effect to handle countdown timer for OTP resend
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (timer > 0) {
@@ -151,7 +148,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     return () => clearInterval(interval);
   }, [timer]);
 
-  // Verify email by sending OTP
+  // Function to initiate email verification process
   const verifyEmail = async () => {
     try {
       const response = await axios.post(`${Domain_URL}/api/send-otp1`, { email: userData?.email });
@@ -165,7 +162,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     }
   };
 
-  // Confirm OTP and update verification status
+  // Function to confirm OTP and update verification status
   const confirmOtp = async () => {
     try {
       const response = await axios.post(`${Domain_URL}/api/verify-otp`, {
@@ -186,6 +183,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     }
   };
 
+  // Function to update user's verified status in the backend
   const updateVerifiedStatus = async () => {
     try {
       await axios.put(`${Domain_URL}/user/email/${userData?.email}`, { verified: true });
@@ -194,6 +192,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
     }
   };
 
+  // Function to handle closing of the alert
   const handleCloseAlert = () => {
     setShowAlert(false);
     setIsVerifyEnabled(true);
@@ -230,6 +229,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
               </Typography>
             )}
 
+            {/* Alert for unverified users */}
             {showAlert && (
               <Card variant="outlined" sx={{ mt: 2, p: 2, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
                 <CardContent>
@@ -241,6 +241,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
               </Card>
             )}
 
+            {/* Modal for email verification */}
             <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -264,6 +265,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
               </ModalDialog>
             </Modal>
 
+            {/* Modal for OTP sent confirmation */}
             <Modal open={showOtpSentModal} onClose={() => setShowOtpSentModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -271,6 +273,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
               </ModalDialog>
             </Modal>
 
+            {/* Modal for successful verification */}
             <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />
@@ -278,6 +281,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
               </ModalDialog>
             </Modal>
 
+            {/* Modal for verification error */}
             <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
               <ModalDialog sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
                 <ModalClose />

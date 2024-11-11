@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState } from 'react';
@@ -13,6 +14,7 @@ import {
   IconButton,
   CssVarsProvider,
   extendTheme,
+  CircularProgress,
 } from '@mui/joy';
 import { Visibility, VisibilityOff, Person, Email, Phone, Lock } from '@mui/icons-material';
 import axios from 'axios';
@@ -21,7 +23,8 @@ import { useNavigate } from 'react-router-dom';
 // Assume Domain_URL is imported from a config file
 import { Domain_URL } from '../../config';
 
-// Custom theme
+
+// Theme customization for Material-UI components
 const theme = extendTheme({
   colorSchemes: {
     light: {
@@ -62,6 +65,7 @@ const theme = extendTheme({
 });
 
 export default function Component() {
+    // State variables for email, password, error messages, loading status, and password visibility
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [mobileNumber, setMobileNumber] = useState('');
@@ -76,6 +80,7 @@ export default function Component() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => {
@@ -86,54 +91,57 @@ export default function Component() {
   };
 
   const validateMobileNumber = (number: string) => {
-    // Remove any non-numeric characters
-    const numericNumber = number.replace(/\D/g, "");
-
-    // Check for starting with zero
-    if (numericNumber.startsWith("0")) {
-        setMobileNumberError("Mobile number cannot start with 0.");
-        setMobileNumber(""); // Reset to empty if it starts with "0"
-        return false;
+    // Ensure length does not exceed 10
+    if (number.length > 10) return;
+  
+    // Check if the input is numeric
+    if (!/^\d*$/.test(number)) {
+      setMobileNumberError("Please enter only numeric values.");
+      return false;
     }
-
-    // Limit input to 10 characters
-    if (numericNumber.length > 10) {
-        setMobileNumberError("");
-        return false;
+  
+    // Set the mobile number
+    setMobileNumber(number);
+  
+    // Check if the number starts with 0
+    if (number.startsWith("0")) {
+      setMobileNumberError("Mobile number cannot start with 0.");
+      setMobileNumber(""); // Reset to empty if it starts with "0"
+      return false;
     }
-
-    // If it passes all checks, update the mobile number and clear any errors
-    setMobileNumber(numericNumber);
-    
-    // Check for minimum length requirement of 10 digits
-    if (numericNumber.length < 10) {
-        setMobileNumberError("Please enter a valid 10-digit phone number.");
-        return false;
+  
+    // Check for valid 10-digit mobile number format
+    if (number.length === 10 && /^[1-9]\d{9}$/.test(number)) {
+      setMobileNumberError(""); // Clear any existing error
+      return true;
+    } else if (number.length < 10) {
+      setMobileNumberError("Please enter a valid phone number.");
+      return false;
     }
-
-    setMobileNumberError(""); // Clear any existing error
-    return true;
-};
-
-
+  };
+  
+// Function to validate name
   const validateName = (name: string) => {
     const isValid = /^[A-Za-z\s]+$/.test(name) && name.length >= 2 && name.length <= 50;
     setNameError(isValid ? null : 'Name should contain only alphabets');
     return isValid;
   };
-
+ 
+  // Function to validate password
   const validatePassword = (password: string) => {
     const isValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/.test(password);
     setPasswordError(isValid ? null : 'Password should contain 8-16 characters.');
     return isValid;
   };
-
+ 
+  // Function to validate confirmpassword
   const validateConfirmPassword = (confirmPassword: string) => {
     const isMatch = confirmPassword === password;
     setConfirmPasswordError(isMatch ? null : 'Enter the same password.');
     return isMatch;
   };
 
+  // Check if all required fields (except name) are filled in
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -169,39 +177,47 @@ export default function Component() {
 
     const userData = { email, name, mobileNumber, password };
 
-    try {
-      const response = await axios.post(`${Domain_URL}/user/signup`, userData);
- 
-  if (response.status === 201) {
-    setSuccess(' User registered successfully!');
-    setTimeout(() => navigate('/user-login'), 2000);
-  }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-} catch (error: any) {
-  if (error.response) {
-    // Handle specific status codes
-    const { status } = error.response;
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
 
-    if (status === 400) {
-      setError('This email is already registered.');
-    } else if (status === 404) {
-      setError('The gateway is incorrect. Please check the URL.');
-    } else if (status === 500) {
-      setError('The server is currently offline. Please try again later.');
-    } else {
-      setError('An unexpected error occurred. Please try again.');
-    }
-  } else if (error.request) {
-    // Network error or no response received
-    setError('No response from the server. Please check your connection.');
-  } else {
-    // Any other errors (like code issues)
-    //setError(`An error occurred: ${error.message}`);
-  }
-  
-  console.error('Error during sign-up:', error);
-}
-};
+    setTimeout(async () => {
+      try {
+        const response = await axios.post(`${Domain_URL}/user/signup`, userData);
+    
+        if (response.status === 201) {
+          setSuccess('User registered successfully!');
+          setTimeout(() => navigate('/user-login'), 2000);
+        }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        if (error.response) {
+          // Handle specific status codes
+          const { status } = error.response;
+
+          if (status === 400) {
+            setError('This email is already registered.');
+          } else if (status === 404) {
+            setError('The gateway is incorrect. Please check the URL.');
+          } else if (status === 500) {
+            setError('The server is currently offline. Please try again later.');
+          } else {
+            setError('An unexpected error occurred. Please try again.');
+          }
+        } else if (error.request) {
+          // Network error or no response received
+          setError('No response from the server. Please check your connection.');
+        } else {
+          // Any other errors (like code issues)
+          //setError(`An error occurred: ${error.message}`);
+        }
+        
+        console.error('Error during sign-up:', error);
+      } finally {
+        setLoading(false);
+      }
+    }, 2000);
+  };
 
   return (
     <CssVarsProvider theme={theme}>
@@ -246,7 +262,6 @@ export default function Component() {
             </Alert>
           )}
 
-
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Email <Typography component="span" color="danger">*</Typography></FormLabel>
             <Input
@@ -284,7 +299,7 @@ export default function Component() {
               </Typography>
             )}
           </FormControl>
-
+ 
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Mobile Number <Typography component="span" color="danger">*</Typography></FormLabel>
             <Input
@@ -356,8 +371,14 @@ export default function Component() {
             )}
           </FormControl>
 
-          <Button type="submit" fullWidth color="primary" sx={{ mb: 2 }}>
-            Sign Up
+          <Button 
+            type="submit" 
+            fullWidth 
+            color="primary" 
+            sx={{ mb: 2 }}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size="sm" /> : 'Sign Up'}
           </Button>
           <Typography level="body-md" sx={{ mt: 3, textAlign: 'center' }}>
            Already have an account?{' '}

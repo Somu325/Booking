@@ -222,15 +222,15 @@ export default function SlotBooking() {
       setError('Booking successful!')
     } catch (error) {
       console.error('Error booking slot:', error)
-      setError('This slot has already been booked. Please select a different time slot')
+      setError('This user already has a booking at this time with another coach on this date.')
       if (axios.isAxiosError(error) && error.response) {
         console.error('Error response:', error.response.data)
-        setError('This slot has already been booked. Please select a different time slot')
+        setError('This user already has a booking at this time with another coach on this date.')
         // Automatically close the pop-up after 3 seconds
         setTimeout(() => {
           setIsSubsetModalOpen(false)
           setError(null)
-        }, 3000)
+        }, 5000)
       } else {
         setError('Booking failed. Please try again.')
       }
