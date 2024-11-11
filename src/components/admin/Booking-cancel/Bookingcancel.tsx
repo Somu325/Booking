@@ -335,6 +335,7 @@ const BookingTable: React.FC = () => {
           selected={selectedDate}
           onChange={handleDateChange}
           placeholderText="Select a date"
+          isClearable
           dateFormat="MM/dd/yyyy"
           className="date-input"
         />
