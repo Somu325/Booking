@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Drawer,
-  List,
-  ListItemText,
-  Collapse,
+ Typography,
   Box,
   TextField,
   Card,
@@ -17,18 +10,13 @@ import {
   Button,
   Modal,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
-import { Link } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
+
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import "./AdminOverview.css";
 import { Domain_URL } from "../../config";
-import {  ListItemButton } from '@mui/joy';
+
 import { useNavigate } from 'react-router-dom'; 
 // Chart.js imports
 import {
@@ -60,10 +48,7 @@ ChartJS.register(
 const AdminOverview = () => {
   // States for navigation and data
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
-  const [coachOpen, setCoachOpen] = useState(false);
+
   const [totalBookings, setTotalBookings] = useState(0);
   const [monthlyBookings, setMonthlyBookings] = useState<any[]>([]);
   const [bookingTrends, setBookingTrends] = useState<any[]>([]);
@@ -84,6 +69,7 @@ const AdminOverview = () => {
     setIsModalOpen(false);
   };
 
+  
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -159,25 +145,6 @@ const AdminOverview = () => {
     booking.bookingId.toString().includes(filter) || booking.userId.toString().includes(filter)
   );
 
-  const gotoBookingcancel = () => {
-    navigate('/Booking-cancel');
-  };
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const toggleDashboardMenu = () => {
-    setDashboardOpen(!dashboardOpen);
-  };
-
-  const toggleUserMenu = () => {
-    setUserOpen(!userOpen);
-  };
-
-  const toggleCoachMenu = () => {
-    setCoachOpen(!coachOpen);
-  };
 
   if (loading) {
     return (
@@ -186,77 +153,16 @@ const AdminOverview = () => {
       </Box>
     );
   }
+  const goBackToDashboard = () => {
+    navigate('/dashboard');
+  };
 
   return (
-    <Box sx={{ padding: 2, backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
-      {/* Navigation Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleSidebar}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Overview
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar */}
-      <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar}>
-        <List sx={{ width: 250 }} role="presentation">
-          <ListItemButton onClick={toggleDashboardMenu}>
-            <DashboardIcon />
-            <ListItemText primary="Dashboard" />
-            {dashboardOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-          <Collapse in={dashboardOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItemButton sx={{ pl: 4 }} component={Link} to="/AdminOverview" onClick={toggleSidebar}>
-                <ListItemText primary="Overview" />
-              </ListItemButton>
-              <ListItemButton sx={{ pl: 4 }} component={Link} to="/Analyst" onClick={toggleSidebar}>
-                <ListItemText primary="Analytics" />
-              </ListItemButton>
-            </List>
-          </Collapse>
-
-          <ListItemButton onClick={toggleUserMenu}>
-            <GroupIcon />
-            <ListItemText primary="Manage Coach" />
-            {userOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-          <Collapse in={userOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageCoach" onClick={toggleSidebar}>
-                <ListItemText primary="Coach Profile" />
-              </ListItemButton>
-            </List>
-          </Collapse>
-
-          <ListItemButton onClick={toggleCoachMenu}>
-            <PersonIcon />
-            <ListItemText primary="Manage User" />
-            {coachOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-          <Collapse in={coachOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageUser" onClick={toggleSidebar}>
-                <ListItemText primary="User Profile" />
-              </ListItemButton>
-            </List>
-          </Collapse>
-
-          <ListItemButton component={Link} to="/Booking" onClick={toggleSidebar}>
-            <InsertInvitationIcon />
-            <ListItemText primary="Booking" />
-          </ListItemButton>
-
-          <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
-            <InsertInvitationIcon />
-            <ListItemText primary="Booking Cancel" />
-          </ListItemButton>
-        </List>
-      </Drawer>
+<div>
+<button onClick={goBackToDashboard} className="go-back-button">
+        <FaArrowLeft /> Go Back to Dashboard
+      </button>
+         <h2> Manage user accounts</h2>
 
       {/* Main Content */}
       <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -331,7 +237,8 @@ const AdminOverview = () => {
           </Button>
         </Box>
       </Modal>
-    </Box>
+
+    </div>
   );
 };
 

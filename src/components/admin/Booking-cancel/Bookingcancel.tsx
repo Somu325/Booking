@@ -42,7 +42,7 @@ const BookingTable: React.FC = () => {
   const navigate = useNavigate();
 
   const goBackToDashboard = () => {
-    navigate('/AdminOverview');
+    navigate('/dashboard');
   };
 
   useEffect(() => {

@@ -271,7 +271,10 @@ export default function LoginForm() {
             setError('You are not registered. Please sign up.');
           } else if (error.response.status === 500) {
             setError('The server is currently offline. Please try again later.');
-          } else {
+          } else if(error.response.status === 403){
+            setError('Your Account is Currently not avaliable . Please contact Admin for futher process');
+          }
+           else {
             setError('An unexpected error occurred. Please try again.');
           }
         } else if (error.request) {

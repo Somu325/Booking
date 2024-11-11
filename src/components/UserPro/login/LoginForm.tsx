@@ -4,7 +4,7 @@
 import  { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import {
   TextField,
   Button,
@@ -111,7 +111,10 @@ export default function LoginForm() {
             setError('You are not registered. Please sign up.');
           } else if (error.response.status === 500) {
             setError('The server is currently offline. Please try again later.');
-          } else {
+          }  else if (error.response.status === 403) {
+            setError('You Account is currently not Avalibale . Please contact Admin for help.');
+          } 
+          else {
             setError('An unexpected error occurred. Please try again.');
           }
         } else if (error.request) {
