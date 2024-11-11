@@ -85,81 +85,90 @@ export default function CoachAnalytics() {
 
   const fetchBookings = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get<Booking[]>(`${Domain_URL}/coaches/${CoachId}/bookings`);
-  
-      // Sort bookings first by date, then by start time
-      const sortedBookings = response.data.sort((a, b) => {
-        const dateA = new Date(a.date || '').getTime();
-        const dateB = new Date(b.date || '').getTime();
-        const startTimeA = a.startTime ? new Date(`1970-01-01T${a.startTime}`) : new Date(0);
-        const startTimeB = b.startTime ? new Date(`1970-01-01T${b.startTime}`) : new Date(0);
-  
-        if (dateA === dateB) {
-          return startTimeA.getTime() - startTimeB.getTime(); // Sort by start time if dates are equal
-        }
-        return dateA - dateB; // Sort by date
-      });
-  
-      setBookings(sortedBookings);
-      setError(null);
+        setLoading(true);
+        const response = await axios.get<Booking[]>(`${Domain_URL}/coaches/${CoachId}/bookings`);
+        
+        // Remove timestamps from the date field
+        const bookingsWithFormattedDates = response.data.map(booking => ({
+            ...booking,
+            date: booking.date ? new Date(booking.date).toISOString().split('T')[0] : null,
+        }));
+
+        // Sort bookings by date and then by start time
+        const sortedBookings = bookingsWithFormattedDates.sort((a, b) => {
+            const dateA = new Date(a.date || '').getTime();
+            const dateB = new Date(b.date || '').getTime();
+            const startTimeA = a.startTime ? new Date(`1970-01-01T${a.startTime}`) : new Date(0);
+            const startTimeB = b.startTime ? new Date(`1970-01-01T${b.startTime}`) : new Date(0);
+
+            if (dateA === dateB) {
+                return startTimeA.getTime() - startTimeB.getTime(); // Sort by start time if dates are equal
+            }
+            return dateA - dateB; // Sort by date
+        });
+
+        setBookings(sortedBookings);
+        setError(null);
     } catch (err) {
-      console.error('Error fetching bookings:', err);
-      setError('No booking history. Please book a slot.');
+        console.error('Error fetching bookings:', err);
+        setError('No booking history. Please book a slot.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
   
 
   const filterBookings = () => {
     let filtered = bookings;
-
-    // Filter by status
+  
     if (statusFilter) {
       filtered = filtered.filter(
         (booking) => booking.status.toLowerCase() === statusFilter.toLowerCase()
       );
     }
-
-    // Filter by child name
+  
     if (childNameSearch) {
       filtered = filtered.filter((booking) =>
         booking.childName?.toLowerCase().includes(childNameSearch.toLowerCase())
       );
     }
-
-    // Filter by start time
+  
     if (startTimeSearch) {
       filtered = filtered.filter((booking) =>
         booking.startTime?.includes(startTimeSearch)
       );
     }
-
-    // Filter by end time
+  
     if (endTimeSearch) {
       filtered = filtered.filter((booking) =>
         booking.endTime?.includes(endTimeSearch)
       );
     }
-
-    // Filter by date range
-    if (startDate) {
-      filtered = filtered.filter((booking) => {
-        const bookingDate = new Date(booking.date || '').getTime();
-        return bookingDate >= new Date(startDate).getTime();
-      });
+  
+    const formattedStartDate = startDate ? new Date(startDate).toISOString().split('T')[0] : '';
+    const formattedEndDate = endDate ? new Date(endDate).toISOString().split('T')[0] : '';
+  
+    if (formattedStartDate) {
+      filtered = filtered.filter((booking) => booking.date && booking.date >= formattedStartDate);
     }
-
-    if (endDate) {
-      filtered = filtered.filter((booking) => {
-        const bookingDate = new Date(booking.date || '').getTime();
-        return bookingDate <= new Date(endDate).getTime();
-      });
+  
+    if (formattedEndDate) {
+      filtered = filtered.filter((booking) => booking.date && booking.date <= formattedEndDate);
     }
-
+  
+    if (formattedStartDate && formattedEndDate && formattedStartDate === formattedEndDate) {
+      filtered = filtered.filter((booking) => booking.date === formattedStartDate);
+    }
+  
     setFilteredBookings(filtered);
   };
+  
+  
+  
+  
+  
+  
 
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, 'primary' | 'success' | 'danger' | 'neutral'> = {
@@ -215,7 +224,7 @@ export default function CoachAnalytics() {
             Analytics
           </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 1, justifyContent: 'flex-end' }}>
             <FormControl>
               <FormLabel>Filter by Status</FormLabel>
               <Select 
@@ -224,6 +233,8 @@ export default function CoachAnalytics() {
               >
                 <Option value="">Booked</Option>
                 <Option value="progress">Progress</Option>
+                <Option value="canceled">canceled</Option>
+                <Option value="completed">completed</Option>
               </Select>
             </FormControl>
             <FormControl>

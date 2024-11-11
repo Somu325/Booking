@@ -299,7 +299,7 @@ export default function Component() {
               </Typography>
             )}
           </FormControl>
-
+ 
           <FormControl sx={{ mb: 2 }}>
             <FormLabel>Mobile Number <Typography component="span" color="danger">*</Typography></FormLabel>
             <Input

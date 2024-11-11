@@ -22,6 +22,7 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import './RealTime.css'; // Import the CSS for styling
 import { Domain_URL } from "../../config";
+import { useNavigate } from 'react-router-dom'; 
 
 interface User {
   userId: string;
@@ -36,7 +37,7 @@ const RealTime: React.FC = () => {
   const [bookedSlots, setBookedSlots] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [userDetails, setUserDetails] = useState<User[]>([]);
-
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [dashboardOpen, setDashboardOpen] = useState<boolean>(false);
   const [userOpen, setUserOpen] = useState<boolean>(false);
@@ -85,6 +86,9 @@ const RealTime: React.FC = () => {
 
   const toggleUserMenu = () => {
     setUserOpen((prev) => !prev);
+  };
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
   };
 
   const toggleCoachMenu = () => {
@@ -163,6 +167,11 @@ const RealTime: React.FC = () => {
               <InsertInvitationIcon />
               <ListItemText primary="Booking" />
             </ListItemButton >
+
+            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
           </List>
         </Box>
       </Drawer>

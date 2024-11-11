@@ -409,6 +409,7 @@ const Coachdashboard: React.FC = () => {
                 <option value="completed">Completed</option>
                 <option value="available">Available</option>
                 <option value="booked">Booked</option>
+                <option value="canceled">canceled</option>
               </select>
             </div>
           </div>
