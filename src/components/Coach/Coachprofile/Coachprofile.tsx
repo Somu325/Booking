@@ -1200,14 +1200,22 @@ export default function Component() {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Sport"
-                  variant="outlined"
-                  fullWidth
-                  value={updatedDetails.sport ?? coachDetails?.sport ?? ''}
-                  onChange={handleInputChange('sport')}
-                />
-              </Grid>  
+  <TextField
+    label="Sport"
+    variant="outlined"
+    fullWidth
+    value={coachDetails?.sport } // Display current sport (non-editable)
+   
+    select
+    SelectProps={{
+      native: true,
+    }}
+  >
+    <option value="Cricket" >Cricket</option>
+    {/* Add more sport options as necessary */}
+  </TextField>
+</Grid>
+
               <Grid item xs={12}>
                 <TextField
                   label="Email"
