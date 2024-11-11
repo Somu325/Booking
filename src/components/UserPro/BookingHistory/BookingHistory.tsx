@@ -388,7 +388,7 @@ response.data.forEach((booking) => {
                 </Typography>
               </Box>
             )}
-          </ModalDialog>
+          </ModalDialog> 
         </Modal>
       </Box>
     </CssVarsProvider>
