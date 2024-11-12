@@ -1,20 +1,18 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-
-  Box,
-
-} from '@mui/material';
+import { Box } from '@mui/material';
 import { FaArrowLeft } from 'react-icons/fa';
 import './RealTime.css'; // Import the CSS for styling
 import { Domain_URL } from "../../config";
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   userId: string;
   name: string;
   gender: string;
   mobileNumber: string;
+  email: string;
 }
 
 const RealTime: React.FC = () => {
@@ -25,44 +23,43 @@ const RealTime: React.FC = () => {
   const [userDetails, setUserDetails] = useState<User[]>([]);
   const navigate = useNavigate();
 
-
   // Fetch data for analytics
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-    
+
         // Fetch total user count
         const usersResponse = await axios.get(`${Domain_URL}/user/count`);
         console.log('Total Users Response:', usersResponse.data);
         setTotalUsers(usersResponse.data.count);
-    
+
         // Fetch active sessions count
         const sessionsResponse = await axios.get(`${Domain_URL}/bookings/progress/count`);
         console.log('Active Sessions Response:', sessionsResponse.data);
         setActiveSessions(sessionsResponse.data.count);
-    
+
         // Fetch booked slots count
         const slotsResponse = await axios.get(`${Domain_URL}/slot/booked/count`);
         console.log('Booked Slots Response:', slotsResponse.data);
         setBookedSlots(slotsResponse.data.count);
-    
-        // Fetch user details
+
+        // Fetch user details and sort them by name in ascending order
         const userDetailsResponse = await axios.get(`${Domain_URL}/user/users`);
         console.log('User Details Response:', userDetailsResponse.data); // Log response here
-        setUserDetails(userDetailsResponse.data);
-      } catch (error:any) {
+        const sortedUserDetails = userDetailsResponse.data.sort((a: User, b: User) => 
+          a.name.localeCompare(b.name)
+        );
+        setUserDetails(sortedUserDetails);
+      } catch (error: any) {
         console.error('Error fetching user data: ', error.message || error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchUserData();
   }, []);
-
-  // Toggle Sidebar
-
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -71,14 +68,12 @@ const RealTime: React.FC = () => {
   const goBackToDashboard = () => {
     navigate('/dashboard');
   };
+
   return (
-    <div >
-        <button onClick={goBackToDashboard} className="go-back-button">
+    <div>
+      <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-         <h2> Manage user accounts</h2>
-
-     
 
       {/* Real-time Analytics Content */}
       <Box sx={{ flex: 1, overflowY: 'auto', padding: 2 }}>
@@ -104,7 +99,7 @@ const RealTime: React.FC = () => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Gender</th>
+                <th>Email</th>
                 <th>Mobile Number</th>
               </tr>
             </thead>
@@ -117,11 +112,7 @@ const RealTime: React.FC = () => {
                         ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase()
                         : 'N/A'}
                     </td>
-                    <td>
-                      {user?.gender
-                        ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1).toLowerCase()
-                        : 'N/A'}
-                    </td>
+                    <td>{user?.email}</td>
                     <td>{user?.mobileNumber || 'N/A'}</td>
                   </tr>
                 ))
