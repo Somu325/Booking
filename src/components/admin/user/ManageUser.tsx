@@ -525,7 +525,7 @@ const ManageUser: React.FC = () => {
   color={user.softDelete ? "primary" : "error"}  // Remove "default" and use "primary" or "error"
   onClick={() => handleSoftDelete(user.userId, user.softDelete)}
 >
-  {user.softDelete ? "Undo Delete" : "Soft Delete"}
+  {user.softDelete ? "Undo Freeze" : "Freeze Acccount"}
 </Button>
 <Button
   variant="outlined"
