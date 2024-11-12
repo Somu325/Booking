@@ -301,14 +301,13 @@ Modal.setAppElement('#root');
 const ManageCoach: React.FC = () => {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [filteredCoaches, setFilteredCoaches] = useState<Coach[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCoach, setCurrentCoach] = useState<Coach | null>(null);
   const [isAddingCoach, setIsAddingCoach] = useState(false);
 
   const navigate = useNavigate();
 
-  // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -318,8 +317,11 @@ const ManageCoach: React.FC = () => {
       try {
         const response = await axios.get(`${Domain_URL}/coach/getAllCoaches`);
         if (Array.isArray(response.data)) {
-          setCoaches(response.data);
-          setFilteredCoaches(response.data);
+          const sortedCoaches = response.data.sort((a: Coach, b: Coach) =>
+            a.name.localeCompare(b.name)
+          );
+          setCoaches(sortedCoaches);
+          setFilteredCoaches(sortedCoaches); // Set initial filtered coaches as sorted coaches
         } else {
           console.error("API did not return an array of coaches");
           setCoaches([]);
@@ -335,16 +337,19 @@ const ManageCoach: React.FC = () => {
     fetchCoaches();
   }, []);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    const filtered = coaches.filter(coach =>
-      coach.name.toLowerCase().includes(term) ||
-      coach.profession.toLowerCase().includes(term)
-    );
-    setFilteredCoaches(filtered);
-    setPage(0); // Reset page when searching
-  };
+  // Search handler that directly filters coaches
+  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const searchQuery = e.target.value.toLowerCase();
+  //   setSearchTerm(searchQuery);
+    
+  //   // Filter coaches based on name or profession
+  //   const filtered = coaches.filter((coach) =>
+  //     coach.name.toLowerCase().includes(searchQuery) ||
+  //     coach.profession.toLowerCase().includes(searchQuery)
+  //   );
+  //   setFilteredCoaches(filtered);
+  //   setPage(0); // Reset to the first page on search
+  // };
 
   const handleEdit = (coach: Coach) => {
     setCurrentCoach(coach);
@@ -378,11 +383,12 @@ const ManageCoach: React.FC = () => {
       try {
         if (isAddingCoach) {
           const response = await axios.post(`${Domain_URL}/coach/add`, currentCoach);
-          setCoaches([...coaches, response.data]);
-          setFilteredCoaches([...filteredCoaches, response.data]);
+          const updatedCoaches = [...coaches, response.data].sort((a, b) => a.name.localeCompare(b.name));
+          setCoaches(updatedCoaches);
+          setFilteredCoaches(updatedCoaches);
         } else {
           await axios.put(`${Domain_URL}/coach/update/${currentCoach.coachId}`, currentCoach);
-          const updatedCoaches = coaches.map(coach => (coach.coachId === currentCoach.coachId ? currentCoach : coach));
+          const updatedCoaches = coaches.map(coach => (coach.coachId === currentCoach.coachId ? currentCoach : coach)).sort((a, b) => a.name.localeCompare(b.name));
           setCoaches(updatedCoaches);
           setFilteredCoaches(updatedCoaches);
         }
@@ -395,14 +401,12 @@ const ManageCoach: React.FC = () => {
 
   const handleToggleSoftDelete = async (coach: Coach) => {
     try {
-      // If the coach is soft deleted, restore it; otherwise, delete it
       const action = coach.softDelete ? 'restore' : 'delete';
       await axios.post(`${Domain_URL}/coach/coaches/manage/${coach.coachId}`, { action });
 
-      // Update the coach's status
       const updatedCoaches = coaches.map(c =>
         c.coachId === coach.coachId ? { ...c, softDelete: !c.softDelete } : c
-      );
+      ).sort((a, b) => a.name.localeCompare(b.name));
       setCoaches(updatedCoaches);
       setFilteredCoaches(updatedCoaches);
     } catch (error) {
@@ -420,19 +424,29 @@ const ManageCoach: React.FC = () => {
 
   const paginatedCoaches = filteredCoaches.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  function handleInputChange(_event: any): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (currentCoach) {
+      setCurrentCoach({
+        ...currentCoach,
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
 
   return (
     <div>
       <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-      <h2> Manage Coach</h2>
+      <h2>Manage Coach</h2>
 
       <Box sx={{ p: 2 }}>
-        <input type="text" value={searchTerm} onChange={handleSearch} placeholder="Search by name or profession" />
+        {/* <input
+          type="text"
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Search by name or profession"
+        /> */}
         <button onClick={handleAdd}>Add Coach</button>
       </Box>
 
@@ -443,7 +457,7 @@ const ManageCoach: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone Number</TableCell>
-              <TableCell>Profession</TableCell>
+              {/* <TableCell>Profession</TableCell> */}
               <TableCell>Status</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -454,7 +468,7 @@ const ManageCoach: React.FC = () => {
                 <TableCell>{coach.name}</TableCell>
                 <TableCell>{coach.email}</TableCell>
                 <TableCell>{coach.phoneNumber}</TableCell>
-                <TableCell>{coach.profession}</TableCell>
+                {/* <TableCell>{coach.profession}</TableCell> */}
                 <TableCell>{coach.softDelete ? 'Inactive' : 'Active'}</TableCell>
                 <TableCell>
                   <button onClick={() => handleEdit(coach)}>Edit</button>
