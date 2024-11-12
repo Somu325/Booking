@@ -1,6 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+'use client'
+
 import { useEffect, useState } from 'react';
 import {
- Typography,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Drawer,
+  List,
+  ListItemText,
+  Collapse,
   Box,
   TextField,
   Card,
@@ -10,14 +21,20 @@ import {
   Button,
   Modal,
 } from '@mui/material';
-import { FaArrowLeft } from 'react-icons/fa';
-
+import MenuIcon from '@mui/icons-material/Menu';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
+import PersonIcon from '@mui/icons-material/Person';
+import GroupIcon from '@mui/icons-material/Group';
+import { Link } from 'react-router-dom';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import "./AdminOverview.css";
 import { Domain_URL } from "../../config";
+import { ListItemButton } from '@mui/joy';
+import { useNavigate } from 'react-router-dom';
 
-import { useNavigate } from 'react-router-dom'; 
 // Chart.js imports
 import {
   Chart as ChartJS,
@@ -45,10 +62,13 @@ ChartJS.register(
   ArcElement
 );
 
-const AdminOverview = () => {
+export default function AdminOverview() {
   // States for navigation and data
   const navigate = useNavigate();
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [coachOpen, setCoachOpen] = useState(false);
   const [totalBookings, setTotalBookings] = useState(0);
   const [monthlyBookings, setMonthlyBookings] = useState<any[]>([]);
   const [bookingTrends, setBookingTrends] = useState<any[]>([]);
@@ -69,19 +89,29 @@ const AdminOverview = () => {
     setIsModalOpen(false);
   };
 
-  
   const fetchData = async () => {
     setLoading(true);
     try {
       const bookingsResponse = await axios.get(`${Domain_URL}/monthly-bookings`);
       const trendsResponse = await axios.get(`${Domain_URL}/booking-trends`);
-      const listResponse = await axios.get(`${Domain_URL}/bookings`);
+      const listResponse = await axios.get(`${Domain_URL}/bookingsName`);
+      
 
-      const formattedTrends = trendsResponse.data.map((t: any) => ({
-        month: new Date(t.month).toLocaleString('default', { month: 'long' }),
-        completed: parseInt(t.completed, 10),
-        canceled: parseInt(t.canceled, 10),
-      }));
+      // const formattedTrends = trendsResponse.data.map((t: any) => ({
+      //   month: new Date(t.month).toLocaleString('default', { month: 'long' }),
+      //   completed: parseInt(t.completed, 10),
+      //   canceled: parseInt(t.canceled, 10),
+      // })); 
+
+      const currentMonth = new Date().getMonth(); // Get current month index (0 for January, 1 for February, etc.)
+
+      const formattedTrends = trendsResponse.data
+        .filter((t: any) => new Date(t.month).getMonth() === currentMonth) // Filter for the current month
+        .map((t: any) => ({
+          month: new Date(t.month).toLocaleString('default', { month: 'long' }),
+          completed: parseInt(t.completed, 10),
+          canceled: parseInt(t.canceled, 10),
+        }));
 
       const formattedBookings = bookingsResponse.data.map((booking: any) => ({
         month: new Date(booking.month).toLocaleString('default', { month: 'long' }),
@@ -142,9 +172,29 @@ const AdminOverview = () => {
   };
 
   const filteredBookings = bookingList.filter((booking) =>
-    booking.bookingId.toString().includes(filter) || booking.userId.toString().includes(filter)
+    (booking.coachName?.toLowerCase() || '').includes(filter.toLowerCase()) ||
+    (booking.userName?.toLowerCase() || '').includes(filter.toLowerCase())
   );
 
+  const gotoBookingcancel = () => {
+    navigate('/Booking-cancel');
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const toggleDashboardMenu = () => {
+    setDashboardOpen(!dashboardOpen);
+  };
+
+  const toggleUserMenu = () => {
+    setUserOpen(!userOpen);
+  };
+
+  const toggleCoachMenu = () => {
+    setCoachOpen(!coachOpen);
+  };
 
   if (loading) {
     return (
@@ -153,19 +203,80 @@ const AdminOverview = () => {
       </Box>
     );
   }
-  const goBackToDashboard = () => {
-    navigate('/dashboard');
-  };
 
   return (
-<div>
-<button onClick={goBackToDashboard} className="go-back-button">
-        <FaArrowLeft /> Go Back to Dashboard
-      </button>
-         <h2> Manage user accounts</h2>
+    <Box sx={{ padding: 2, backgroundColor: '#f4f6f8', minHeight: '100vh' }}>
+      {/* Navigation Bar */}
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleSidebar}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Overview
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar */}
+      <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar}>
+        <List sx={{ width: 250 }} role="presentation">
+          <ListItemButton onClick={toggleDashboardMenu}>
+            <DashboardIcon />
+            <ListItemText primary="Dashboard" />
+            {dashboardOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={dashboardOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton sx={{ pl: 4 }} component={Link} to="/AdminOverview" onClick={toggleSidebar}>
+                <ListItemText primary="Overview" />
+              </ListItemButton>
+              <ListItemButton sx={{ pl: 4 }} component={Link} to="/Analyst" onClick={toggleSidebar}>
+                <ListItemText primary="Analytics" />
+              </ListItemButton>
+            </List>
+          </Collapse>
+
+          <ListItemButton onClick={toggleUserMenu}>
+            <GroupIcon />
+            <ListItemText primary="Manage Coach" />
+            {userOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={userOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageCoach" onClick={toggleSidebar}>
+                <ListItemText primary="Coach Profile" />
+              </ListItemButton>
+            </List>
+          </Collapse>
+
+          <ListItemButton onClick={toggleCoachMenu}>
+            <PersonIcon />
+            <ListItemText primary="Manage User" />
+            {coachOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={coachOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageUser" onClick={toggleSidebar}>
+                <ListItemText primary="User Profile" />
+              </ListItemButton>
+            </List>
+          </Collapse>
+
+          <ListItemButton component={Link} to="/Booking" onClick={toggleSidebar}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking" />
+          </ListItemButton>
+
+          <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
+            <InsertInvitationIcon />
+            <ListItemText primary="Booking Cancel" />
+          </ListItemButton>
+        </List>
+      </Drawer>
 
       {/* Main Content */}
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
+      <Typography  sx={{mt:4}}variant="h5" fontWeight="bold" gutterBottom>
         Admin Overview
       </Typography>
 
@@ -188,58 +299,69 @@ const AdminOverview = () => {
         </Grid>
       </Grid>
 
-      {/* Pie Chart for Booking Distribution */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6">Booking Distribution</Typography>
-        <Pie data={pieData} />
-      </Box>
+      
+    {/* Pie Chart for Booking Distribution */}
+<Box sx={{ mb: 4,ml:50,mt:10, width: '500px', height: '500px' }}>
+  <Typography variant="h6"  sx={{mr:20}}>Booking Distribution</Typography>
+  <Pie data={pieData} />
+</Box>
 
-      {/* Filter and Booking List */}
-      <TextField
-        label="Filter by Booking ID or User ID"
-        variant="outlined"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        sx={{ mb: 2 }}
-      />
+      {/* Single search bar for coach name and username */}
+      <Box sx={{ mb: 2,mt:10 ,width:'350px',ml:110}}>
+        <TextField
+          label="Search by Coach Name or Username"
+          variant="outlined"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          fullWidth
+        />
+      </Box>
 
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         Booking List
       </Typography>
       <Grid container spacing={2}>
-        {filteredBookings.map((booking) => (
-          <Grid item xs={12} sm={6} md={4} key={booking.id}>
-            <Card onClick={() => handleModalOpen(booking)} sx={{ cursor: 'pointer' }}>
-              <CardContent>
-                <Typography variant="h6">Booking ID: {booking.bookingId}</Typography>
-                <Typography>User ID: {booking.userId}</Typography>
-                <Typography>Date: {new Date(booking.date).toLocaleDateString()}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+      {filteredBookings.length > 0 ? (
+  filteredBookings.map((booking) => (
+    <Grid item xs={12} sm={6} md={4} key={booking.id}>
+      <Card onClick={() => handleModalOpen(booking)} sx={{ cursor: 'pointer' }}>
+        <CardContent>
+          {/* <Typography variant="h6">Booking ID: {booking.bookingId}</Typography> */}
+          <Typography>User Name: {booking.userName}</Typography>
+          <Typography>Child Name: {booking.childName}</Typography>
+          <Typography>Coach Name: {booking.coachName}</Typography>
+          <Typography>Date: {new Date(booking.date).toLocaleDateString()}</Typography>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))
+) : (
+  <Grid item xs={12}>
+    <Typography variant="h6" align="center">No bookings found</Typography>
+  </Grid>
+)}
+
       </Grid>
 
       {/* Modal for Booking Details */}
       <Modal open={isModalOpen} onClose={handleModalClose}>
-        <Box sx={{ padding: 4, backgroundColor: 'white', borderRadius: 2, maxWidth: 600, margin: 'auto', marginTop: '10%' }}>
+        <Box sx={{ padding: 4, backgroundColor: 'white', borderRadius: 2, maxWidth: 300, margin: 'auto', marginTop: '10%' }}>
           {selectedBooking && (
             <>
               <Typography variant="h6">Booking Details</Typography>
               <Typography>Booking ID: {selectedBooking.bookingId}</Typography>
-              <Typography>User ID: {selectedBooking.userId}</Typography>
+              {/* <Typography>User ID: {selectedBooking.userId}</Typography> */}
+              <Typography>User Name: {selectedBooking.userName}</Typography>
+              <Typography>Coach Name: {selectedBooking.coachName}</Typography>
               <Typography>Date: {new Date(selectedBooking.date).toLocaleDateString()}</Typography>
               <Typography>Status: {selectedBooking.status}</Typography>
             </>
           )}
-          <Button onClick={handleModalClose} sx={{ mt: 2 }} variant="contained">
+          <Button onClick={handleModalClose} sx={{ mt: 2 ,ml: 22}} variant="contained">
             Close
           </Button>
         </Box>
       </Modal>
-
-    </div>
+    </Box>
   );
-};
-
-export default AdminOverview;
+}
