@@ -232,7 +232,7 @@ const BookingTable: React.FC = () => {
   const navigate = useNavigate();
 
   const goBackToDashboard = () => {
-    navigate('/AdminOverview');
+    navigate('/dashboard');
   };
 
   // useEffect(() => {
@@ -289,7 +289,7 @@ const BookingTable: React.FC = () => {
 
     setIsLoading(true); // Start loading
     try {
-      await axios.post(`${Domain_URL}/bookings/${bookingToCancel}/cancel`, { comment: cancelComment });
+      await axios.patch(`${Domain_URL}/bookings/${bookingToCancel}/cancel`, { comment: cancelComment });
       setFilteredBookings(filteredBookings.map(b =>
         b.bookingId === bookingToCancel ? { ...b, status: 'canceled' } : b
       ));
@@ -335,6 +335,7 @@ const BookingTable: React.FC = () => {
           selected={selectedDate}
           onChange={handleDateChange}
           placeholderText="Select a date"
+          isClearable
           dateFormat="MM/dd/yyyy"
           className="date-input"
         />

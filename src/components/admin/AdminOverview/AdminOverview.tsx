@@ -101,7 +101,7 @@ export default function AdminOverview() {
       //   month: new Date(t.month).toLocaleString('default', { month: 'long' }),
       //   completed: parseInt(t.completed, 10),
       //   canceled: parseInt(t.canceled, 10),
-      // }));
+      // })); 
 
       const currentMonth = new Date().getMonth(); // Get current month index (0 for January, 1 for February, etc.)
 
