@@ -434,7 +434,7 @@ export default function LoginForm() {
                     Sign Up
                   </Button>
                 </Typography>
-              </Box>l
+              </Box>
             </Box>
           </Box>
         </Container>

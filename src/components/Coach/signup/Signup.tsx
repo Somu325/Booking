@@ -537,6 +537,8 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
 
 // State for storing validation error specific to the confirm password field
 const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null); 
+const [mobileNumber, setMobileNumber] = useState('');
+const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
 
 
 
@@ -552,10 +554,34 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
   //   return phoneRegex.test(number);
   // };
 
-  const validatePhoneNumber = (number: string) => {
-    // Updated regex: starts with 1-9 followed by 9 more digits, for a total of 10 digits
-    const phoneRegex = /^[1-9]\d{9}$/;
-    return phoneRegex.test(number);
+  const validateMobileNumber = (number: string) => {
+    // Ensure length does not exceed 10
+    if (number.length > 10) return;
+  
+    // Check if the input is numeric
+    if (!/^\d*$/.test(number)) {
+      setMobileNumberError("Please enter only numeric values.");
+      return false;
+    }
+  
+    // Set the mobile number
+    setMobileNumber(number);
+  
+    // Check if the number starts with 0
+    if (number.startsWith("0")) {
+      setMobileNumberError("Mobile number cannot start with 0.");
+      setMobileNumber(""); // Reset to empty if it starts with "0"
+      return false;
+    }
+  
+    // Check for valid 10-digit mobile number format
+    if (number.length === 10 && /^[1-9]\d{9}$/.test(number)) {
+      setMobileNumberError(""); // Clear any existing error
+      return true;
+    } else if (number.length < 10) {
+      setMobileNumberError("Please enter a valid phone number.");
+      return false;
+    }
   };
   
 
@@ -581,7 +607,7 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
 
       // Phone number validation
       if (name === 'phoneNumber') {
-        setPhoneError(!validatePhoneNumber(value) ? 'Please enter a valid phone number ' : null);
+        setPhoneError(!validateMobileNumber(value) ? 'Please enter a valid phone number ' : null);
       }
 
     // Password validation
@@ -751,24 +777,18 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
 
           {/* Phone */}
           <FormControl sx={{ mb: 2 }}>
-            <FormLabel>
-              Phone Number <Typography component="span" color="danger">*</Typography>
-            </FormLabel>
+            <FormLabel>Mobile Number <Typography component="span" color="danger">*</Typography></FormLabel>
             <Input
-              name="phoneNumber"
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={(e) => {
-                if (e.target.value.length <= 10) {
-                  handleChange(e);
-                }
-              }}
+              placeholder="Mobile Number"
+              value={mobileNumber}
+              onChange={(e) => validateMobileNumber(e.target.value)}
+              type="tel"
               required
               startDecorator={<Phone />}
             />
-            {phoneError && (
+            {mobileNumberError && (
               <Typography color="danger" fontSize="sm">
-                {phoneError}
+                {mobileNumberError}
               </Typography>
             )}
           </FormControl>
