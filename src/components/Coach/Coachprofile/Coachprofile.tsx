@@ -1136,14 +1136,36 @@ export default function Component() {
               </Box>
            </Grid>
 
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Star sx={{ mr: 1 }} />
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  Bio: {coachDetails?.bio || 'N/A'}
-               </Typography>
-             </Box>          
-</Grid>
+           <Grid item xs={12}>
+              <Box
+                  sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  width: '100%',
+                  overflow: 'hidden',
+                  paddingRight: '8px',         // Adds right padding to avoid text cutoff
+                  boxSizing: 'border-box',     // Ensures padding is accounted within the Box width
+                  }}
+                >
+              <Star sx={{ mr: 1, flexShrink: 0 }} />
+              <Typography
+                variant="body1"
+                      sx={{
+                        color: 'black',
+                        whiteSpace: 'normal',         // Allows wrapping within the grid
+                        wordBreak: 'break-word',      // Breaks long words to fit within the container
+                        width: '100%',                // Occupies full width of the parent Box
+                        overflowWrap: 'anywhere',     // Breaks text at any point to avoid overflow
+                        lineHeight: 1.5,
+                      }}
+                    >
+                Bio: {coachDetails?.bio || 'N/A'}
+              </Typography>
+              </Box>          
+            </Grid>
+
+
+
 
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
@@ -1199,22 +1221,23 @@ export default function Component() {
                   helperText={phoneError}
                 />
               </Grid>
+
               <Grid item xs={12} sm={6}>
-  <TextField
-    label="Sport"
-    variant="outlined"
-    fullWidth
-    value={coachDetails?.sport } // Display current sport (non-editable)
+                  <TextField
+                    label="Sport"
+                    variant="outlined"
+                    fullWidth
+                    value={coachDetails?.sport } // Display current sport (non-editable)
    
-    select
-    SelectProps={{
-      native: true,
-    }}
-  >
-    <option value="Cricket" >Cricket</option>
-    {/* Add more sport options as necessary */}
-  </TextField>
-</Grid>
+                    select
+                    SelectProps={{
+                    native: true,
+                  }}
+                  >
+                <option value="Cricket" >Cricket</option>
+                {/* Add more sport options as necessary */}
+                </TextField>
+              </Grid>
 
               <Grid item xs={12}>
                 <TextField
