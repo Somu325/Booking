@@ -26,6 +26,7 @@ import {
   CalendarToday,
   Person,
   AccessTime,
+  
 } from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
@@ -140,9 +141,14 @@ export default function Component() {
       return a.startTime.localeCompare(b.startTime)
     })
 
-    const completedBookings = filtered.filter(booking => booking.status.toLowerCase() === 'completed')
-    const otherBookings = filtered.filter(booking => booking.status.toLowerCase() !== 'completed')
-    
+    const completedBookings = filtered.filter(
+      booking => booking.status.toLowerCase() === 'completed' || booking.status.toLowerCase() === 'canceled'
+  );
+  
+  const otherBookings = filtered.filter(
+      booking => booking.status.toLowerCase() !== 'completed' && booking.status.toLowerCase() !== 'canceled'
+  );
+  
     setFilteredBookings([...otherBookings, ...completedBookings])
   }
 
