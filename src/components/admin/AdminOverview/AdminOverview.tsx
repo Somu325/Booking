@@ -103,21 +103,36 @@ export default function AdminOverview() {
       //   canceled: parseInt(t.canceled, 10),
       // })); 
 
-      const currentMonth = new Date().getMonth(); // Get current month index (0 for January, 1 for February, etc.)
+      // const currentMonth = new Date().getMonth(); // Get current month index (0 for January, 1 for February, etc.)
+
+      // const formattedTrends = trendsResponse.data
+      //   .filter((t: any) => new Date(t.month).getMonth() === currentMonth) // Filter for the current month
+      //   .map((t: any) => ({
+      //     month: new Date(t.month).toLocaleString('default', { month: 'long' }),
+      //     completed: parseInt(t.completed, 10),
+      //     canceled: parseInt(t.canceled, 10),
+      //   }));
+
+      // const formattedBookings = bookingsResponse.data.map((booking: any) => ({
+      //   month: new Date(booking.month).toLocaleString('default', { month: 'long' }),
+      //   totalBookings: booking.totalBookings,
+      // }));
+
+      const currentMonthUTC = new Date().getUTCMonth(); // Get current month index in UTC (0 for January, 1 for February, etc.)
 
       const formattedTrends = trendsResponse.data
-        .filter((t: any) => new Date(t.month).getMonth() === currentMonth) // Filter for the current month
+        .filter((t: any) => new Date(t.month).getUTCMonth() === currentMonthUTC) // Filter for the current month in UTC
         .map((t: any) => ({
-          month: new Date(t.month).toLocaleString('default', { month: 'long' }),
+          month: new Date(t.month).toLocaleString('default', { month: 'long', timeZone: 'UTC' }), // Format month in UTC
           completed: parseInt(t.completed, 10),
           canceled: parseInt(t.canceled, 10),
         }));
-
+      
       const formattedBookings = bookingsResponse.data.map((booking: any) => ({
-        month: new Date(booking.month).toLocaleString('default', { month: 'long' }),
+        month: new Date(booking.month).toLocaleString('default', { month: 'long', timeZone: 'UTC' }), // Format month in UTC
         totalBookings: booking.totalBookings,
       }));
-
+      
       setMonthlyBookings(formattedBookings);
       setBookingTrends(formattedTrends);
       setBookingList(listResponse.data);
