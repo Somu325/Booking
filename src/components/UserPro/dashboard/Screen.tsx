@@ -88,6 +88,7 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
   // Function to handle logout
   const handleLogout = () => {
     localStorage.clear();
+    
     document.cookie.split(";").forEach((c) => {
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });

@@ -229,6 +229,7 @@ import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Cookies from 'js-cookie';
 
 const Coachdashboard: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -384,8 +385,10 @@ const Coachdashboard: React.FC = () => {
             <li onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
             <li onClick={() => navigate('/Schedule')}>Scheduler</li>
             <li className="logout" onClick={() => {
+              localStorage.clear()
               localStorage.removeItem('coachId');
               localStorage.removeItem('email');
+              Cookies.remove('Coachtoken');
               navigate('/Coach-login');
             }}>
               Logout
@@ -439,6 +442,7 @@ const Coachdashboard: React.FC = () => {
                 <option value="available">Available</option>
                 <option value="booked">Booked</option>
                 <option value="canceled">canceled</option>
+                <option value="unbooked">Unbooked</option>
               </select>
             </div>
           </div>

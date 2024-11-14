@@ -18,6 +18,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from "react-bootstrap-icons";
 import { Domain_URL } from "../../config";
 import Cookies from "js-cookie";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 // Theme customization for Material-UI components
 const theme = createTheme({
@@ -50,6 +51,8 @@ const theme = createTheme({
   },
 });
 
+
+
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,31 +61,97 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+
+
+  interface CustomJwtPayload extends JwtPayload {
+    role: string; // Assuming the role is a string, adjust if necessary
+  }
+
+  // const handleSubmit = async (e: FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setError("");
+
+  //   try {
+  //     const { data } = await axios.post(`${Domain_URL}/user/login`, { email, password });
+  //     console.log("Login successful:", data);
+
+  //     localStorage.setItem("email", data.user.email);
+  //     localStorage.setItem("userId", data.user.id);
+
+  //     if (data.token) {
+  //       Cookies.set("token", data.token, {
+  //         expires: 1,
+  //         secure: true,
+  //         sameSite: "strict",
+  //       });
+  //       console.log("Token stored in cookie:", Cookies.get("token"));
+  //     }
+
+  //     navigate(data.user.verified === false ? "/verifyemail" : "/screen");
+  //   } catch (error) {
+  //     console.error("Login failed:", error);
+
+  //     if (axios.isAxiosError(error)) {
+  //       if (error.response) {
+  //         const status = error.response.status;
+  //         if (status === 401) setError("Incorrect email or password.");
+  //         else if (status === 404) setError("You are not registered. Please sign up.");
+  //         else if (status === 500) setError("The server is currently offline. Please try again later.");
+  //         else if (status === 403) setError("Your account is currently not available. Please contact Admin for help.");
+  //         else setError("An unexpected error occurred. Please try again.");
+  //       } else if (error.request) {
+  //         setError("The server is currently offline. Please try again later.");
+  //       } else {
+  //         setError("An error occurred while logging in. Please try again.");
+  //       }
+  //     } else {
+  //       setError("An error occurred. Please try again later.");
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     try {
       const { data } = await axios.post(`${Domain_URL}/user/login`, { email, password });
       console.log("Login successful:", data);
-
+  
       localStorage.setItem("email", data.user.email);
       localStorage.setItem("userId", data.user.id);
-
+  
       if (data.token) {
-        Cookies.set("token", data.token, {
-          expires: 1,
+        Cookies.set("Usertoken", data.token, {
+          expires: 1, // 1 day
           secure: true,
           sameSite: "strict",
         });
-        console.log("Token stored in cookie:", Cookies.get("token"));
+        console.log("Token stored in cookie:", Cookies.get("Usertoken"));
+  
+        // Decode the JWT token to extract the user role
+        const decodedToken : CustomJwtPayload= jwtDecode(data.token);
+        const userRole = decodedToken.role; 
+        console.log(userRole)// Assuming 'role' is stored in the token
+  
+        // Store the role in localStorage (optional but useful for global access)
+        localStorage.setItem("role", userRole);
+  
+        // Navigate based on role
+        if (userRole === 'user') {
+          navigate(data.user.verified === false ? "/verifyemail" : "/screen");
+        } else if (userRole === 'admin') {
+          navigate("/dashboard"); // Admin route
+        } else if (userRole === 'coach') {
+          navigate("/Coach-Dashboard"); // Coach route
+        }
       }
-
-      navigate(data.user.verified === false ? "/verifyemail" : "/screen");
     } catch (error) {
       console.error("Login failed:", error);
-
+  
       if (axios.isAxiosError(error)) {
         if (error.response) {
           const status = error.response.status;
@@ -103,7 +172,6 @@ const LoginForm = () => {
       setLoading(false);
     }
   };
-
   return (
     <ThemeProvider theme={theme}>
       <Box

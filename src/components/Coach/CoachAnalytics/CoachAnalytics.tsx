@@ -231,7 +231,9 @@ export default function CoachAnalytics() {
                 value={statusFilter} 
                 onChange={(_, value) => setStatusFilter(value || '')} 
               >
-                <Option value="">Booked</Option>
+                <Option value="">All</Option>
+                <Option value="booked">booked</Option>
+                <Option value="upcoming">Upcoming</Option>
                 <Option value="progress">Progress</Option>
                 <Option value="canceled">canceled</Option>
                 <Option value="completed">completed</Option>
