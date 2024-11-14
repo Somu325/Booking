@@ -255,12 +255,12 @@ export default function LoginForm() {
 
       // Store token in cookies if provided
       if (response.data.token) {
-        Cookies.set('token', response.data.token, {
+        Cookies.set('Coachtoken', response.data.token, {
           expires: 1, // Token expires in 1 day
           secure: true, // Use HTTPS in production
           sameSite: 'strict', // Prevent CSRF attacks
         });
-        console.log('Token stored:', Cookies.get('token'));
+        console.log('Token stored:', Cookies.get('Coachtoken'));
       }
 
       // Navigate based on email verification status

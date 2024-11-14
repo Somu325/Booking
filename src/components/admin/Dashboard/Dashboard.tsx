@@ -1,23 +1,22 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2'; // Importing Bar chart from react-chartjs-2
-import { Typography, Box, AppBar, Toolbar, IconButton, Drawer, List,  ListItemText, Collapse, Grid } from '@mui/material';
+import { Typography, Box, AppBar, Toolbar, IconButton, Drawer, List, ListItemText, Collapse, Grid, ListItemButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
-import { Link } from 'react-router-dom'; 
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Importing logout icon
+import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css"
 import { Domain_URL } from "../../config";
-import {  ListItemButton } from '@mui/joy';
-import { useNavigate } from 'react-router-dom'; 
+import Cookies from 'js-cookie';
 
-// Weekday labels
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function Dashboard () {
+function Dashboard() {
   const [dailyData, setDailyData] = useState<{ labels: string[], datasets: { data: number[] }[] }>({ labels: [], datasets: [{ data: [] }] });
   const [weeklyData, setWeeklyData] = useState<{ labels: string[], datasets: { data: number[] }[] }>({ labels: [], datasets: [{ data: [] }] });
   const [loading, setLoading] = useState(false);
@@ -33,7 +32,7 @@ function Dashboard () {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const dailyResponse = await axios.get( `${Domain_URL}/daily`);
+        const dailyResponse = await axios.get(`${Domain_URL}/daily`);
         const weeklyResponse = await axios.get(`${Domain_URL}/weekly`);
 
         // Process daily bookings data
@@ -95,6 +94,16 @@ function Dashboard () {
     setBookingOpen(!bookingOpen);
   };
 
+  // Handle Logout
+  const handleLogout = () => {
+    // Clear cookies and localStorage
+    localStorage.clear();
+    Cookies.remove('admintoken'); // Remove JWT cookie
+
+    // Redirect to login page
+    navigate('/Adminlogin');
+  };
+
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static">
@@ -103,10 +112,8 @@ function Dashboard () {
             <MenuIcon />
           </IconButton>
           <Typography className='Admin' variant="h6" sx={{ flexGrow: 1 }}>
-             Admin Dashboard
+            Admin Dashboard
           </Typography>
-
-
         </Toolbar>
       </AppBar>
 
@@ -161,9 +168,15 @@ function Dashboard () {
             </ListItemButton>
 
             <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
-            <InsertInvitationIcon />
-            <ListItemText primary="Booking Cancel" />
-          </ListItemButton>
+              <InsertInvitationIcon />
+              <ListItemText primary="Booking Cancel" />
+            </ListItemButton>
+
+            {/* Logout Option */}
+            <ListItemButton onClick={handleLogout}>
+              <ExitToAppIcon />
+              <ListItemText primary="Logout" />
+            </ListItemButton>
           </List>
         </Box>
       </Drawer>
@@ -220,6 +233,6 @@ function Dashboard () {
       </Box>
     </div>
   );
-};
+}
 
 export default Dashboard;

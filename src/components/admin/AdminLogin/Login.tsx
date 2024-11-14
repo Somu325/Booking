@@ -151,43 +151,53 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-  
+    setLoading(true); // Show loading indicator
+    setError(''); // Clear previous errors
+
     try {
-      const { data } = await axios.post(`${Domain_URL}/admins/login`, {
-        email,
-        password,
-      });
-  
-      console.log('Login successful:', data);
-  
-      // Assuming the token is sent in the response, set the token in a cookie
-      if (data.token) {
-        Cookies.set('token', data.token, {
-          expires: 1, // Cookie expires in 1 day
-          secure: true, // Set to true in production (for HTTPS)
-          sameSite: 'strict', // Helps prevent CSRF attacks
+        // Make a POST request to the admin login endpoint
+        const { data } = await axios.post(`${Domain_URL}/admins/login`, {
+            email,
+            password,
         });
-  
-        // Get the token to confirm it's set
-        const token = Cookies.get('token');
-        console.log('Token stored in cookie:', token);
-      }
-  
-      // Store admin details in localStorage if needed
-      localStorage.setItem('email', data.admin.email);
-      localStorage.setItem('userId', data.admin.adminId);
-  
-      // Navigate to the dashboard
-      navigate('/dashboard');
+
+        console.log('Login successful:', data);
+
+        // Set the token in a cookie with additional security options
+        if (data.token) {
+            Cookies.set('admintoken', data.token, {
+                expires: 1,          // Cookie expires in 1 day
+                secure: true,        // Use HTTPS in production
+                sameSite: 'strict',  // CSRF protection
+            });
+            console.log('Token stored in cookie:', Cookies.get('admintoken'));
+        }
+
+        // Store admin details in localStorage for persistence
+        localStorage.setItem('email', data.admin.email);
+        localStorage.setItem('adminId', data.admin.adminId);
+
+        // Navigate to the admin dashboard
+        navigate('/dashboard');
     } catch (error) {
-      console.error('Login failed:', error);
-      setError('Login failed. Please check your credentials.');
+        console.error('Login failed:', error);
+
+        // Set a specific error message for failed login
+        if (axios.isAxiosError(error) && error.response) {
+            if (error.response.status === 401) {
+                setError('Invalid credentials. Please try again.');
+            } else if (error.response.status === 404) {
+                setError('Admin not found. Please check your email and password.');
+            } else {
+                setError('Server error. Please try again later.');
+            }
+        } else {
+            setError('Login failed. Please try again.');
+        }
     } finally {
-      setLoading(false);
+        setLoading(false); // Remove loading indicator
     }
-  };
+};
 
   return (
     <ThemeProvider theme={theme}>
