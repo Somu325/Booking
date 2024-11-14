@@ -537,8 +537,6 @@ const [passwordError, setPasswordError] = useState<string | null>(null);
 
 // State for storing validation error specific to the confirm password field
 const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null); 
-const [mobileNumber, setMobileNumber] = useState('');
-const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
 
 
 
@@ -554,35 +552,38 @@ const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
   //   return phoneRegex.test(number);
   // };
 
-  const validateMobileNumber = (number: string) => {
-    // Ensure length does not exceed 10
-    if (number.length > 10) return;
+  // const validatePhoneNumber = (number: string) => {
+  //   // Check if the input contains only numeric characters
+  //   if (!/^\d*$/.test(number)) {
+  //     setPhoneError('Please enter only numeric values.');
+  //     return false;
+  //   }
   
-    // Check if the input is numeric
-    if (!/^\d*$/.test(number)) {
-      setMobileNumberError("Please enter only numeric values.");
-      return false;
-    }
+  //   // Ensure the number does not start with 0
+  //   if (number.startsWith('0')) {
+  //     setPhoneError('Phone number cannot start with 0.');
+  //     return false;
+  //   }
   
-    // Set the mobile number
-    setMobileNumber(number);
+  //   // Ensure length does not exceed 10 digits
+  //   if (number.length > 10) {
+  //     setPhoneError('Phone number cannot exceed 10 digits.');
+  //     return false;
+  //   }
   
-    // Check if the number starts with 0
-    if (number.startsWith("0")) {
-      setMobileNumberError("Mobile number cannot start with 0.");
-      setMobileNumber(""); // Reset to empty if it starts with "0"
-      return false;
-    }
+  //   // Validate 10-digit phone number format (starts with 1-9 followed by 9 digits)
+  //   if (number.length === 10 && /^[1-9]\d{9}$/.test(number)) {
+  //     setPhoneError(''); // Clear any existing error
+  //     return true;
+  //   } else if (number.length < 10) {
+  //     setPhoneError('Phone number must be exactly 10 digits.');
+  //     return false;
+  //   } else {
+  //     setPhoneError('Please enter a valid phone number.');
+  //     return false;
+  //   }
+  // };
   
-    // Check for valid 10-digit mobile number format
-    if (number.length === 10 && /^[1-9]\d{9}$/.test(number)) {
-      setMobileNumberError(""); // Clear any existing error
-      return true;
-    } else if (number.length < 10) {
-      setMobileNumberError("Please enter a valid phone number.");
-      return false;
-    }
-  };
   
 
   const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
@@ -605,11 +606,28 @@ const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
       setEmailError(!validateEmail(value) ? 'Please enter a valid email address.' : null);
     }
 
-      // Phone number validation
-      if (name === 'phoneNumber') {
-        setPhoneError(!validateMobileNumber(value) ? 'Please enter a valid phone number ' : null);
-      }
+    // Prevent leading 0 in phone number input
+  if (name === 'phoneNumber') {
+    // Remove non-numeric characters from the input value
+    const cleanedValue = value.replace(/\D/g, ''); // Replace all non-numeric characters with an empty string
 
+    // Ensure the value doesn't start with '0'
+    if (cleanedValue.startsWith('0')) {
+      setPhoneError('Phone number cannot start with 0.');
+      setFormData((prevData) => ({ ...prevData, phoneNumber: cleanedValue.slice(1) })); // Remove leading '0'
+      return;
+    }
+
+    // If the cleaned value is valid, update the state
+    setFormData((prevData) => ({ ...prevData, phoneNumber: cleanedValue }));
+
+    // Phone number validation
+    setPhoneError(
+      cleanedValue.length === 10 && /^[1-9]\d{9}$/.test(cleanedValue)
+        ? null
+        : 'Please enter a valid phone number.'
+    );
+  }
     // Password validation
     if (name === 'password') {
       setPasswordError(
@@ -777,18 +795,24 @@ const [mobileNumberError, setMobileNumberError] = useState<string | null>(null);
 
           {/* Phone */}
           <FormControl sx={{ mb: 2 }}>
-            <FormLabel>Mobile Number <Typography component="span" color="danger">*</Typography></FormLabel>
+            <FormLabel>
+              Phone Number <Typography component="span" color="danger">*</Typography>
+            </FormLabel>
             <Input
-              placeholder="Mobile Number"
-              value={mobileNumber}
-              onChange={(e) => validateMobileNumber(e.target.value)}
-              type="tel"
+              name="phoneNumber"
+              placeholder="Phone Number"
+              value={formData.phoneNumber}
+              onChange={(e) => {
+                if (e.target.value.length <= 10) {
+                  handleChange(e);
+                }
+              }}
               required
               startDecorator={<Phone />}
             />
-            {mobileNumberError && (
+            {phoneError && (
               <Typography color="danger" fontSize="sm">
-                {mobileNumberError}
+                {phoneError}
               </Typography>
             )}
           </FormControl>
