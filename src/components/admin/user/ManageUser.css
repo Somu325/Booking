@@ -1,95 +1,266 @@
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  border: 1px solid #ccc;
-  padding: 20px;
-  z-index: 1000; /* Make sure the modal is above other content */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.modal-actions {
-  margin-top: 20px;
-}
-
-.modal button {
-  margin-right: 10px;
-}
-/* Button styles */
-.view-btn,
-.edit-btn,
-.hold-btn,
-.confirm-btn,
-.close-btn {
+/* Container for the whole page */
+.go-back-button {
+  background-color: #007bff; /* Blue background */
+  color: white;  
+  font-size: 16px;
+  padding: 8px 16px;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.view-btn {
-  background-color: #007bff; /* Blue */
+h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+/* Styling for search bar */
+.MuiTextField-root {
+  margin-bottom: 16px;
+}
+
+.MuiTextField-root input {
+  font-size: 16px;
+}
+
+/* Styling for the table */
+.MuiTableCell-root {
+  font-size: 16px;
+}
+
+/* Button styling */
+.blue-btn {
+  background-color: #007bff; /* Blue color for action buttons */
   color: white;
 }
 
-.edit-btn {
-  background-color: #ffc107; /* Yellow */
-  color: black;
+.MuiButton-outlined {
+  color: #007bff; /* Blue outlined button */
+  border-color: #007bff;
 }
 
-.hold-btn {
-  background-color: #dc3545; /* Red */
+.MuiButton-outlined:hover {
+  background-color: #e3f2fd; /* Light blue background on hover */
+}
+
+/* Table Container Styling */
+.MuiTableContainer-root {
+  margin-top: 16px;
+}
+
+/* Pagination Styling */
+.MuiTablePagination-root {
+  font-size: 14px;
+}
+
+/* Modal Styling */
+.MuiDialog-root .MuiPaper-root {
+  width: 400px; /* Smaller size for the modal */
+  left: 0; /* Align modal to the left */
+  margin-left: 0;
+}
+
+.MuiDialogTitle-root {
+  background-color: #007bff; /* Blue header for the modal */
   color: white;
-}
-
-.confirm-btn {
-  background-color: #28a745; /* Green */
-  color: white;
-}
-
-.close-btn {
-  background-color: #6c757d; /* Grey */
-  color: white;
-}
-
-/* Button hover effects */
-.view-btn:hover {
-  background-color: #0056b3; /* Darker blue */
-}
-
-.edit-btn:hover {
-  background-color: #e0a800; /* Darker yellow */
-}
-
-.hold-btn:hover {
-  background-color: #c82333; /* Darker red */
-}
-
-.confirm-btn:hover {
-  background-color: #218838; /* Darker green */
-}
-
-.close-btn:hover {
-  background-color: #5a6268; /* Darker grey */
-}
-
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000; /* Ensure modal appears above other elements */
-}
-
-h2{
+  font-size: 20px;
   text-align: center;
+}
+
+.MuiDialogContent-root {
+  padding: 20px;
+}
+
+.MuiDialogActions-root {
+  padding: 12px 20px;
+}
+
+/* Modal content styling for text fields */
+.MuiTextField-root {
+  margin-bottom: 12px;
+}
+
+.MuiTextField-root input {
+  font-size: 16px;
+}
+
+/* Freeze Account / Undo Freeze Button */
+.MuiButton-containedError {
+  background-color: #d32f2f; /* Red background for "Freeze Account" */
+  color: white;
+}
+
+.MuiButton-containedPrimary {
+  background-color: #007bff; /* Blue for "Undo Freeze" */
+  color: white;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+button.MuiButton-contained {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  h2 {
+    font-size: 22px;
+  }
+
+  .go-back-button {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+
+  .MuiTableCell-root {
+    font-size: 14px;
+  }
+
+  .MuiDialog-root .MuiPaper-root {
+    width: 90%; /* Allow modal to take up more space on smaller screens */
+  }
+}
+
+@media (max-width: 992px) {
+  .MuiTextField-root {
+    margin-bottom: 12px;
+  }
+
+  .MuiDialogTitle-root {
+    font-size: 18px;
+  }
+
+  .MuiDialogContent-root {
+    padding: 15px;
+  }
+
+  .MuiButton-containedPrimary {
+    padding: 8px 16px;
+  }
+
+  .go-back-button {
+    font-size: 14px;
+    padding: 6px 12px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .MuiTablePagination-root {
+    font-size: 12px;
+  }
+
+  .MuiTextField-root input {
+    font-size: 14px;
+  }
+
+  .go-back-button {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .MuiTableContainer-root {
+    margin-top: 8px;
+  }
+
+  .MuiDialog-root .MuiPaper-root {
+    width: 100%; /* Modal will take full width on smaller screens */
+    margin-left: 0;
+  }
+
+  .MuiDialogTitle-root {
+    font-size: 16px;
+  }
+
+  .MuiButton-containedError,
+  .MuiButton-containedPrimary {
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  h2 {
+    font-size: 18px;
+  }
+
+  .go-back-button {
+    font-size: 12px;
+    padding: 4px 8px;
+    gap: 4px;
+  }
+
+  .MuiTextField-root {
+    margin-bottom: 10px;
+  }
+
+  .MuiButton-contained {
+    padding: 8px 16px;
+  }
+
+  .MuiDialogTitle-root {
+    font-size: 16px;
+    text-align: left; /* Adjust the modal title alignment */
+  }
+}
+
+.Search {
+  width: 350px; /* Set the width of the search bar */
+  height: 25px;
+  margin-left: 0; /* Aligns the search bar to the left */
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .Search {
+    width: 100%; /* Full width on smaller screens */
+    margin-left: 0;
+  }
+}
+
+/* Responsive Table Styling */
+@media (max-width: 992px) {
+  .MuiTableContainer-root {
+    overflow-x: auto;
+    margin-top: 12px;
+  }
+
+  .MuiTableCell-root {
+    font-size: 14px;
+    padding: 8px; /* Adjust cell padding for smaller screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .MuiTableContainer-root {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+
+  .MuiTableCell-root {
+    font-size: 12px;
+    padding: 6px; /* Further reduce padding for smaller screens */
+  }
+}
+
+@media (max-width: 576px) {
+  .MuiTableContainer-root {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+
+  .MuiTableCell-root {
+    font-size: 12px;
+    padding: 4px; /* Minimal padding on very small screens */
+  }
 }

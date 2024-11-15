@@ -1,10 +1,8 @@
-/* ManageCoach.css */
-
 /* General Styling */
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif; /* Set a default font for better readability */
+  font-family: Arial, sans-serif;
 }
 
 /* Table Styling */
@@ -32,6 +30,22 @@ td {
   color: #333;
 }
 
+/* Responsive Table */
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto; /* Horizontal scrolling on smaller screens */
+  }
+
+  th {
+    font-size: 14px;
+  }
+
+  td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
 /* Button Styling */
 button {
   padding: 8px 16px;
@@ -39,9 +53,9 @@ button {
   font-size: 14px;
   border-radius: 4px;
   cursor: pointer;
-  margin: 0 5px; /* Margin for spacing between buttons */
-  color: white; /* White text for better contrast */
-  background-color: #007bff; /* Default background color for all buttons */
+  margin: 0 5px;
+  color: white;
+  background-color: #007bff;
 }
 
 button:focus {
@@ -52,26 +66,32 @@ button:hover {
   opacity: 0.9;
 }
 
-/* Edit Button */
+/* Responsive Buttons */
+@media (max-width: 768px) {
+  button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Specific Button Colors */
 button.edit {
-  background-color: #0be54c; /* Green background for Edit */
+  background-color: #0be54c;
 }
 
-/* Delete Button */
 button.delete {
-  background-color: #dc3545; /* Red background for Delete */
+  background-color: #dc3545;
 }
 
-/* Close Button */
 button.close {
-  background-color: #6c757d; /* Gray background for Close */
+  background-color: #6c757d;
 }
 
 /* Flexbox for Action Buttons */
 .action-buttons {
-  display: flex; /* Use flexbox to align buttons side by side */
-  justify-content: center; /* Center the buttons within the cell */
-  gap: 10px; /* Space between buttons */
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 /* Modal Styling */
@@ -84,11 +104,10 @@ button.close {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-  width: 90%; /* Make modal width responsive */
-  max-width: 600px; /* Set a maximum width for larger screens */
+  width: 90%;
+  max-width: 600px;
 }
 
-/* Overlay for Modal */
 .Overlay {
   position: fixed;
   top: 0;
@@ -96,13 +115,21 @@ button.close {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.75);
-  z-index: 999; /* Ensure overlay is on top */
+  z-index: 999;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  .Modal {
+    width: 90%;
+    max-width: 90%;
+    padding: 15px;
+  }
 }
 
 /* Form Element Styling */
 label {
   display: block;
-/*   margin: 10px 0; */
   font-size: 14px;
 }
 
@@ -110,10 +137,9 @@ input[type='text'],
 input[type='email'],
 select {
   width: 100%;
-  padding: 10px 2px 13px 10px;
+  padding: 10px;
   margin-top: 5px;
   font-size: 14px;
-  /* border: 1px solid #ccc; */
   border-radius: 4px;
 }
 
@@ -129,15 +155,120 @@ button[type='button'] {
 .full-screen {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Full height of the viewport */
+  height: 100vh;
 }
 
 /* Table Container */
 .table-container {
-  overflow-y: auto; /* Allow scrolling if content overflows */
-  flex: 1; /* Allow the table container to take up remaining space */
+  overflow-y: auto;
+  flex: 1;
 }
 
-.css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input{
+.css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input {
   padding: 8.5px 14px !important;
+}
+
+.go-back-button {
+  margin-top: 10px;
+}
+
+/* Modal Overlay */
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Responsive Modal Content */
+.ReactModal__Content {
+  position: relative;
+  background: white;
+  padding: 20px;
+  width: 400px;
+  max-height: 400px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+@media (max-width: 576px) {
+  .ReactModal__Content {
+    width: 90%;
+    max-width: 90%;
+  }
+}
+
+/* Modal Title */
+.ReactModal__Content h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+.ReactModal__Content p {
+  margin: 5px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Close Button */
+.ReactModal__Content button.close-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: transparent;
+  color: #333;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.ReactModal__Content button.close-button:hover {
+  color: #007bff;
+}
+
+.ReactModal__Content button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.ReactModal__Content button:hover {
+  background-color: #0056b3;
+}
+
+.Search {
+  width: 350px;
+  margin-left: 0;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+/* Responsive Search Bar */
+@media (max-width: 768px) {
+  .Search {
+    width: 100%;
+    margin-left: 0;
+  }
 }

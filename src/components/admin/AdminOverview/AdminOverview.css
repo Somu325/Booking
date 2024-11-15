@@ -1,31 +1,145 @@
 /* AdminOverview.css */
 
+/* General container styles */
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center contents horizontally */
-    padding: 20px; /* Optional padding */
-    width: 100%; /* Full width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Typography styles */
+.title {
+  margin: 20px 0;
+}
+
+/* Chart Styles */
+.chart {
+  width: 100%;
+}
+
+/* Pie chart styles */
+.pieChart {
+  width: 50%; /* Smaller size on all screen sizes */
+  max-width: 300px; /* Optional: Set max width for large screens */
+  margin: 0; /* Remove centering */
+  align-self: flex-start; /* Align the pie chart to the left */
+}
+
+/* Card styles for booking list */
+.booking-card {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Go back button */
+.go-back-button {
+  margin-top: 10px;
+}
+
+/* Responsive Design */
+
+/* For small screens (mobile) */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
   }
-  
-  /* Typography styles */
+
   .title {
-    margin: 20px 0; /* Space above and below the title */
+    font-size: 18px;
+    margin: 10px 0;
+    text-align: center;
   }
-  
-  /* Chart Styles */
-  .chart {
-    width: 100%; /* Full width for charts */
-  }
-  
+
+  /* Align Pie Chart to left and make it smaller on mobile */
   .pieChart {
-    width: 70%; /* Make the pie chart smaller */
-    max-width: 400px; /* Limit maximum width */
+    width: 80%; /* Adjust size for mobile */
+    max-width: none; /* Remove max width for small screens */
+    margin: 0; /* Align left */
+    align-self: flex-start; /* Keep aligned to the left */
   }
-  
-  /* Card styles for booking list */
+
+  /* Search Box */
+  .search-box {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  /* Booking cards on mobile */
   .booking-card {
-    width: 100%; /* Full width for cards */
-    margin-bottom: 16px; /* Space below each card */
+    margin-bottom: 10px;
   }
-  
+
+  .go-back-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+  }
+}
+
+/* For medium screens (tablets) */
+@media (min-width: 601px) and (max-width: 900px) {
+  .container {
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  /* Align Pie Chart to left and make it smaller on tablets */
+  .pieChart {
+    width: 60%; /* Adjust size for tablet */
+    margin-left: 0;
+    margin-right: 0;
+    align-self: flex-start; /* Align to left */
+  }
+
+  .search-box {
+    width: 100%;
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+
+  /* Booking cards on tablets */
+  .booking-card {
+    margin-bottom: 14px;
+  }
+}
+
+/* For large screens (desktops) */
+@media (min-width: 901px) {
+  .container {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 28px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+
+  /* Align Pie Chart to left and make it smaller on desktop */
+  .pieChart {
+    width: 30%; /* Smaller size on desktop */
+    max-width: 300px;
+    margin-left: 0;
+    align-self: flex-start; /* Left aligned */
+  }
+
+  .search-box {
+    width: 350px;
+    margin-left: 110px;
+    margin-top: 20px;
+  }
+
+  .go-back-button {
+    padding: 12px 24px;
+  }
+}
