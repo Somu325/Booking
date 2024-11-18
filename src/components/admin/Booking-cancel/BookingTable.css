@@ -130,7 +130,7 @@
 
 .confirm-button {
   background-color: #e74c3c;
-  color: white;
+  color: rgb(245, 235, 235);
   transition: background-color 0.3s ease;
 }
 
@@ -150,4 +150,15 @@
   background-color: #000c66;
   cursor: not-allowed;
   color: white;
+}
+
+
+.cancel-button[disabled] {
+  background-color: #d3d6ec;
+  cursor: not-allowed;
+  color: white;
+}
+.status-filter{
+  width: 20%;
+
 }

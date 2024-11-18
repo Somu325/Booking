@@ -360,7 +360,7 @@ import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead
 import { FaArrowLeft } from 'react-icons/fa';
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom';
-
+import "./ManageUser.css"
 interface User {
   verified: any;
   userId: string;
@@ -618,10 +618,10 @@ const ManageUser: React.FC = () => {
       <TextField
         label="Search Users by Name or Email"
         variant="outlined"
-        fullWidth
+        className="search"
         value={searchTerm}
         onChange={handleSearch}
-        sx={{ margin: 2 }}
+        sx={{ margin: 1 }}
       />
       <div>
         <Button variant="contained" onClick={() => setOpen(true)}>
@@ -696,10 +696,10 @@ const ManageUser: React.FC = () => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile Number</TableCell>
-              <TableCell>Action</TableCell>
+            <TableCell sx={{ backgroundColor: '#007bff', color: 'white', padding:'none' }}>Name</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white', padding:'none' }}>Email</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white',padding:'none' }}>Mobile Number</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white' ,padding:'none'}}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -675,6 +675,19 @@ const Schedule = () => {
       if (moment(endTime, "HH:mm").isBefore(moment(startTime, "HH:mm"))) {
         throw new Error("End time must be after start time.");
       }
+      const startMinutes = moment(startTime, "HH:mm").minutes();
+    const endMinutes = moment(endTime, "HH:mm").minutes();
+    
+    if (![0, 30].includes(startMinutes) || ![0, 30].includes(endMinutes)) {
+        throw new Error("Please select times with minutes only as 00 or 30.");
+    }
+    const durationInMinutes = moment(endTime, "HH:mm").diff(moment(startTime, "HH:mm"), "minutes");
+    if (durationInMinutes < 60) {
+      throw new Error("The time difference between start time and end time must be at least 60 minutes.");
+    }
+    if (durationInMinutes % 60 !== 0) {
+      throw new Error("The time range must be in full-hour increments (e.g., 9:00 to 10:00, 9:00 to 11:00).");
+    }
   
       if (scheduleType === 'daily') {
         if (!isDateInFuture(date)) {
@@ -683,13 +696,22 @@ const Schedule = () => {
         if (!isTimeValid(startTime, date)) {
           throw new Error("Please select a time at least 12 hours in advance.");
         }
+        if (startTime === endTime) {
+          throw new Error("Start time and end time must not be the same.");
+      }
       } else {
         if (moment(startDate).isAfter(moment(endDate))) {
           throw new Error("End date must be after start date.");
         }
+        if (moment(startDate).isSame(moment(endDate), 'day')) {
+          throw new Error("Start date and end date must not be the same for weekly scheduling.");
+      }
         if (!isDateInFuture(startDate) || !isDateInFuture(endDate)) {
           throw new Error("Please select future dates for weekly scheduling.");
         }
+        if (startTime === endTime) {
+          throw new Error("Start time and end time must not be the same.");
+      }
         if (daysOfWeek.length === 0) {
           throw new Error("Please select at least one day of the week.");
         }
@@ -713,6 +735,8 @@ const Schedule = () => {
               daysOfWeek,
           }),
       };
+
+      console.log("payload is",payload)
   
       const endpoint = scheduleType === 'daily' 
         ? `${Domain_URL}/slot/createSlot`
