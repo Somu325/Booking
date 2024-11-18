@@ -34,30 +34,34 @@ function Dashboard() {
       try {
         const dailyResponse = await axios.get(`${Domain_URL}/daily`);
         const weeklyResponse = await axios.get(`${Domain_URL}/weekly`);
-
+  
         // Process daily bookings data
         const dailyCounts = Array(7).fill(0); // Initialize counts for 7 days
         dailyResponse.data.forEach((booking: any) => {
           const dayIndex = new Date(booking.day).getDay();
           dailyCounts[dayIndex] += booking.totalBookings;
         });
-
+  
         // Set daily chart data
         setDailyData({
           labels: weekdays,
           datasets: [{ data: dailyCounts }]
         });
-
+  
         // Process weekly bookings data
         const weeklyCounts = weeklyResponse.data.map((booking: any) => booking.totalBookings);
-        const weeklyLabels = weeklyResponse.data.map((booking: any) => booking.week);
-
+        const weeklyLabels = weeklyResponse.data.map((booking: any) => {
+          // Convert date string to Date object, then format as MM/DD/YYYY (or your desired format)
+          const date = new Date(booking.week);
+          return date.toLocaleDateString(); // This will give MM/DD/YYYY format
+        });
+  
         // Set weekly chart data
         setWeeklyData({
           labels: weeklyLabels,
           datasets: [{ data: weeklyCounts }]
         });
-
+  
         setError(null);
       } catch (err: any) {
         setError(err.message || 'Error fetching data');
@@ -66,9 +70,10 @@ function Dashboard() {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
+  
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

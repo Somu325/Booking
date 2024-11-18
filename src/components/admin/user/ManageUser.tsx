@@ -362,7 +362,7 @@ import {  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHea
 import { FaArrowLeft } from 'react-icons/fa';
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom';
-
+import "./ManageUser.css"
 interface User {
   userId: string;
   name: string;
@@ -491,15 +491,15 @@ const ManageUser: React.FC = () => {
         <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-         <h2> Manage user accounts</h2>
+         <h2> Manage user </h2>
       {/* Search bar */}
       <TextField
         label="Search Users by Name or Email "
         variant="outlined"
-        fullWidth
+        className="search"
         value={searchTerm}
         onChange={handleSearch}
-        sx={{ margin: 2 }}
+        sx={{ margin: 1 }}
       />
 
       {/* User Table */}
@@ -507,37 +507,40 @@ const ManageUser: React.FC = () => {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Mobile Number</TableCell>
-              <TableCell>Action</TableCell>
+            <TableCell sx={{ backgroundColor: '#007bff', color: 'white', padding:'none' }}>Name</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white', padding:'none' }}>Email</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white',padding:'none' }}>Mobile Number</TableCell>
+              <TableCell sx={{ backgroundColor: '#007bff', color: 'white' ,padding:'none'}}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedUsers.map((user) => (
               <TableRow key={user.userId}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.mobileNumber}</TableCell>
-                <TableCell>
+                <TableCell sx={{ padding: '12px' }}>{user.name}</TableCell>
+                <TableCell sx={{ padding: '12px' }}>{user.email}</TableCell>
+                <TableCell sx={{ padding: '12px' }}>{user.mobileNumber}</TableCell>
+                <TableCell sx={{ padding: '12px' }}>
                 <Button
-  variant="contained"
-  color={user.softDelete ? "primary" : "error"}  // Remove "default" and use "primary" or "error"
-  onClick={() => handleSoftDelete(user.userId, user.softDelete)}
->
-  {user.softDelete ? "Undo Freeze" : "Freeze Acccount"}
-</Button>
+                 className="blue-btn"
+                 sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
+                 size="small"
+
+                 color={user.softDelete ? "primary" : "error"}  // Remove "default" and use "primary" or "error"
+                 onClick={() => handleSoftDelete(user.userId, user.softDelete)}
+                >
+                    {user.softDelete ? "Undo Freeze" : "Freeze Acccount"}
+                </Button>
+                <Button
+                   onClick={() => handleViewDetails(user)}
+                   size="small"
+                   sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
+                >
+                   View
+                </Button>
 <Button
-  variant="outlined"
-  onClick={() => handleViewDetails(user)}
-  sx={{ marginLeft: 1 }}
->
-  View
-</Button>
-<Button
-  variant="outlined"
+ 
   onClick={() => handleEditClick(user)}
-  sx={{ marginLeft: 1 }}
+  sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
 >
   Edit
 </Button>
