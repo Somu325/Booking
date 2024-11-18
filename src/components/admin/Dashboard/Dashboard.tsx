@@ -13,12 +13,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import "./Dashboard.css"
 import { Domain_URL } from "../../config";
 import Cookies from 'js-cookie';
+// import { ChartOptions, ChartData, ChartDataset } from 'chart.js';
+import moment from 'moment';
+
+
+
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function Dashboard() {
-  const [dailyData, setDailyData] = useState<{ labels: string[], datasets: { data: number[] }[] }>({ labels: [], datasets: [{ data: [] }] });
-  const [weeklyData, setWeeklyData] = useState<{ labels: string[], datasets: { data: number[] }[] }>({ labels: [], datasets: [{ data: [] }] });
+  const [dailyData, setDailyData] = useState<{ labels: string[]; datasets: { data: number[] }[] }>({
+    labels: [], // Initialize as empty array
+    datasets: [{ data: [] }], // Initialize with an empty dataset
+  });
+  const [weeklyData, setWeeklyData] = useState<{ labels: string[]; datasets: { data: number[] }[] }>({
+    labels: [], // Initialize as empty array
+    datasets: [{ data: [] }], // Initialize with an empty dataset
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,30 +49,76 @@ function Dashboard() {
         // Process daily bookings data
         const dailyCounts = Array(7).fill(0); // Initialize counts for 7 days
         dailyResponse.data.forEach((booking: any) => {
-          const dayIndex = new Date(booking.day).getDay();
+          const bookingDate = new Date(`${booking.day}T00:00:00-06:00`);
+          const dayIndex = bookingDate.getDay();
           dailyCounts[dayIndex] += booking.totalBookings;
         });
   
         // Set daily chart data
-        setDailyData({
+        const dailyChartData = {
           labels: weekdays,
-          datasets: [{ data: dailyCounts }]
-        });
+          datasets: [
+            {
+              data: dailyCounts,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+            },
+          ],
+        };
   
-        // Process weekly bookings data
+        setDailyData(dailyChartData);
+  
+        // Process weekly bookings data with date range calculation
         const weeklyCounts = weeklyResponse.data.map((booking: any) => booking.totalBookings);
         const weeklyLabels = weeklyResponse.data.map((booking: any) => {
-          // Convert date string to Date object, then format as MM/DD/YYYY (or your desired format)
-          const date = new Date(booking.week);
-          return date.toLocaleDateString(); // This will give MM/DD/YYYY format
+          // Check if `week` exists and try to parse it
+          if (booking.week) {
+            let date: Date;
+            try {
+              // Try to create a date object (checking for different formats)
+              date = new Date(booking.week);
+  
+              // If `new Date()` fails, try manually parsing a date
+              if (isNaN(date.getTime())) {
+                // Handle the case where JavaScript fails to parse it
+                // You might need to handle different formats here
+                date = new Date(`${booking.week}T00:00:00-06:00`); // Adjust to the correct timezone if needed
+              }
+  
+              // Check if the date is still invalid
+              if (isNaN(date.getTime())) {
+                throw new Error(`Invalid date format for week: ${booking.week}`);
+              }
+  
+              // Calculate the start of the week (assuming `week` is a valid date representing the start of the week)
+              const startOfWeek = moment(date).startOf('week'); // Get the start of the week
+              const endOfWeek = moment(date).endOf('week'); // Get the end of the week
+  
+              // Format the range as "MM/DD/YYYY - MM/DD/YYYY"
+              return `${startOfWeek.format('MM/DD/YYYY')} - ${endOfWeek.format('MM/DD/YYYY')}`;
+            } catch (error) {
+              console.error('Invalid date:', error);
+              return ''; // Return empty if the date is invalid
+            }
+          }
+          return ''; // In case `week` is not present or valid
         });
   
         // Set weekly chart data
-        setWeeklyData({
-          labels: weeklyLabels,
-          datasets: [{ data: weeklyCounts }]
-        });
+        const weeklyChartData = {
+          labels: weeklyLabels.filter(Boolean), // Remove any empty strings
+          datasets: [
+            {
+              data: weeklyCounts,
+              backgroundColor: 'rgba(153, 102, 255, 0.2)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1,
+            },
+          ],
+        };
   
+        setWeeklyData(weeklyChartData);
         setError(null);
       } catch (err: any) {
         setError(err.message || 'Error fetching data');
@@ -73,6 +130,10 @@ function Dashboard() {
   
     fetchData();
   }, []);
+
+  
+  
+  
   
 
   const toggleSidebar = () => {
