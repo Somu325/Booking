@@ -354,16 +354,15 @@
 // };
 
 // export default ManageUser;
-
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {  Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { FaArrowLeft } from 'react-icons/fa';
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom';
 import "./ManageUser.css"
 interface User {
+  verified: any;
   userId: string;
   name: string;
   email: string;
@@ -382,11 +381,111 @@ const ManageUser: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobileNo, setMobileNo] = useState('');
+  const [password, setPassword] = useState('');
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    email: '',
+    mobileNo: '',
+    password: ''
+  });
+  const [editableValidationErrors, setEditableValidationErrors] = useState({
+    name: '',
+    email: '',
+    mobileNo: '',
+  });
   // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const handleClose = () => {
+    setOpen(false);
+    setValidationErrors({ name: '', email: '', mobileNo: '', password: '' });
+  };
+
+  const handleAddUser = async () => {
+    // Validation checks
+    const errors = { name: '', email: '', mobileNo: '', password: '' };
+    let isValid = true;
+
+    // Validate name (should not contain digits or special characters)
+    const nameRegex = /^[A-Za-z\s]+$/; // Only letters and spaces allowed
+    if (!nameRegex.test(name)) {
+      errors.name = "Please enter a valid name (letters and spaces only).";
+      isValid = false;
+    }
+
+    // Validate mobile number (should not start with 0 and must be 10 digits)
+    const mobileRegex = /^[1-9][0-9]{9}$/; // First digit must not be 0, and there should be exactly 10 digits
+    if (!mobileRegex.test(mobileNo)) {
+      errors.mobileNo = "Please enter a valid 10-digit mobile number that does not start with 0.";
+      isValid = false;
+    }
+
+    // Validate email (letters followed by digits, and ends with @gmail.com)
+    const emailRegex = /^[a-zA-Z]+[0-9]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+      errors.email = "Please enter a valid email.";
+      isValid = false;
+    }
+
+    // Validate password (should be between 8-16 characters and contain upper, lower, number, and special characters)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
+    if (!passwordRegex.test(password)) {
+      errors.password = "Password must be 8-16 characters, include uppercase, lowercase, a number, and a special character.";
+      isValid = false;
+    }
+
+    setValidationErrors(errors);
+
+    if (!isValid) {
+      return;
+    }
+
+    const newUser = {
+      name,
+      email,
+      mobileNumber: mobileNo,
+      password,
+    };
+
+    try {
+      const response = await axios.post(`${Domain_URL}/user/signup`, newUser, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const updatedUsers = [...users, response.data];
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+
+      // Close dialog and reset form fields
+      setOpen(false);
+      setName('');
+      setEmail('');
+      setMobileNo('');
+      setPassword('');
+      setValidationErrors({ name: '', email: '', mobileNo: '', password: '' });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error response:", error.response);
+        if (error.response && error.response.status === 400) {
+          setValidationErrors((prev) => ({ ...prev, email: "This email is already registered." }));
+        } else if (error.response && error.response.data) {
+          alert(`Error: ${error.response.data.error || "An error occurred."}`);
+        } else {
+          alert("An unexpected error occurred. Please try again later.");
+        }
+      } else {
+        console.error("Unexpected error:", error);
+        alert("An unexpected error occurred.");
+      }
+    }
+  };
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -412,18 +511,17 @@ const ManageUser: React.FC = () => {
     setPage(0);
   };
 
-  // Handle view user details
   const handleViewDetails = (user: User) => {
     setSelectedUser(user);
-    setShowModal(true);  // Show the modal for viewing details (no input fields)
-    setIsEditing(false); // Ensure it's not in edit mode
+    setShowModal(true);
+    setIsEditing(false);
   };
 
   const handleEditClick = (user: User) => {
     setSelectedUser(user);
-    setEditableUser({ ...user }); // Set the editable user details
-    setIsEditing(true);  // Set to editing mode
-    setShowModal(true);  // Show the modal for editing
+    setEditableUser({ ...user });
+    setIsEditing(true);
+    setShowModal(true);
   };
 
   const handleSoftDelete = async (userId: string, isSoftDeleted: boolean) => {
@@ -431,7 +529,6 @@ const ManageUser: React.FC = () => {
       const newStatus = !isSoftDeleted;
       await axios.patch(`${Domain_URL}/user/users/${userId}/softDelete`, { isSoftDeleted: newStatus });
 
-      // Update the users state to reflect the change
       const updatedUsers = users.map((user) =>
         user.userId === userId ? { ...user, softDelete: newStatus } : user
       );
@@ -447,11 +544,37 @@ const ManageUser: React.FC = () => {
 
   const handleSave = async () => {
     if (editableUser) {
+      const errors = { name: '', email: '', mobileNo: '' };
+      let isValid = true;
+
+      const nameRegex = /^[A-Za-z\s]+$/;
+      if (!nameRegex.test(editableUser.name)) {
+        errors.name = "Please enter a valid name (letters and spaces only).";
+        isValid = false;
+      }
+
+      const mobileRegex = /^[1-9][0-9]{9}$/;
+      if (!mobileRegex.test(editableUser.mobileNumber)) {
+        errors.mobileNo = "Please enter a valid 10-digit mobile number that does not start with 0.";
+        isValid = false;
+      }
+
+      const emailRegex = /^[a-zA-Z]+[0-9]+@gmail\.com$/;
+      if (!emailRegex.test(editableUser.email)) {
+        errors.email = "Please enter a valid email.";
+        isValid = false;
+      }
+
+      setEditableValidationErrors(errors);
+
+      if (!isValid) {
+        return;
+      }
+
       try {
         const response = await axios.put(`${Domain_URL}/user/id/${editableUser.userId}`, editableUser);
         console.log("Updated user data", response.data);
 
-        // Update user list with the edited data
         const updatedUsers = users.map(user =>
           user.userId === editableUser.userId ? editableUser : user
         );
@@ -467,7 +590,7 @@ const ManageUser: React.FC = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setIsEditing(false); // Reset editing mode
+    setIsEditing(false);
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -485,24 +608,90 @@ const ManageUser: React.FC = () => {
     navigate('/dashboard');
   };
 
+ 
   return (
     <div>
-      
-        <button onClick={goBackToDashboard} className="go-back-button">
+      <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-         <h2> Manage user </h2>
-      {/* Search bar */}
+      <h2>Manage User Accounts</h2>
       <TextField
-        label="Search Users by Name or Email "
+        label="Search Users by Name or Email"
         variant="outlined"
         className="search"
         value={searchTerm}
         onChange={handleSearch}
         sx={{ margin: 1 }}
       />
+      <div>
+        <Button variant="contained" onClick={() => setOpen(true)}>
+          Add User
+        </Button>
+        <Dialog
+  open={open}
+  onClose={(_event, reason) => {
+    if (reason === "backdropClick") {
+      // Prevent closing the dialog when clicking outside (backdrop)
+      return;
+    }
+    handleClose();  // This will close the dialog when clicking the close button or other defined actions
+  }}
+>
 
-      {/* User Table */}
+          <DialogTitle>Add User Details</DialogTitle>
+          <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Name"
+            type="text"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={!!validationErrors.name}
+            helperText={validationErrors.name}
+          />~
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
+          />
+          <TextField
+            margin="dense"
+            label="Mobile No"
+            type="tel"
+            fullWidth
+            value={mobileNo}
+            onChange={(e) => setMobileNo(e.target.value)}
+            error={!!validationErrors.mobileNo}
+            helperText={validationErrors.mobileNo}
+          />
+          <TextField
+            margin="dense"
+            label="Password"
+            type="password"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!validationErrors.password}
+            helperText={validationErrors.password}
+          />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="secondary">
+              Cancel
+            </Button>
+            <Button onClick={handleAddUser} color="primary">
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
       <TableContainer sx={{ maxHeight: 600 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -516,42 +705,37 @@ const ManageUser: React.FC = () => {
           <TableBody>
             {paginatedUsers.map((user) => (
               <TableRow key={user.userId}>
-                <TableCell sx={{ padding: '12px' }}>{user.name}</TableCell>
-                <TableCell sx={{ padding: '12px' }}>{user.email}</TableCell>
-                <TableCell sx={{ padding: '12px' }}>{user.mobileNumber}</TableCell>
-                <TableCell sx={{ padding: '12px' }}>
-                <Button
-                 className="blue-btn"
-                 sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
-                 size="small"
-
-                 color={user.softDelete ? "primary" : "error"}  // Remove "default" and use "primary" or "error"
-                 onClick={() => handleSoftDelete(user.userId, user.softDelete)}
-                >
-                    {user.softDelete ? "Undo Freeze" : "Freeze Acccount"}
-                </Button>
-                <Button
-                   onClick={() => handleViewDetails(user)}
-                   size="small"
-                   sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
-                >
-                   View
-                </Button>
-<Button
- 
-  onClick={() => handleEditClick(user)}
-  sx={{ marginLeft: 1,backgroundColor: '#007bff', color: 'white' }}
->
-  Edit
-</Button>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.mobileNumber}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color={user.softDelete ? "primary" : "error"}
+                    onClick={() => handleSoftDelete(user.userId, user.softDelete)}
+                  >
+                    {user.softDelete ? "Undo Freeze" : "Freeze Account"}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleViewDetails(user)}
+                    sx={{ marginLeft: 1 }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleEditClick(user)}
+                    sx={{ marginLeft: 1 }}
+                  >
+                    Edit
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Pagination */}
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
@@ -561,59 +745,65 @@ const ManageUser: React.FC = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-
-      {/* Modal for Viewing and Editing User */}
-      <Dialog open={showModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+      <Dialog open={showModal} onClose={handleCloseModal}>
         <DialogTitle>{isEditing ? "Edit User" : "User Details"}</DialogTitle>
         <DialogContent>
           {selectedUser && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {!isEditing ? (
-                // View Mode - Show details as text
+            <Box>
+              {isEditing ? (
                 <>
-                  <Typography variant="h6">Name: {selectedUser.name}</Typography>
-                  <Typography variant="h6">Email: {selectedUser.email}</Typography>
-                  <Typography variant="h6">Mobile Number: {selectedUser.mobileNumber}</Typography>
-                  <Typography variant="h6">Age: {selectedUser.age}</Typography>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Name"
+                    value={editableUser?.name || ''}
+                    onChange={(e) => setEditableUser({ ...editableUser!, name: e.target.value })}
+                    error={!!editableValidationErrors.name}
+                    helperText={editableValidationErrors.name}
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Email"
+                    value={editableUser?.email || ''}
+                    onChange={(e) => setEditableUser({ ...editableUser!, email: e.target.value })}
+                    error={!!editableValidationErrors.email}
+                    helperText={editableValidationErrors.email}
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Mobile Number"
+                    value={editableUser?.mobileNumber || ''}
+                    onChange={(e) => setEditableUser({ ...editableUser!, mobileNumber: e.target.value })}
+                    error={!!editableValidationErrors.mobileNo}
+                    helperText={editableValidationErrors.mobileNo}
+                  />
+              
                 </>
               ) : (
-                // Edit Mode - Show input fields
                 <>
-                  <TextField
-                    label="Name"
-                    name="name"
-                    value={editableUser?.name || ""}
-                    onChange={(e) => setEditableUser({ ...editableUser!, name: e.target.value })}
-                  />
-                  <TextField
-                    label="Email"
-                    name="email"
-                    value={editableUser?.email || ""}
-                    onChange={(e) => setEditableUser({ ...editableUser!, email: e.target.value })}
-                  />
-                  <TextField
-                    label="Mobile Number"
-                    name="mobileNumber"
-                    value={editableUser?.mobileNumber || ""}
-                    onChange={(e) => setEditableUser({ ...editableUser!, mobileNumber: e.target.value })}
-                  />
-                  <TextField
-                    label="Age"
-                    name="age"
-                    value={editableUser?.age || ""}
-                    onChange={(e) => setEditableUser({ ...editableUser!, age: parseInt(e.target.value) })}
-                  />
+                  <Typography><strong>Name:</strong> {selectedUser.name}</Typography>
+                  <Typography><strong>Email:</strong> {selectedUser.email}</Typography>
+                  <Typography><strong>Mobile Number:</strong> {selectedUser.mobileNumber}</Typography>
+                  <Typography><strong>Account Frozen:</strong> {selectedUser.softDelete ? 'Yes' : 'No'}</Typography>
                 </>
               )}
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">Cancel</Button>
-          {isEditing && <Button onClick={handleSave} color="primary">Save</Button>}
+          {isEditing ? (
+            <>
+              <Button onClick={handleSave} color="primary">Save</Button>
+              <Button onClick={handleCloseModal} color="secondary">Cancel</Button>
+            </>
+          ) : (
+            <Button onClick={handleCloseModal} color="primary">Close</Button>
+          )}
         </DialogActions>
       </Dialog>
-    </div>
+  </div>
   );
 };
 
