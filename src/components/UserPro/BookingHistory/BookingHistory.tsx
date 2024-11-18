@@ -20,20 +20,21 @@ import {
   Option,
   FormControl,
   FormLabel,
+  Card,
+  CardContent,
+  CardActions,
 } from '@mui/joy'
 import {
   ArrowBack,
   CalendarToday,
   Person,
   AccessTime,
-  
 } from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
 
 interface Booking {
-  
   id: number
   userId: number
   coachId: number
@@ -48,7 +49,7 @@ interface Booking {
   groupId: number | null
   status: string
   createdAt: string
-  comment:string
+  comment: string
 }
 
 const theme = extendTheme({
@@ -94,17 +95,6 @@ export default function Component() {
       const response = await axios.get<Booking[]>(
         `${Domain_URL}/bookings/user/${userId}`
       )
-      const uniqueDates = new Set()
-
-      response.data.forEach((booking) => {
-        const localDate = new Date(booking.date).toLocaleString('en-US', { timeZone: 'UTC' })
-        const dateOnly = new Date(localDate).toLocaleDateString('en-US')
-        if (!uniqueDates.has(dateOnly)) {
-          uniqueDates.add(dateOnly)
-          console.log(dateOnly)
-        }
-      })
-
       setBookings(response.data)
       setError(null)
     } catch (err) {
@@ -143,11 +133,11 @@ export default function Component() {
 
     const completedBookings = filtered.filter(
       booking => booking.status.toLowerCase() === 'completed' || booking.status.toLowerCase() === 'canceled'
-  );
+    )
   
-  const otherBookings = filtered.filter(
+    const otherBookings = filtered.filter(
       booking => booking.status.toLowerCase() !== 'completed' && booking.status.toLowerCase() !== 'canceled'
-  );
+    )
   
     setFilteredBookings([...otherBookings, ...completedBookings])
   }
@@ -170,7 +160,7 @@ export default function Component() {
       })
     )
   ).sort()
-  console.log("hrl", uniqueDates)
+
   const uniqueStatuses = [...new Set(bookings.map((booking) => booking.status))]
 
   const convertToLocalDate = (dateString: string) => {
@@ -178,7 +168,8 @@ export default function Component() {
     return date.toLocaleString('en-US', { timeZone: 'UTC' })
   }
 
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString: string | null | undefined) => {
+    if (!timeString) return 'N/A' // Return 'N/A' if timeString is null or undefined
     const [hours, minutes] = timeString.split(':')
     return new Date(0, 0, 0, parseInt(hours), parseInt(minutes)).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   }
@@ -276,76 +267,127 @@ export default function Component() {
               No bookings found.
             </Typography>
           ) : (
-            <Sheet variant="outlined" sx={{ boxShadow: 'lg', overflowX: 'auto' }}>
-              <Table stickyHeader hoverRow>
-                <thead>
-                  <tr>
-                    <th>User Name</th>
-                    <th>Coach Name</th>
-                    <th>Child Name</th>
-                    <th>Slot Date</th>
-                    <th>Slot</th>
-                    <th>Status</th>
-                    <th>Comment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBookings.map((booking) => (
-                    <tr
-                      key={booking.id}
-                      onClick={() => setSelectedBooking(booking)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.userName}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.coachName}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Person fontSize="small" />
-                          {booking.childName}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CalendarToday fontSize="small" />
-                          {convertToLocalDate(booking.date).split(',')[0]}
-                        </Box>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <AccessTime fontSize="small" />
-                          {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-                        </Box>
-                      </td>
-                      <td>
-                        <Chip
-                          variant="soft"
-                          color={getStatusColor(booking.status)}
-                          size="sm"
+            <>
+              {/* Mobile view: Cards */}
+              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                {filteredBookings.map((booking) => (
+                  <Card key={booking.id} sx={{ mb: 2 }}>
+                    <CardContent>
+                      <Typography level='body-md'>{booking.userName}</Typography>
+                      <Typography>Coach: {booking.coachName}</Typography>
+                      <Typography>Child: {booking.childName}</Typography>
+                      <Typography>
+                        Date: {convertToLocalDate(booking.date).split(',')[0]}
+                      </Typography>
+                      <Typography>
+                        Time: {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                      </Typography>
+                      <Chip
+                        variant="soft"
+                        color={getStatusColor(booking.status)}
+                        size="sm"
+                        sx={{ mt: 1 }}
+                      >
+                         <Typography>
+                        Status : {booking.status}
+                      </Typography>
+                     
+                      </Chip>
+                    </CardContent>
+                    <CardActions>
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        onClick={() => setSelectedBooking(booking)}
+                      >
+                        View Details
+                      </Button>
+                    </CardActions>
+                  </Card>
+                ))}
+              </Box>
+
+              {/* Desktop view: Table */}
+              <Sheet 
+                variant="outlined" 
+                sx={{ 
+                  display: { xs: 'none', md: 'block' },
+                  boxShadow: 'lg', 
+                  width: '100%',
+                  overflow: 'auto'
+                }}
+              >
+                <Box sx={{ minWidth: '1000px' }}>
+                  <Table stickyHeader hoverRow>
+                    <thead>
+                      <tr>
+                        <th>User Name</th>
+                        <th>Coach Name</th>
+                        <th>Child Name</th>
+                        <th>Slot Date</th>
+                        <th>Slot</th>
+                        <th>Status</th>
+                        <th>Comment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map((booking) => (
+                        <tr
+                          key={booking.id}
+                          onClick={() => setSelectedBooking(booking)}
+                          style={{ cursor: 'pointer' }}
                         >
-                          {booking.status}
-                        </Chip>
-                      </td>
-                      <td>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          
-                          {booking.comment || 'No Comment'}
-                        </Box>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Sheet>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Person fontSize="small" />
+                              {booking.userName}
+                            </Box>
+                          </td>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Person fontSize="small" />
+                              {booking.coachName}
+                            </Box>
+                          </td>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Person fontSize="small" />
+                              {booking.childName}
+                            </Box>
+                          </td>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <CalendarToday fontSize="small" />
+                              {convertToLocalDate(booking.date).split(',')[0]}
+                            </Box>
+                          </td>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <AccessTime fontSize="small" />
+                              {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                            </Box>
+                          </td>
+                          <td>
+                            <Chip
+                              variant="soft"
+                              color={getStatusColor(booking.status)}
+                              size="sm"
+                            >
+                              {booking.status}
+                            </Chip>
+                          </td>
+                          <td>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {booking.comment || 'No Comment'}
+                            </Box>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </Box>
+              </Sheet>
+            </>
           )}
         </Box>
 
