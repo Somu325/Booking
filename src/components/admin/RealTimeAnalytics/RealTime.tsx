@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Box } from '@mui/material';
 import { FaArrowLeft } from 'react-icons/fa';
-import './RealTime.css'; // Import the CSS for styling
+import './RealTime.css'; // Updated CSS for card view
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +20,7 @@ const RealTime: React.FC = () => {
   const [bookedSlots, setBookedSlots] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [userDetails, setUserDetails] = useState<User[]>([]);
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
   const navigate = useNavigate();
 
   // Fetch data for analytics
@@ -31,23 +31,19 @@ const RealTime: React.FC = () => {
 
         // Fetch total user count
         const usersResponse = await axios.get(`${Domain_URL}/user/count`);
-        console.log('Total Users Response:', usersResponse.data);
         setTotalUsers(usersResponse.data.count);
 
         // Fetch active sessions count
         const sessionsResponse = await axios.get(`${Domain_URL}/bookings/progress/count`);
-        console.log('Active Sessions Response:', sessionsResponse.data);
         setActiveSessions(sessionsResponse.data.count);
 
         // Fetch booked slots count
         const slotsResponse = await axios.get(`${Domain_URL}/slot/booked/count`);
-        console.log('Booked Slots Response:', slotsResponse.data);
         setBookedSlots(slotsResponse.data.count);
 
         // Fetch user details and sort them by name in ascending order
         const userDetailsResponse = await axios.get(`${Domain_URL}/user/users`);
-        console.log('User Details Response:', userDetailsResponse.data); // Log response here
-        const sortedUserDetails = userDetailsResponse.data.sort((a: User, b: User) => 
+        const sortedUserDetails = userDetailsResponse.data.sort((a: User, b: User) =>
           a.name.localeCompare(b.name)
         );
         setUserDetails(sortedUserDetails);
@@ -59,6 +55,12 @@ const RealTime: React.FC = () => {
     };
 
     fetchUserData();
+
+    // Handle resize events for dynamic responsiveness
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (loading) {
@@ -95,34 +97,44 @@ const RealTime: React.FC = () => {
           </div>
 
           <h2>User Details</h2>
-          <table className="user-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Mobile Number</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userDetails.length > 0 ? (
-                userDetails.map((user) => (
-                  <tr key={user.userId}>
-                    <td>
-                      {user?.name
-                        ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase()
-                        : 'N/A'}
-                    </td>
-                    <td>{user?.email}</td>
-                    <td>{user?.mobileNumber || 'N/A'}</td>
-                  </tr>
-                ))
-              ) : (
+          {isMobile ? (
+            // Render user details as cards on mobile
+            <div className="user-card-container">
+              {userDetails.map((user) => (
+                <div className="user-card" key={user.userId}>
+                  <h3>{user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : 'N/A'}</h3>
+                  <p>Email: {user.email || 'N/A'}</p>
+                  <p>Mobile: {user.mobileNumber || 'N/A'}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Render user details as a table on desktop
+            <table className="user-table">
+              <thead>
                 <tr>
-                  <td colSpan={3}>No user details available.</td>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Mobile Number</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {userDetails.length > 0 ? (
+                  userDetails.map((user) => (
+                    <tr key={user.userId}>
+                      <td>{user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : 'N/A'}</td>
+                      <td>{user.email || 'N/A'}</td>
+                      <td>{user.mobileNumber || 'N/A'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3}>No user details available.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </Box>
     </div>

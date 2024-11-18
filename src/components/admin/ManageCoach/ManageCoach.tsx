@@ -714,6 +714,6 @@ const handleSelectChange = (e: SelectChangeEvent<string>) => {
   );
 } 
 
-function setEmailError(arg0: string | null) {
-  throw new Error("Function not implemented.");
-}
+// function setEmailError(arg0: string | null) {
+//   throw new Error("Function not implemented.");
+// }
