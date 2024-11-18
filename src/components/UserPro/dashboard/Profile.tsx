@@ -161,7 +161,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
    // Effect to set email from localStorage on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setEmail(localStorage.getItem('email'))
+      setEmail(localStorage.getItem('useremail'))
     }
   }, [])
 

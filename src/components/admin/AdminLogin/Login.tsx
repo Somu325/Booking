@@ -174,7 +174,7 @@ export default function LoginForm() {
         }
 
         // Store admin details in localStorage for persistence
-        localStorage.setItem('email', data.admin.email);
+        localStorage.setItem('adminemail', data.admin.email);
         localStorage.setItem('adminId', data.admin.adminId);
 
         // Navigate to the admin dashboard
