@@ -365,7 +365,6 @@ const ManageCoach: React.FC = () => {
       });
     }
   };
-
   return (
     <div>
       <button onClick={goBackToDashboard} className="go-back-button">
