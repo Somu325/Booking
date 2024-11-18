@@ -121,7 +121,7 @@ const LoginForm = () => {
       const { data } = await axios.post(`${Domain_URL}/user/login`, { email, password });
       console.log("Login successful:", data);
   
-      localStorage.setItem("email", data.user.email);
+      localStorage.setItem("useremail", data.user.email);
       localStorage.setItem("userId", data.user.id);
   
       if (data.token) {
