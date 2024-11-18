@@ -1088,7 +1088,7 @@ export default function Component() {
   }
 
   return (
-    <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: '8px' }}>
+    <Box sx={{ p: 10,  background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', borderRadius: '8px' }}>
       <Button
         startIcon={<ArrowBack />}
         onClick={() => navigate('/Coach-Dashboard')}
@@ -1096,7 +1096,7 @@ export default function Component() {
         color="primary"
         sx={{
           mb: 2,
-          backgroundColor: '#0B6BCB',
+           backgroundColor: '#0B6BCB',
           color: 'white',
           width: { xs: '100%', sm: 'auto' },
           '&:hover': {

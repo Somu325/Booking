@@ -327,13 +327,14 @@ export default function LoginForm() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)',
+              // backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              // backdropFilter: 'blur(10px)',
               padding: 4,
               borderRadius: 4,
               boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
             }}
           >
+          
             {/* Image component to display an image with specific dimensions */}
             <img src="/cric.jpg" alt="Description" width={100} height={100} style={{ marginBottom: '16px' }} />
             <Typography component="h1" variant="h4" fontWeight="bold" style={{ marginBottom: '16px' }}>
