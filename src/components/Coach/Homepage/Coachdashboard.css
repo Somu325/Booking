@@ -1,6 +1,7 @@
 /* General Container Styling */
 .container {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background-color: #f0f4f8;
   font-family: Arial, sans-serif;
@@ -11,22 +12,22 @@
 /* Side Menu Styles */
 .side-menu {
   position: fixed;
-  left: -100%; /* Hidden by default */
+  left: -100%;
   top: 0;
-  width: 250px; /* Fixed width for desktops */
+  width: 250px;
   height: 100%;
   background-color: #535a62;
   color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 1.5rem;
   transition: left 0.3s;
   z-index: 1000;
 }
 
 .side-menu.open {
-  left: 0; /* Slide in */
+  left: 0;
 }
 
 .close-btn {
@@ -42,7 +43,7 @@
 }
 
 .close-btn:hover {
-  transform: scale(1.2); /* Slight zoom effect on hover */
+  transform: scale(1.2);
 }
 
 /* Side Menu Navigation */
@@ -59,10 +60,19 @@
   text-align: center;
 }
 
+.logout {
+  color: red;
+  cursor: pointer;
+}
+
+.logout:hover {
+  text-decoration: underline;
+}
+
 /* Content Layout */
 .content {
   flex: 1;
-  margin-left: 10%; /* Matches side menu width */
+  margin-left: 250px;
   transition: margin-left 0.3s;
 }
 
@@ -89,7 +99,6 @@
 
 .notification-icon-container {
   position: relative;
-  display: inline-block;
 }
 
 .notification-icon {
@@ -115,33 +124,23 @@
   padding: 2rem;
 }
 
-.logout-item {
-  color: red;
-}
-
-.calendar-icon {
-  font-size: 2rem;
-  cursor: pointer;
-}
-
 .calendar-filter-container {
   display: flex;
   align-items: center;
-  width: 100%;
   justify-content: space-evenly;
+  width: 100%;
+  gap: 2rem;
 }
 
 .calendar {
   display: flex;
   align-items: center;
-  gap: 8rem;
 }
 
 .dates-row {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  flex-grow: 1;
 }
 
 .date {
@@ -172,7 +171,6 @@
 }
 
 /* Filter container styles */
-
 .filter-container {
   display: flex;
   align-items: center;
@@ -180,7 +178,6 @@
 
 .filter-label {
   margin-right: 0.5rem;
-  margin-left: 6rem;
   font-weight: bold;
 }
 
@@ -197,13 +194,12 @@
   width: 95%;
   max-width: 1000px;
   margin: 0 auto;
-  padding-top: 50px;
+  padding-top: 1rem;
 }
 
 .slots-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
 }
 
 .slots-table th,
@@ -235,108 +231,35 @@
   text-align: center;
 }
 
-.status-available {
-  color: green;
-}
-
-.status-completed {
-  color: red;
-}
-
-.logout {
-  color: red; /* Change the text color to red */
-  cursor: pointer; /* Change cursor to pointer for better UX */
-}
-
-.logout:hover {
-  text-decoration: underline; /* Optional: Add underline on hover for better UX */
-}
-
-.status-booked {
-  color: rgb(8, 178, 235);
-}
-.status-cancelled {
-  color: rgb(0, 0, 0);
-}
-@media (max-width: 768px) {
-  /* Side Menu */
-  .side-menu {
-    width: 100%; /* Full width on smaller screens */
-    padding: 1.5rem;
-  }
-
-  .content {
-    margin-left: 0;
-  }
-
-  /* Header */
-  .header {
-    display: flex; /* Ensure header is a flex container */
-    flex-direction: row; /* Stack items vertically */
-    align-items: flex-start; /* Align items to the start */
-    padding: 0.6em;
-    width: 100%; /* Ensure it takes full width */
-  }
-
-  /* Calendar */
-  .calendar {
-    display: flex; /* Make sure calendar is also a flex container */
-    flex-direction: row; /* Stack items */
-    gap: 1rem;
-  }
-
-  /* Filter and Calendar Stack */
-  .calendar-filter-container {
-    display: flex; /* Make sure filter container is a flex container */
-    flex-direction: column;
-    gap: 3rem;
-    align-items: stretch;
-  }
-
-  /* Slots Table */
-  .slots-table-container {
-    padding-top: 50px;
-  }
-
-  .slots-table th,
-  .slots-table td {
-    padding: 8px;
-    font-size: 0.9rem;
-  }
-}
-
-
-
+/* Modal */
 .custom-modal {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; 
+  z-index: 1000;
 }
-
 
 .modal-content {
   background-color: white;
-  padding: 15px; 
+  padding: 1rem;
   border-radius: 8px;
-  width: 350px;
-  max-width: 90%;
-  position: relative; 
+  width: 90%;
+  max-width: 400px;
+  position: relative;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 
 .close-modal {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 24px; 
+  font-size: 24px;
   background: none;
   border: none;
   color: black;
@@ -347,18 +270,85 @@
   color: red;
 }
 
-button:focus {
-  outline: none;
-}
-
-
 h3 {
   margin-top: 0;
-  font-size: 18px; 
+  font-size: 1.2rem;
   text-align: center;
 }
 
 p {
-  font-size: 14px; 
-  margin-bottom: 8px; 
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  .side-menu {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .header {
+    padding: 0.5rem 1rem;
+  }
+
+  .calendar-filter-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .slots-table-container {
+    padding-top: 1rem;
+  }
+
+  .slots-table th,
+  .slots-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .menu-icon,
+  .calendar-icon {
+    font-size: 1.5rem;
+  }
+
+  .date {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .arrow {
+    font-size: 1rem;
+  }
+
+  .filter-label {
+    font-size: 0.9rem;
+  }
+
+  .filter-dropdown {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .custom-modal .modal-content {
+    width: 90%;
+    padding: 1rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 0.85rem;
+  }
+}
+
