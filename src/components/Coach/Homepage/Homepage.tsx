@@ -264,6 +264,10 @@ const Coachdashboard: React.FC = () => {
   }
 
   const coachId = localStorage.getItem('coachId');
+
+   const coachName = localStorage.getItem('coachName');
+   console.log(coachName);
+
   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
 
   const handleNext = () => setStartDate((prev) => addDays(prev, 5));
@@ -401,7 +405,7 @@ const Coachdashboard: React.FC = () => {
           <div className="menu-icon" onClick={toggleMenu}>
             &#9776;
           </div>
-          <h2>Welcome, Coach</h2>
+          <h2>Welcome, {coachName}</h2>
           <div className="notification-icon-container">
             <div className="notification-icon">&#128276;</div>
             <div className="notification-cancel-line"></div>

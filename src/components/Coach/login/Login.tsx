@@ -252,6 +252,7 @@ export default function LoginForm() {
       // Store coach data in local storage for persistence
       localStorage.setItem('coachId', response.data.coach.coachId);
       localStorage.setItem('email', response.data.coach.email);
+      localStorage.setItem('coachName',response.data.coach.name);
 
       // Store token in cookies if provided
       if (response.data.token) {
