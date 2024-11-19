@@ -123,6 +123,7 @@ const LoginForm = () => {
   
       localStorage.setItem("useremail", data.user.email);
       localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("username", data.user.name);
   
       if (data.token) {
         Cookies.set("Usertoken", data.token, {
