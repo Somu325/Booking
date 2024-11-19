@@ -243,6 +243,8 @@ const Coachdashboard: React.FC = () => {
   const navigate = useNavigate();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
+
+
   interface Booking {
     bookingId: string;
     userId: string;
@@ -304,6 +306,7 @@ const Coachdashboard: React.FC = () => {
       }
     }
   };
+
   
 
   const handleDateChange = (date: Date | null) => {
@@ -372,6 +375,26 @@ const Coachdashboard: React.FC = () => {
         return '';
     }
   };
+
+
+
+  
+    const [isMobile, setIsMobile] = useState(false);
+  
+    // Detect screen width on component mount and resize
+    useEffect(() => {
+      const updateScreenSize = () => {
+        setIsMobile(window.innerWidth <= 768); // Set mobile breakpoint at 768px
+      };
+      
+      updateScreenSize(); // Initial check
+      window.addEventListener('resize', updateScreenSize); // Listen for resize events
+  
+      return () => {
+        window.removeEventListener('resize', updateScreenSize); // Clean up event listener
+      };
+    }, []);
+
 
   return (
     <div className="container">
@@ -458,38 +481,55 @@ const Coachdashboard: React.FC = () => {
             </div>
           )}
 
-          <div className="slots-table-container">
-            {loading ? (
-              <div className="loading">Loading slots...</div>
-            ) : error ? (
-              <div className="error">{error}</div>
-            ) : filteredSlots.length === 0 ? (
-              <div className="no-slots">No slots available</div>
-            ) : (
-              <table className="slots-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Duration</th>
-                    <th>Slot Type</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSlots.map((slot, index) => (
-                    <tr key={index} onClick={() => handleRowClick(slot)}>
-                      <td>{format(selectedDate, 'MMM d, yyyy')}</td>
-                      <td>{`${slot.startTime} - ${slot.endTime}`}</td>
-                      <td className={getStatusClass(slot.status)}>{slot.status}</td>
-                      <td>{slot.duration} mins</td>
-                      <td>{slot.slotType}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+      <div className="slots-table-container">
+      {loading ? (
+        <div className="loading">Loading slots...</div>
+      ) : error ? (
+        <div className="error">{error}</div>
+      ) : filteredSlots.length === 0 ? (
+        <div className="no-slots">No slots available</div>
+      ) : (
+        isMobile ? (
+          <div className="slots-cards-container">
+            {filteredSlots.map((slot, index) => (
+              <div key={index} className="slot-card" onClick={() => handleRowClick(slot)}>
+               
+
+                <div className="time">Time:{`${slot.startTime} - ${slot.endTime}`}</div>
+                <div className="status">Status:
+                  <span className={getStatusClass(slot.status)}>{slot.status}</span>
+                </div>
+                <div className="duration">Duration: {slot.duration} mins</div>
+                <div className="slot-type">Slot Type: {slot.slotType}</div>
+              </div>
+            ))}
           </div>
+        ) : (
+          <table className="slots-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Slot Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSlots.map((slot, index) => (
+                <tr key={index} onClick={() => handleRowClick(slot)}>
+                  <td>{format(selectedDate, 'MMM d, yyyy')}</td>
+                  <td>{`${slot.startTime} - ${slot.endTime}`}</td>
+                  <td className={getStatusClass(slot.status)}>{slot.status}</td>
+                  <td>{slot.duration} mins</td>
+                  <td>{slot.slotType}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      )}
+    </div>
         </main>
       </div>
 
