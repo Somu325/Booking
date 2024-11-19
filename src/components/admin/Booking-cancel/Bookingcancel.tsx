@@ -18,21 +18,7 @@ interface Booking {
   status: string;
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const utc6Date = new Date(date.getTime() - 6 * 60 * 60 * 1000);
-
-  const options: Intl.DateTimeFormatOptions = {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric',
-    timeZone: 'America/Chicago',
-  };
-
-  return utc6Date.toLocaleDateString('en-US', options);
-};
-
-export default function BookingTable() {
+export default function Component() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -72,15 +58,15 @@ export default function BookingTable() {
         return -1;
       }
 
-      const dateA = new Date(a.slot.date).getTime();
-      const dateB = new Date(b.slot.date).getTime();
+      const dateA = a.slot?.date ? new Date(a.slot.date).getTime() : 0;
+      const dateB = b.slot?.date ? new Date(b.slot.date).getTime() : 0;
 
       if (dateA !== dateB) {
         return dateA - dateB;
       }
 
-      const timeA = new Date(`1970-01-01T${a.slot.startTime}`).getTime();
-      const timeB = new Date(`1970-01-01T${b.slot.startTime}`).getTime();
+      const timeA = a.slot?.startTime ? new Date(`1970-01-01T${a.slot.startTime}`).getTime() : 0;
+      const timeB = b.slot?.startTime ? new Date(`1970-01-01T${b.slot.startTime}`).getTime() : 0;
 
       return timeA - timeB;
     });
@@ -121,8 +107,12 @@ export default function BookingTable() {
     let filtered = bookingsToFilter;
 
     if (date) {
-      const selectedDateStr = formatDate(date.toISOString());
-      filtered = filtered.filter(b => formatDate(b.slot.date) === selectedDateStr);
+      const selectedDateStr = date.toISOString().split('T')[0];
+      filtered = filtered.filter(b => {
+        if (!b.slot?.date) return false;
+        const bookingDateStr = new Date(b.slot.date).toISOString().split('T')[0];
+        return bookingDateStr === selectedDateStr;
+      });
     }
 
     if (status !== 'all') {
@@ -178,32 +168,66 @@ export default function BookingTable() {
         </div>
       </div>
 
-      <table className="booking-table">
-        <thead>
-          <tr>
-            <th>Booking ID</th>
-            <th>User Name</th>
-            <th>Child Name</th>
-            <th>Coach Name</th>
-            <th>Status</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div className="booking-data">
+        <table className="booking-table">
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Child Name</th>
+              <th>Coach Name</th>
+              <th>Status</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedBookings.map((booking) => (
+              <tr key={booking.bookingId}>
+                <td>{booking.user?.name || 'N/A'}</td>
+                <td>{booking.child?.name || 'N/A'}</td>
+                <td>{booking.coach?.name || 'N/A'}</td>
+                <td>{booking.status}</td>
+                <td>{booking.slot?.startTime || 'N/A'}</td>
+                <td>{booking.slot?.endTime || 'N/A'}</td>
+                <td>
+                  {booking.slot?.date
+                    ? new Date(booking.slot.date).toISOString().slice(5, 10).replace('-', '/') + '/' + new Date(booking.slot.date).getFullYear()
+                    : 'N/A'}
+                </td>
+                <td>
+                  {booking.status !== 'canceled' ? (
+                    <button
+                      className="cancel-button"
+                      onClick={() => openCancelModal(booking.bookingId)}
+                      disabled={booking.status === 'completed' || booking.status === 'inprogress'}
+                    >
+                      Cancel
+                    </button>
+                  ) : (
+                    'Canceled'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="booking-cards">
           {paginatedBookings.map((booking) => (
-            <tr key={booking.bookingId}>
-              <td>{booking.bookingId}</td>
-              <td>{booking.user.name}</td>
-              <td>{booking.child?.name || 'N/A'}</td>
-              <td>{booking.coach.name}</td>
-              <td>{booking.status}</td>
-              <td>{booking.slot.startTime}</td>
-              <td>{booking.slot.endTime}</td>
-              <td>{new Date(booking.slot.date).toISOString().slice(5, 10).replace('-', '/') + '/' + new Date(booking.slot.date).getFullYear()}</td>         
-              <td>
+            <div key={booking.bookingId} className="booking-card">
+              <div><strong>User:</strong> {booking.user?.name || 'N/A'}</div>
+              <div><strong>Child:</strong> {booking.child?.name || 'N/A'}</div>
+              <div><strong>Coach:</strong> {booking.coach?.name || 'N/A'}</div>
+              <div><strong>Status:</strong> {booking.status}</div>
+              <div><strong>Start Time:</strong> {booking.slot?.startTime || 'N/A'}</div>
+              <div><strong>End Time:</strong> {booking.slot?.endTime || 'N/A'}</div>
+              <div><strong>Date:</strong> {booking.slot?.date
+                ? new Date(booking.slot.date).toISOString().slice(5, 10).replace('-', '/') + '/' + new Date(booking.slot.date).getFullYear()
+                : 'N/A'}
+              </div>
+              <div>
                 {booking.status !== 'canceled' ? (
                   <button
                     className="cancel-button"
@@ -215,19 +239,22 @@ export default function BookingTable() {
                 ) : (
                   'Canceled'
                 )}
-              </td>
-            </tr>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
 
       <ReactPaginate
-        previousLabel={'Previous'}
-        nextLabel={'Next'}
+        // previousLabel={'Previous'}
+        // nextLabel={'Next'}
+
+        previousLabel={<span style={{ backgroundColor: 'lightblue', padding: '5px' }}>Previous</span>}
+        nextLabel={<span style={{ backgroundColor: 'lightgreen', padding: '5px' }}>Next</span>}
         breakLabel={''}
         pageCount={Math.ceil(filteredBookings.length / bookingsPerPage)}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
+        marginPagesDisplayed={1}
+        pageRangeDisplayed={3}
         onPageChange={handlePageChange}
         containerClassName={'pagination'}
         activeClassName={'active'}

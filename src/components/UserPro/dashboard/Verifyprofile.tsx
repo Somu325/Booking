@@ -104,7 +104,7 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
   // Effect to set email from localStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setEmail(localStorage.getItem('email'));
+      setEmail(localStorage.getItem('useremail'));
     }
   }, []);
 
