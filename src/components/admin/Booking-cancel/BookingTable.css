@@ -81,6 +81,7 @@
     right: 200px; /* Adjust the right margin as needed */
     top: 200px;   /* Adjust the top margin to align vertically */
     z-index: 1000; /* Ensure it appears above other content */
+     width: 40%;
   }
   
   .date-input {
@@ -159,6 +160,51 @@
   color: white;
 }
 .status-filter{
-  width: 20%;
+  
+  max-width: 38%;
 
+}
+
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+
+@media (max-width: 768px) {
+  .booking-table {
+    display: none;
+  }
+  .booking-cards {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .booking-table {
+    display: table;
+  }
+  .booking-cards {
+    display: none;
+  }
+}
+
+.booking-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #f9f9f9;
+}
+
+.booking-card div {
+  margin-bottom: 8px;
+}
+
+.booking-card .cancel-button {
+  margin-top: 8px;
 }
