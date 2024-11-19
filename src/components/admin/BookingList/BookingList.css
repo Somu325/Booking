@@ -93,3 +93,81 @@ button,
 .go-back-button {
   margin-top: 10px; /* Adjust this value to move it further down */
 }
+
+/* Basic styling for the table */
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-cards {
+  background-color: #f4f4f4;
+}
+
+.Table-data-cards {
+  background-color: #ffffff;
+}
+
+.Table-data-cards td {
+  padding: 10px;
+}
+
+/* Button styling */
+.go-back-button {
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.go-back-button:hover {
+  background-color: #1565c0;
+}
+
+/* For mobile devices, show the bookings in card format */
+@media screen and (max-width: 768px) {
+  .booking-table {
+    display: none; /* Hide the table */
+  }
+
+  /* Style for booking cards on mobile view */
+  .booking-card {
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .booking-card p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+
+  .booking-card .booking-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .booking-card .booking-actions button {
+    padding: 5px 10px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .booking-card .booking-actions button:hover {
+    background-color: #1565c0;
+  }
+
+  /* Adjust pagination controls for mobile */
+  .MuiTablePagination-root {
+    display: none;
+  }
+}

@@ -362,10 +362,399 @@ button[type='button'] {
   margin-top: 16px;
 }
 
-/* Responsive Search Bar */
+
+
+/* Default styles for the table (desktop view) */
+.table-container {
+  width: 80%;
+  margin: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Styles for card view on mobile screens */
 @media (max-width: 768px) {
-  .Search {
+  .table-container {
     width: 100%;
-    margin-left: 0;
+    padding: 10px;
+  }
+
+  .table-container table {
+    display: none; /* Hide the table */
+  }
+
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .card-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-detail label {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+  }
+}
+
+/* Default styles for the table (desktop view) */
+.table-container {
+  width: 80%;
+  margin: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Styles for card view on mobile screens */
+@media (max-width: 768px) {
+  .table-container {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .table-container table {
+    display: none; /* Hide the table */
+  }
+
+  .card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .card-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-detail label {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+  }
+}
+
+.custom-row {
+  border-spacing: 0 16px; /* Adds space between rows */
+}
+
+.custom-row > * {
+  border-top: 1px solid #e0e0e0; /* Optional: Adds top border for distinction */
+  border-bottom: 1px solid #e0e0e0;
+  padding: 16px 8px; /* Adds padding for better spacing within rows */
+}
+
+/* Default spacing for desktop and mobile */
+.MuiTableRow-root {
+  margin-bottom: 0; /* Default spacing for all rows */
+}
+
+/* Add space after the Freeze button for mobile only */
+@media (max-width: 768px) {
+  .MuiTableRow-root + .MuiTableRow-root {
+    margin-top: 16px; /* Space between rows */
+  }
+
+  /* Optional: Add padding to cells for better spacing */
+  .MuiTableCell-root {
+    padding-bottom: 16px; /* Add space after last element */
+  }
+
+  /* Specific spacing after the Freeze button */
+  button:last-child {
+    margin-bottom: 16px;
+  }
+}
+/* Default styles for rows (no spacing for desktop) */
+.MuiTableBody-root > .MuiTableRow-root {
+  margin-bottom: 0; /* No margin by default */
+}
+
+/* Add spacing between rows (cards) for mobile screens */
+@media (max-width: 768px) {
+  .MuiTableBody-root > .MuiTableRow-root {
+    margin-bottom: 16px; /* Add space between rows */
+  }
+}
+
+/* Add spacing between cards (TableRows) */
+.MuiTableBody-root > .MuiTableRow-root {
+  margin-bottom: 16px; /* Adds space between rows */
+  display: block; /* Makes rows behave like blocks for spacing */
+  border: 1px solid #ddd; /* Optional: Add border for card effect */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  padding: 16px; /* Optional: Add padding inside each card */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for separation */
+}
+
+/* Remove the default table layout on mobile for better card view */
+@media (max-width: 768px) {
+  .MuiTableCell-root {
+    display: block; /* Stack the content in mobile view */
+    width: 100%; /* Full width for each cell */
+    margin-bottom: 8px; /* Space between stacked cells */
+  }
+
+  .MuiTableRow-root {
+    margin-bottom: 16px; /* Add spacing for mobile view */
+  }
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Space between cards */
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 16px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px); /* Slight hover effect */
+}
+
+.card-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.card-detail {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 600px) {
+  .card {
+    width: 100%;
+  }
+}
+
+/* Card Layout for Mobile */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Adds space between cards */
+  justify-content: center;
+  width: 100%;
+  padding: 16px;
+}
+
+/* Individual Card Styling */
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  width: 100%;
+  max-width: 300px; /* Set a max width for cards */
+  margin-bottom: 16px;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Make the table hidden on mobile */
+@media (max-width: 768px) {
+  .table-container {
+    display: none;
+  }
+
+  .card-container {
+    display: flex;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%; /* Allow cards to take full width */
+  }
+}
+
+/* Make the table visible on larger screens */
+@media (min-width: 769px) {
+  .card-container {
+    display: none;
+  }
+
+  .table-container {
+    display: block;
+  }
+}
+
+/* Make the table look like cards in mobile view */
+@media (max-width: 768px) {
+  .table-container {
+    display: block; /* Keep table structure for mobile */
+  }
+
+  /* Hide actual table headers and borders on small screens */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* Style table rows as cards */
+  .MuiTableRow-root {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px; /* Add space between cards */
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  /* Style table cells to look like card content */
+  .MuiTableCell-root {
+    display: block;
+    padding: 8px 16px;
+    width: 100%;
+    border: none;
+  }
+
+  .MuiTableCell-root strong {
+    font-weight: bold;
+  }
+
+  .MuiTableRow-root .MuiTableCell-root:last-child {
+    padding-bottom: 16px; /* Add padding to the last cell for better spacing */
+  }
+
+  /* Add spacing between actions (edit, freeze buttons) */
+  .MuiButton-root {
+    margin-right: 8px;
+  }
+}
+
+/* Make the table look like cards in mobile view */
+@media (max-width: 768px) {
+  .table-container {
+    display: block; /* Keep table structure for mobile */
+  }
+
+  /* Hide actual table headers and borders on small screens */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* Style table rows as cards */
+  .MuiTableRow-root {
+    display: block;
+    width: 100%;
+    margin-bottom: 16px; /* Add space between cards */
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  /* Add space between individual table rows (cards) */
+  .MuiTableRow-root:not(:last-child) {
+    margin-bottom: 16px; /* Space between cards */
+  }
+
+  /* Style table cells to look like card content */
+  .MuiTableCell-root {
+    display: block;
+    padding: 8px 16px;
+    width: 100%;
+    border: none;
+  }
+
+  .MuiTableCell-root strong {
+    font-weight: bold;
+  }
+
+  /* Add spacing between actions (edit, freeze buttons) */
+  .MuiButton-root {
+    margin-right: 8px;
+  }
+
+  /* Optional: Add some padding and shadow to the table container itself for better appearance */
+  .table-container {
+    padding: 20px;
   }
 }

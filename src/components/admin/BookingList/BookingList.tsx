@@ -18,10 +18,9 @@ import {
   Button,
 } from '@mui/material';
 import { FaArrowLeft } from 'react-icons/fa';
-
 import { Domain_URL } from "../../config";
-
 import { useNavigate } from 'react-router-dom'; 
+import { useMediaQuery } from '@mui/material'; // Importing Media Query Hook
 
 interface Booking {
   id: string; // Assuming each booking has a unique ID
@@ -41,6 +40,9 @@ const BookingList: React.FC = () => {
   // Pagination state
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5); // Number of rows per page
+
+  // Media query to check for mobile view
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Function to fetch booking data from the API
   const fetchBookings = async () => {
@@ -66,8 +68,6 @@ const BookingList: React.FC = () => {
     setSelectedBooking(null); // Clear the selected booking
   };
 
-
-
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -77,7 +77,6 @@ const BookingList: React.FC = () => {
     setPage(0); // Reset to the first page when rows per page changes
   };
 
-  
   const goBackToDashboard = () => {
     navigate('/dashboard');
   };
@@ -86,51 +85,71 @@ const BookingList: React.FC = () => {
   const paginatedBookings = bookings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <div >
-       <button onClick={goBackToDashboard} className="go-back-button">
+    <div>
+      <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-         <h2> Manage user accounts</h2>
+      <h2> Manage user accounts</h2>
 
       {/* Booking List Content */}
       <Box sx={{ flex: 1, overflowY: 'auto', padding: 2 }}>
         <h2>Booking Details</h2>
         {error && <Typography color="error">{error}</Typography>} {/* Display error message if any */}
-        <TableContainer style={{ overflowX: 'auto' }}>
-          <Table className="booking-table">
-            <TableHead>
-              <TableRow>
-                <TableCell>User Name</TableCell>
-                <TableCell>Coach Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedBookings.map((booking) => (
-                <TableRow key={booking.id}> {/* Use unique ID as key */}
-                  <TableCell>{booking.userName}</TableCell>
-                  <TableCell>{booking.coachName}</TableCell>
-                  <TableCell>{booking.status}</TableCell>
-                  <TableCell>
-                    <button onClick={() => handleView(booking)}>View</button>
-                  </TableCell>
+
+        {/* If it's a mobile view, show bookings as cards */}
+        {isMobile ? (
+          <div>
+            {paginatedBookings.map((booking) => (
+              <div key={booking.id} className="booking-card">
+                <p><strong>User Name:</strong> {booking.userName}</p>
+                <p><strong>Coach Name:</strong> {booking.coachName}</p>
+                <p><strong>Status:</strong> {booking.status}</p>
+                <p><strong>Slot ID:</strong> {booking.slotId}</p>
+                <div className="booking-actions">
+                  <button onClick={() => handleView(booking)}>View</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <TableContainer style={{ overflowX: 'auto' }}>
+            <Table className="booking-table">
+              <TableHead className="table-cards">
+                <TableRow>
+                  <TableCell>User Name</TableCell>
+                  <TableCell>Coach Name</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody className="Table-data-cards">
+                {paginatedBookings.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell>{booking.userName}</TableCell>
+                    <TableCell>{booking.coachName}</TableCell>
+                    <TableCell>{booking.status}</TableCell>
+                    <TableCell>
+                      <button onClick={() => handleView(booking)}>View</button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
 
         {/* Table Pagination */}
-        <TablePagination
-          component="div"
-          count={bookings.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 25]} // Options for rows per page
-        />
+        {!isMobile && (
+          <TablePagination
+            component="div"
+            count={bookings.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]} // Options for rows per page
+          />
+        )}
 
         {/* Booking Details Modal */}
         <Dialog open={!!selectedBooking} onClose={closeDetails}>
