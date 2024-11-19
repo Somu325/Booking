@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // Import Axios for API calls
-import './BookingList.css'; // Import the CSS file for styling
+import axios from 'axios';
+import './BookingList.css';
 import {
   Box,
   Typography,
@@ -20,10 +20,10 @@ import {
 import { FaArrowLeft } from 'react-icons/fa';
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom'; 
-import { useMediaQuery } from '@mui/material'; // Importing Media Query Hook
+import { useMediaQuery } from '@mui/material';
 
 interface Booking {
-  id: string; // Assuming each booking has a unique ID
+  id: string;
   userName: string;
   coachName: string;
   status: string;
@@ -31,41 +31,37 @@ interface Booking {
 }
 
 const BookingList: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]); // State to store booking data
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // State to store the selected booking
-  const [error, setError] = useState<string | null>(null); // State to store error messages
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
-  // Pagination state
   const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(5); // Number of rows per page
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
-  // Media query to check for mobile view
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Function to fetch booking data from the API
   const fetchBookings = async () => {
     try {
-      const response = await axios.get<Booking[]>(`${Domain_URL}/bookingsName`); // Replace with your API endpoint
-      setBookings(response.data); // Assuming the response data is an array of bookings
+      const response = await axios.get<Booking[]>(`${Domain_URL}/bookingsName`);
+      setBookings(response.data);
     } catch (error) {
       console.error('Error fetching booking data:', error);
       setError('Failed to load bookings. Please try again later.');
     }
   };
 
-  // Fetch bookings when the component mounts
   useEffect(() => {
     fetchBookings();
   }, []);
 
   const handleView = (booking: Booking) => {
-    setSelectedBooking(booking); // Set the selected booking for viewing
+    setSelectedBooking(booking);
   };
 
   const closeDetails = () => {
-    setSelectedBooking(null); // Clear the selected booking
+    setSelectedBooking(null);
   };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -74,14 +70,13 @@ const BookingList: React.FC = () => {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset to the first page when rows per page changes
+    setPage(0);
   };
 
   const goBackToDashboard = () => {
     navigate('/dashboard');
   };
 
-  // Calculate paginated bookings
   const paginatedBookings = bookings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
@@ -89,14 +84,11 @@ const BookingList: React.FC = () => {
       <button onClick={goBackToDashboard} className="go-back-button">
         <FaArrowLeft /> Go Back to Dashboard
       </button>
-      <h2> Manage user accounts</h2>
 
-      {/* Booking List Content */}
       <Box sx={{ flex: 1, overflowY: 'auto', padding: 2 }}>
         <h2>Booking Details</h2>
-        {error && <Typography color="error">{error}</Typography>} {/* Display error message if any */}
+        {error && <Typography color="error">{error}</Typography>}
 
-        {/* If it's a mobile view, show bookings as cards */}
         {isMobile ? (
           <div>
             {paginatedBookings.map((booking) => (
@@ -113,8 +105,8 @@ const BookingList: React.FC = () => {
           </div>
         ) : (
           <TableContainer style={{ overflowX: 'auto' }}>
-            <Table className="booking-table">
-              <TableHead className="table-cards">
+            <Table>
+              <TableHead sx={{ backgroundColor: '#007bff', '& .MuiTableCell-root': { color: 'white' }, '& .MuiTableRow-root:hover': { backgroundColor: 'transparent' } }}>
                 <TableRow>
                   <TableCell>User Name</TableCell>
                   <TableCell>Coach Name</TableCell>
@@ -122,7 +114,7 @@ const BookingList: React.FC = () => {
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody className="Table-data-cards">
+              <TableBody>
                 {paginatedBookings.map((booking) => (
                   <TableRow key={booking.id}>
                     <TableCell>{booking.userName}</TableCell>
@@ -138,20 +130,21 @@ const BookingList: React.FC = () => {
           </TableContainer>
         )}
 
-        {/* Table Pagination */}
-        {!isMobile && (
-          <TablePagination
-            component="div"
-            count={bookings.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]} // Options for rows per page
-          />
-        )}
+        <TablePagination
+          component="div"
+          count={bookings.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 25]}
+          sx={{
+            display: 'flex',
+            justifyContent: isMobile ? 'center' : 'flex-start',
+            paddingTop: 2,
+          }}
+        />
 
-        {/* Booking Details Modal */}
         <Dialog open={!!selectedBooking} onClose={closeDetails}>
           <DialogTitle>Booking Details</DialogTitle>
           <DialogContent>

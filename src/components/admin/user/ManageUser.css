@@ -628,3 +628,52 @@ button.MuiButton-contained {
     margin-bottom: 10px;
   }
 }
+
+/* Default button styling */
+.go-back-button {
+  padding: 10px 20px; /* Larger button size for desktop */
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Button size adjustment for mobile */
+@media (max-width: 768px) {
+  .go-back-button {
+    padding: 4px 8px;  /* Further reduced padding */
+    font-size: 12px;    /* Smaller font size */
+    width:auto;
+  }
+}
+
+/* Default pagination styles */
+.MuiTablePagination-root {
+  display: flex;
+  justify-content: flex-start; /* Align pagination to the left */
+  padding: 10px 0;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .MuiTablePagination-root {
+    flex-direction: column; /* Stack pagination controls vertically */
+    align-items: center;    /* Center the controls */
+  }
+
+  .MuiTablePagination-select,
+  .MuiTablePagination-actions {
+    margin: 5px 0;   /* Add margin for better spacing */
+  }
+
+  /* Optional: Adjust button sizes for better mobile usability */
+  .MuiButtonBase-root {
+    font-size: 14px;  /* Smaller button text */
+    padding: 6px 10px; /* Smaller padding */
+  }
+}
