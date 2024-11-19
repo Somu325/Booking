@@ -692,8 +692,8 @@ const ManageUser: React.FC = () => {
           </DialogActions>
         </Dialog>
       </div>
-      <TableContainer sx={{ maxHeight: 600 }}>
-        <Table stickyHeader aria-label="sticky table">
+      <TableContainer sx={{ maxHeight: 600 }} className="Card">
+        <Table stickyHeader aria-label="sticky table" >
           <TableHead>
             <TableRow>
             <TableCell sx={{ backgroundColor: '#007bff', color: 'white', padding:'none' }}>Name</TableCell>
@@ -702,38 +702,39 @@ const ManageUser: React.FC = () => {
               <TableCell sx={{ backgroundColor: '#007bff', color: 'white' ,padding:'none'}}>Action</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {paginatedUsers.map((user) => (
-              <TableRow key={user.userId}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.mobileNumber}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color={user.softDelete ? "primary" : "error"}
-                    onClick={() => handleSoftDelete(user.userId, user.softDelete)}
-                  >
-                    {user.softDelete ? "Undo Freeze" : "Freeze Account"}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleViewDetails(user)}
-                    sx={{ marginLeft: 1 }}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleEditClick(user)}
-                    sx={{ marginLeft: 1 }}
-                  >
-                    Edit
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          <TableBody className="Table-data-cards">
+  {paginatedUsers.map((user) => (
+    <TableRow key={user.userId}>
+      <TableCell data-label="Name">{user.name}</TableCell>
+      <TableCell data-label="Email">{user.email}</TableCell>
+      <TableCell data-label="Mobile Number">{user.mobileNumber}</TableCell>
+      <TableCell data-label="Action">
+        <Button
+          variant="contained"
+          color={user.softDelete ? "primary" : "error"}
+          onClick={() => handleSoftDelete(user.userId, user.softDelete)}
+        >
+          {user.softDelete ? "Undo Freeze" : "Freeze Account"}
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => handleViewDetails(user)}
+          sx={{ marginLeft: 1 }}
+        >
+          View
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => handleEditClick(user)}
+          sx={{ marginLeft: 1 }}
+        >
+          Edit
+        </Button>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
         </Table>
       </TableContainer>
       <TablePagination

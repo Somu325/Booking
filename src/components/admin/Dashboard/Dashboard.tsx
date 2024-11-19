@@ -117,7 +117,18 @@ function Dashboard() {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  
+    const boxElement = document.querySelector('.MuiBox-root');
+  
+    if (boxElement) {
+      if (!sidebarOpen) {
+        boxElement.classList.add('MuiBox-open'); // Shift content when sidebar is open
+      } else {
+        boxElement.classList.remove('MuiBox-open'); // Reset content position when sidebar closes
+      }
+    }
   };
+  
 
   const toggleDashboardMenu = () => {
     setDashboardOpen(!dashboardOpen);
@@ -158,8 +169,18 @@ function Dashboard() {
         </Toolbar>
       </AppBar>
 
-      <Drawer anchor="left" open={sidebarOpen} onClose={toggleSidebar}>
-        <Box sx={{ width: 250 }} role="presentation">
+      <Drawer
+  anchor="left"
+  open={sidebarOpen}
+  onClose={toggleSidebar}
+  ModalProps={{
+    keepMounted: true, // Keeps the drawer in the DOM when closed
+  }}
+  style={{
+    zIndex: 1300, // Ensures the menu is above the graphs
+  }}
+>
+<Box sx={{ width: 200 }} role="presentation">
           <List>
             <ListItemButton onClick={toggleDashboardMenu}>
               <DashboardIcon />

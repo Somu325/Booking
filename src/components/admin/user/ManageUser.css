@@ -264,3 +264,367 @@ button.MuiButton-contained {
     padding: 4px; /* Minimal padding on very small screens */
   }
 }
+
+/* Default styles for the table */
+.Table-cards {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Hide the table headers on mobile */
+@media (max-width: 768px) {
+  .MuiTableHead-root {
+    display: none; /* Hides the TableHead component */
+  }
+
+  .Table-cards {
+    display: block; /* Turns the table into a block element */
+  }
+
+  .Table-data-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Adds spacing between cards */
+  }
+
+  .MuiTableRow-root {
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .MuiTableCell-root {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border: none;
+  }
+
+  .MuiTableCell-root:first-child {
+    font-weight: bold;
+    color: #333;
+  }
+}
+
+/* Additional hover effect for desktop */
+.MuiTableRow-root:hover {
+  background-color: #f1f1f1;
+}
+
+/* Desktop/table layout */
+@media (min-width: 768px) {
+  .Card {
+    display: block;
+  }
+
+  .Table-data-cards {
+    display: table;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  .Table-data-cards {
+    display: block;
+    padding: 0;
+  }
+
+  .Table-data-cards .MuiTableRow-root {
+    display: block;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+  }
+
+  .Table-data-cards .MuiTableCell-root {
+    display: block;
+    padding: 8px;
+    border: none;
+    width: 100%;
+  }
+
+  .Table-data-cards .MuiTableCell-root:before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  /* Remove the table head in mobile view */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* Styling for each card element */
+  .MuiTableRow-root {
+    display: block;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 15px;
+  }
+
+  .MuiTableRow-root .MuiTableCell-root {
+    display: block;
+    padding: 8px 0;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .MuiTableRow-root .MuiTableCell-root:last-child {
+    text-align: center;
+  }
+
+  .MuiTableRow-root .MuiButton-root {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  /* Optional: You can also adjust font sizes or button styles for better mobile appearance */
+  .MuiTypography-root {
+    font-size: 14px;
+  }
+}
+
+
+/* Mobile view */
+@media (max-width: 767px) {
+  .Table-data-cards {
+    display: block;
+    padding: 0;
+  }
+
+  .Table-data-cards .MuiTableRow-root {
+    display: block;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+  }
+
+  .Table-data-cards .MuiTableCell-root {
+    display: block;
+    padding: 8px;
+    border: none;
+    width: 100%;
+  }
+
+  .Table-data-cards .MuiTableCell-root:before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  /* Hide the table head in mobile view */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* Styling for each card element */
+  .MuiTableRow-root {
+    display: block;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 15px;
+  }
+
+  .MuiTableRow-root .MuiTableCell-root {
+    display: block;
+    padding: 8px 0;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .MuiTableRow-root .MuiTableCell-root:last-child {
+    text-align: center;
+  }
+
+  .MuiTableRow-root .MuiButton-root {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  /* Optional: You can also adjust font sizes or button styles for better mobile appearance */
+  .MuiTypography-root {
+    font-size: 14px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  /* Hide the table head in mobile view */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* For each row, create a card-like appearance */
+  .Table-data-cards {
+    display: block;
+    padding: 0;
+  }
+
+  .Table-data-cards .MuiTableRow-root {
+    display: block;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  .Table-data-cards .MuiTableCell-root {
+    display: block;
+    padding: 8px;
+    border: none;
+    text-align: left;
+    width: 100%;
+  }
+
+  /* Display data labels for cards */
+  .Table-data-cards .MuiTableCell-root:before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #007bff;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  /* Make buttons full-width for a mobile-friendly layout */
+  .Table-data-cards .MuiTableRow-root .MuiButton-root {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  /* Optional: Adjust typography for mobile */
+  .MuiTypography-root {
+    font-size: 14px;
+  }
+}
+/* Mobile view */
+@media (max-width: 767px) {
+  /* Hide the TableHead completely */
+  .MuiTableHead-root {
+    display: none;
+  }
+
+  /* Apply card-like style to TableBody rows */
+  .Table-data-cards {
+    display: block;
+    padding: 0;
+  }
+
+  .Table-data-cards .MuiTableRow-root {
+    display: block;
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  /* Make each TableCell behave like a block element */
+  .Table-data-cards .MuiTableCell-root {
+    display: block;
+    padding: 8px;
+    border: none;
+    text-align: left;
+    width: 100%;
+    position: relative;
+    border-bottom: 1px solid #ddd;
+  }
+
+  /* Remove the table borders between cells for better card aesthetics */
+  .Table-data-cards .MuiTableRow-root:last-child .MuiTableCell-root {
+    border-bottom: none;
+  }
+
+  /* Remove the column titles (like Name, Email, etc.) in the cards */
+  .Table-data-cards .MuiTableCell-root[data-label]:before {
+    content: none;  /* Remove labels */
+  }
+
+  /* Make buttons full-width for a mobile-friendly layout */
+  .Table-data-cards .MuiTableRow-root .MuiButton-root {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Optional: Adjust typography for better readability on mobile */
+  .MuiTypography-root {
+    font-size: 14px;
+  }
+
+  /* Make sure buttons have some space between them in mobile view */
+  .Table-data-cards .MuiTableCell-root .MuiButton-root {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  /* Hide the entire Table Head */
+  .MuiTableHead-root {
+    display: none !important;
+  }
+
+  /* Apply card-like style to TableBody rows */
+  .Table-data-cards {
+    display: block;
+    padding: 0;
+  }
+
+  .Table-data-cards .MuiTableRow-root {
+    display: block;
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  /* Make each TableCell behave like a block element */
+  .Table-data-cards .MuiTableCell-root {
+    display: block;
+    padding: 8px;
+    border: none;
+    text-align: left;
+    width: 100%;
+    position: relative;
+    border-bottom: 1px solid #ddd;
+  }
+
+  /* Remove the table borders between cells for better card aesthetics */
+  .Table-data-cards .MuiTableRow-root:last-child .MuiTableCell-root {
+    border-bottom: none;
+  }
+
+  /* Ensure the labels (e.g. Name, Email, etc.) inside the table cells do not show */
+  .Table-data-cards .MuiTableCell-root[data-label]:before {
+    content: none !important;  /* Remove the labels */
+  }
+
+  /* Optional: Adjust buttons to be full width for mobile */
+  .Table-data-cards .MuiTableRow-root .MuiButton-root {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  /* Optional: Adjust typography for better readability */
+  .MuiTypography-root {
+    font-size: 14px;
+  }
+
+  /* Make sure buttons have space between them */
+  .Table-data-cards .MuiTableCell-root .MuiButton-root {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
