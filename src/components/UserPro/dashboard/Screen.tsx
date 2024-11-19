@@ -139,7 +139,7 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
         startDecorator={<Logout />}
         variant="plain"
         color="danger"
-        sx={{ justifyContent: 'flex-start', mt: 'auto', width: '150px' }}
+        sx={{ justifyContent: 'flex-start', mt:'unset', width: '150px' }}
         onClick={() => handleButtonClick('logout')}
         loading={loading.logout}
       >
