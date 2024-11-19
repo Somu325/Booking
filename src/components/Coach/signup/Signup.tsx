@@ -723,7 +723,7 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
           backgroundSize: 'cover',
         }}
       >
-        <Box
+        {/* <Box
           component="form"
           onSubmit={handleSubmit}
           sx={{
@@ -735,7 +735,21 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
             backdropFilter: 'blur(10px)',
             boxShadow: 'lg',
           }}
-        >
+        > */}
+
+           <Box
+            component="form"
+             onSubmit={handleSubmit}
+             sx={{
+             width: { xs: '250%', sm: '80%', md: '400px' }, // Adjusts width for different screen sizes
+             maxWidth: { xs: '100%', sm: '600px' }, // Caps width for larger screens
+             p: { xs: 2, sm: 4 }, // Adjusts padding for smaller screens
+             borderRadius: 'x3',
+           // bgcolor: 'rgba(255, 255, 255, 0.8)',
+          // backdropFilter: 'blur(10px)',
+          boxShadow: 'lg',
+          }}
+          >
            <Typography level="h4" component="h1" sx={{ mb: 3, textAlign: 'center', fontWeight: 'bold' }}>
            Create an Account
           </Typography>
