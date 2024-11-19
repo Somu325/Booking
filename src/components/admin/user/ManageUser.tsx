@@ -738,14 +738,20 @@ const ManageUser: React.FC = () => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={filteredUsers.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+  rowsPerPageOptions={[5, 10, 25]}
+  component="div"
+  count={filteredUsers.length}
+  rowsPerPage={rowsPerPage}
+  page={page}
+  onPageChange={handleChangePage}
+  onRowsPerPageChange={handleChangeRowsPerPage}
+  sx={{
+    display: 'flex',
+    justifyContent: 'center', // Center pagination on mobile
+    marginTop: 2,
+    padding: 1
+  }}
+/>
       <Dialog open={showModal} onClose={handleCloseModal}>
         <DialogTitle>{isEditing ? "Edit User" : "User Details"}</DialogTitle>
         <DialogContent>

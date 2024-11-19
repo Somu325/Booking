@@ -170,15 +170,15 @@ export default function AdminOverview() {
         </Grid>
       </Grid>
 
-      <Box sx={{ mb: 2, mt: 10, width: '350px', ml: 110 }}>
-        <TextField
-          label="Search by Coach Name or Username"
-          variant="outlined"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          fullWidth
-        />
-      </Box>
+      <Box sx={{ mb: 2, mt: 10, width: '300px' }}> {/* Set your preferred width here */}
+  <TextField
+    label="Search by Coach Name or Username"
+    variant="outlined"
+    value={filter}
+    onChange={(e) => setFilter(e.target.value)}
+    fullWidth
+  />
+</Box>
 
       <Typography variant="h6" fontWeight="bold" gutterBottom>
         Booking List
