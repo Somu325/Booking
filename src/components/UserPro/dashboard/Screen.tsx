@@ -91,7 +91,7 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
     document.cookie.split(";").forEach((c) => {
       document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
     });
-    navigate('/');
+    navigate('/user-login');
   };
 
   return (

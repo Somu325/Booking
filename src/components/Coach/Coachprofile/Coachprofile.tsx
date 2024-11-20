@@ -1033,7 +1033,7 @@ export default function Component() {
 
   const handleSendOTP = async (email: string) => {
     try {
-      const response = await axios.post<SendOtpResponse>(`${Domain_URL}/send-otp1`, { email });
+      const response = await axios.post<SendOtpResponse>(`${Domain_URL}/api/send-otp2`, { email });
       if (response.data.orderId) {
         setOrderId(response.data.orderId);
         setIsOtpSent(true);
@@ -1041,10 +1041,12 @@ export default function Component() {
         setSnackbar({ open: true, message: 'OTP sent successfully.', severity: 'success' });
       } else {
         setSnackbar({ open: true, message: 'Failed to send OTP.', severity: 'error' });
+        alert('This email is already registered')
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
-      setSnackbar({ open: true, message: 'Error sending OTP.', severity: 'error' });
+     // setSnackbar({ open: true, message: 'Error sending OTP.', severity: 'error' });
+     alert('This email is already registered');
     }
   };
 

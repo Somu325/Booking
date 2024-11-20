@@ -367,12 +367,13 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
    // Function to initiate email verification process
   const verifyEmail = async () => {
     try {
-      const response = await axios.post(`${Domain_URL}/api/send-otp1`, { email: tempEmail })
+      const response = await axios.post(`${Domain_URL}/api/send-otp2`, { email: tempEmail })
       setEmailVerificationData(response.data)
       setShowEmailModal(true)
       setTimer(120) // Set 2-minute timer
     } catch (error) {
       console.error('Error verifying email:', error)
+      alert('This email is already registered');
     }
   }
 
