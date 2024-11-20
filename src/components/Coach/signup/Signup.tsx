@@ -586,12 +586,14 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
   
   
 
-  const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
+  //const passwordRegex = /^[A-Za-z\d@$!%*#?&]{8,16}$/;
 
   // Handle form input changes and validations
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    
 
       // Name validation
     if (name === 'name') {
@@ -628,22 +630,24 @@ const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(
         : 'Please enter a valid phone number.'
     );
   }
-    // Password validation
-    if (name === 'password') {
-      setPasswordError(
-        !passwordRegex.test(value)
-          ? 'Password must be 8-16 characters long'
-          : null
-      );
 
-       // Check confirmPassword after changing password
-       if (formData.confirmPassword && value !== formData.confirmPassword) {
-        setConfirmPasswordError('Passwords do not match.');
-      } else {
-        setConfirmPasswordError(null); // Clear error if they match
-      }
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*]{8,16}$/;
+
+  if (name === 'password') {
+    setPasswordError(
+      !passwordRegex.test(value)
+        ? 'Password must be 8-16 characters, include at least one letter and one number'
+        : null
+    );
+  
+    // Check confirmPassword after changing password
+    if (formData.confirmPassword && value !== formData.confirmPassword) {
+      setConfirmPasswordError('Passwords do not match.');
+    } else {
+      setConfirmPasswordError(null); // Clear error if they match
     }
-
+  }
+  
      // Confirm password validation
      if (name === 'confirmPassword') {
       setConfirmPasswordError(
