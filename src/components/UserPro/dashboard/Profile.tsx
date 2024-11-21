@@ -155,6 +155,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
   const [timer, setTimer] = useState(0)
   const [showVerificationPrompt, setShowVerificationPrompt] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [emailError, setEmailError] = useState('');
 
   const navigate = useNavigate()
 
@@ -234,6 +235,29 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     setPhoneError('')
     return true
   }
+
+  const validateEmail = (email: string) => {
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+    if (!email.trim()) {
+      setEmailError('Email is required.');
+      return false;
+    }
+
+    if (!emailPattern.test(email)) {
+      setEmailError('Please enter a valid email address.');
+      return false;
+    }
+
+    setEmailError('');
+    return true;
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedEmail = e.target.value;
+    setTempEmail(updatedEmail);
+    validateEmail(updatedEmail);
+  };
 
 // Function to validate childname
   const validateChildName = (name: string) => {
@@ -499,40 +523,35 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                     />
                     {nameError && <Typography color="danger">{nameError}</Typography>}
                     <Input
-  placeholder="Phone Number"
-  value={tempPhoneNumber}
-  onChange={(e) => {
-    let input = e.target.value;
-    if (input.startsWith("0")) {
-       input = input.slice(1);
-    }
-    // Allow only up to 10 digits
-    if (input.length <= 10 && /^\d*$/.test(input)) {
-      setTempPhoneNumber(input);
-      validatePhoneNumber(input);
-    }
-  }}
-  error={!!phoneError}
-/>
-<Input
-  placeholder="Email"
-  value={tempEmail}
-  onChange={(e) => {
-    const updatedEmail = e.target.value;
-
-    // Allow digits if the email format is not fully set, else restrict digits
-    if (/^\S+@\S+\.\S+$/.test(tempEmail) && /\d/.test(updatedEmail.slice(-1))) {
-      // If email format is set and the new character is a digit, do nothing
-      return;
-    } else {
-      // Otherwise, allow updating the email
-      setTempEmail(updatedEmail);
-    }
-  }}
-/>
+                      placeholder="Phone Number"
+                      value={tempPhoneNumber}
+                      onChange={(e) => {
+                        let input = e.target.value;
+                        if (input.startsWith("0")) {
+                          input = input.slice(1);
+                        }
+                        // Allow only up to 10 digits
+                        if (input.length <= 10 && /^\d*$/.test(input)) {
+                          setTempPhoneNumber(input);
+                          validatePhoneNumber(input);
+                        }
+                      }}
+                      error={!!phoneError}
+                    />
+                     {/* Email Input */}
+                    <Input
+                      placeholder="Email"
+                      value={tempEmail}
+                      onChange={handleEmailChange}
+                      fullWidth
+                      style={{ marginBottom: '10px' }}
+                      error={!!emailError}
+                    />
+                    
+                    {emailError && <Typography color="danger">{emailError}</Typography>}
 
                     {phoneError && <Typography color="danger">{phoneError}</Typography>}
-                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError || isLoading}>
+                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError || !!emailError || isLoading}>
                       {isLoading ? 'Updating...' : 'Update Profile'}
                     </Button>
                   </Box>
