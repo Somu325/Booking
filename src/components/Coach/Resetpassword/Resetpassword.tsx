@@ -57,7 +57,7 @@ const Reset: React.FC = () => {
   const navigate = useNavigate();
 
   const validatePassword = (password: string): boolean => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
     return regex.test(password);
   };
 
@@ -76,7 +76,7 @@ const Reset: React.FC = () => {
       setErrors((prev) => ({
         ...prev,
         newPassword:
-          'Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character.',
+          'Password must be at least 8 to 16 characters long and include an uppercase letter, lowercase letter, number, and special character.',
       }));
       return;
     }
