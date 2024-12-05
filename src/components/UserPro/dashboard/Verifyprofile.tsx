@@ -236,7 +236,9 @@ export default function Component({ userEmail = '' }: { userEmail?: string }) {
                   <Alert color="warning" sx={{ mb: 2, fontSize:'20px'}}>
                     <b>You cannot book a slot until your email/phone number is verified. Please verify your email/phone number to continue.</b>
                   </Alert>
-                  <Button onClick={handleCloseAlert} variant="outlined" sx={{ backgroundColor: 'green',color:'black', width:'80px',marginLeft:'350px'}}>OK</Button>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <Button onClick={handleCloseAlert} variant="outlined" sx={{ backgroundColor: 'green',color:'black', width:'80px'}}>OK</Button>
+                  </Box>
                 </CardContent>
               </Card>
             )}
