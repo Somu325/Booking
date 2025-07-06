@@ -602,7 +602,6 @@ import moment from 'moment-timezone';
 
 const Schedule = () => {
   const [startTime, setStartTime] = useState('09:00');
-  const [serverOffline, setServerOffline] = useState(false);
   const [endTime, setEndTime] = useState('10:00');
   const [date, setDate] = useState(moment().format('MM/DD/YYYY'));
   const [startDate, setStartDate] = useState(moment().format('MM/DD/YYYY'));
@@ -636,22 +635,22 @@ const Schedule = () => {
     return moment();
   };
 
-  const isDateInFuture = (selectedDate) => {
+  const isDateInFuture = (selectedDate: string) => {
     const currentDateInLocal = getCurrentDateInLocal();
     console.log("current date is", currentDateInLocal.format('YYYY-MM-DD HH:mm:ss'));
     return moment(selectedDate, 'MM/DD/YYYY').isSameOrAfter(currentDateInLocal, 'day');
   };
 
-  const isTimeValid = (selectedTime, selectedDate) => {
+  const isTimeValid = (selectedTime: string, selectedDate: string) => {
     const currentDateInLocal = getCurrentDateInLocal();
     const selectedDateTime = moment(`${selectedDate} ${selectedTime}`, 'MM/DD/YYYY HH:mm');
     return selectedDateTime.isSameOrAfter(currentDateInLocal.add(12, 'hours'));
   };
 
-  const isValidWeeklyDays = (startDate, endDate, selectedDays) => {
+  const isValidWeeklyDays = (startDate: string, endDate: string, selectedDays: string[]) => {
     const start = moment(startDate, 'MM/DD/YYYY');
     const end = moment(endDate, 'MM/DD/YYYY');
-    const validDays = selectedDays.map(day => moment().day(day).format('dddd'));
+    const validDays = selectedDays.map((day: string) => moment().day(day).format('dddd'));
     
     // Loop through each date in the range and check if it matches any of the selected days
     let isValid = false;
@@ -759,21 +758,21 @@ const Schedule = () => {
         setSuccessMessage('');
       }, 5000);
   
-    } catch (error: any) {
-      console.error('Error creating slots:', error.message);
+    } catch (error: unknown) {
+      console.error('Error creating slots:', error);
   
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
           setErrorMessage('Slots already generated in the specified date range.');
         } else if (error.code === 'ERR_NETWORK') {
           alert('Server Offline. Please wait...');
-          setServerOffline(true);
         } else {
-          setServerOffline(false);
           setErrorMessage(error.response?.data?.message || 'An unexpected error occurred.');
         }
-      } else {
+      } else if (error instanceof Error) {
         setErrorMessage(error.message);
+      } else {
+        setErrorMessage('An unexpected error occurred.');
       }
   
       setSuccessMessage('');

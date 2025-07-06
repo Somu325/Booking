@@ -4,9 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import {
-
   Typography,
-
   Box,
   TextField,
   Card,
@@ -16,8 +14,7 @@ import {
   Button,
   Modal,
 } from '@mui/material';
-
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 import "./AdminOverview.css";
@@ -36,16 +33,38 @@ import { FaArrowLeft } from 'react-icons/fa';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Type definitions
+interface MonthlyBooking {
+  month: string;
+  totalBookings: number;
+}
+
+interface BookingTrend {
+  month: string;
+  completed: number;
+  canceled: number;
+}
+
+interface Booking {
+  id: string;
+  bookingId: string;
+  userName: string;
+  childName: string;
+  coachName: string;
+  date: string;
+  status: string;
+}
+
 export default function AdminOverview() {
   const navigate = useNavigate();
 
   const [totalBookings, setTotalBookings] = useState(0);
-  const [monthlyBookings, setMonthlyBookings] = useState<any[]>([]);
-  const [bookingTrends, setBookingTrends] = useState<any[]>([]);
-  const [bookingList, setBookingList] = useState<any[]>([]);
+  const [monthlyBookings, setMonthlyBookings] = useState<MonthlyBooking[]>([]);
+  const [bookingTrends, setBookingTrends] = useState<BookingTrend[]>([]);
+  const [bookingList, setBookingList] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
-  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatDateToCST = (dateString: string) => {
@@ -66,14 +85,14 @@ export default function AdminOverview() {
       const currentMonthUTC = new Date().getUTCMonth();
 
       const formattedTrends = trendsResponse.data
-        .filter((t: any) => new Date(t.month).getUTCMonth() === currentMonthUTC)
-        .map((t: any) => ({
+        .filter((t: { month: string }) => new Date(t.month).getUTCMonth() === currentMonthUTC)
+        .map((t: { month: string; completed: string; canceled: string }) => ({
           month: new Date(t.month).toLocaleString('default', { month: 'long', timeZone: 'UTC' }),
           completed: parseInt(t.completed, 10),
           canceled: parseInt(t.canceled, 10),
         }));
 
-      const formattedBookings = bookingsResponse.data.map((booking: any) => ({
+      const formattedBookings = bookingsResponse.data.map((booking: { month: string; totalBookings: number }) => ({
         month: new Date(booking.month).toLocaleString('default', { month: 'long', timeZone: 'UTC' }),
         totalBookings: booking.totalBookings,
       }));
@@ -124,7 +143,7 @@ export default function AdminOverview() {
     (booking.userName?.toLowerCase() || '').includes(filter.toLowerCase())
   );
 
-  const handleModalOpen = (booking: any) => {
+  const handleModalOpen = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsModalOpen(true);
   };
@@ -154,6 +173,12 @@ export default function AdminOverview() {
       <Typography sx={{ mt: 4 }} variant="h5" fontWeight="bold" gutterBottom>
         Admin Overview
       </Typography>
+
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" color="primary">
+          Total Bookings: {totalBookings}
+        </Typography>
+      </Box>
 
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>

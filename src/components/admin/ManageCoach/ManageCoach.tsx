@@ -395,7 +395,7 @@ import {
 } from "@mui/material"
 import Modal from "react-modal"
 import { FaArrowLeft, FaEdit } from "react-icons/fa"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Domain_URL } from "../../config"
 
 Modal.setAppElement("#root")
@@ -435,10 +435,10 @@ export default function Component() {
   })
 
   const navigate = useNavigate()
-  const location = useLocation()
+  // const location = useLocation()
 
   // Get the `softDelete` value from the route query parameters
-  const softDelete = new URLSearchParams(location.search).get("softDelete") === "true"
+  // const softDelete = new URLSearchParams(location.search).get("softDelete") === "true"
 
   // Check if the screen is mobile
   const isMobile = useMediaQuery('(max-width:600px)')
