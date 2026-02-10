@@ -15,10 +15,7 @@
     "@mui/icons-material": "^6.1.6",
     "@mui/joy": "^5.0.0-beta.48",
     "@mui/material": "^6.1.6",
-    "@mui/styled-engine-sc": "^6.1.6",
-    "@mui/x-charts": "^7.20.0",
     "@mui/x-date-pickers": "^7.22.0",
-    "@mui/x-date-pickers-pro": "^7.22.0",
     "@types/react-datepicker": "^7.0.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
@@ -49,8 +46,7 @@
     "react-router-dom": "^6.27.0",
     "react-time-picker": "^7.0.0",
     "recharts": "^2.13.0",
-    "sequelize": "^6.37.4",
-    "styled-components": "^6.1.13"
+    "sequelize": "^6.37.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

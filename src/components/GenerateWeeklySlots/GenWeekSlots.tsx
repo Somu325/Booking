@@ -17,7 +17,6 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-// import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
@@ -208,17 +207,6 @@ export default function Generateslots() {
                   />
                 ))}
               </FormGroup>
-
-              {/* <DateRangePicker
-                value={dateRange}
-                onChange={(newValue: [Date | null, Date | null]) => setDateRange(newValue)}
-                renderInput={(startProps:any, endProps:any) => (
-                  <>
-                    <TextField {...startProps} fullWidth />
-                    <TextField {...endProps} fullWidth sx={{ mt: 1 }} />
-                  </>
-                )}
-              /> */}
 
               <Button variant="contained" onClick={generateSlots} fullWidth sx={{ mt: 2 }}>
                 Generate Slots
