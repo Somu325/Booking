@@ -3,7 +3,7 @@
 
 import { useEffect, useState, ChangeEvent, useRef } from 'react';
 import axios from 'axios';
-import { Search, Menu, Person, Settings, Logout, ChevronLeft, ChevronRight, NotificationsOff } from '@mui/icons-material';
+import { Search, List, Person, Gear, BoxArrowRight, ChevronLeft, ChevronRight, BellSlash } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 
 import { Domain_URL } from '../../config';
@@ -81,38 +81,50 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
   return (
     <div
       ref={menuRef}
-      className={`fixed top-0 left-0 w-[250px] h-full bg-white/90 backdrop-blur-md transform transition-transform duration-300 ease-in-out z-[1000] flex flex-col p-4 shadow-[0_0_20px_rgba(0,0,0,0.1)] ${
+      className={`fixed top-0 left-0 w-[280px] h-full bg-white/90 backdrop-blur-xl border-r border-white/40 shadow-2xl z-[1000] transform transition-transform duration-300 ease-out flex flex-col p-6 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <button onClick={onClose} className="mb-4 text-left p-2 hover:bg-gray-100 rounded">Close Menu</button>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-xl font-bold text-slate-800">Menu</h2>
+        <button
+          onClick={onClose}
+          className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      </div>
 
-      <button
-        className="flex items-center justify-start mb-2 w-[150px] p-2 hover:bg-gray-100 rounded text-left disabled:opacity-50"
-        onClick={() => handleButtonClick('profile')}
-        disabled={loading.profile}
-      >
-        <Person className="mr-2" />
-        {loading.profile ? 'Loading...' : 'Profile'}
-      </button>
+      <div className="space-y-2">
+        <button
+          className="w-full flex items-center gap-4 p-3.5 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 hover:shadow-sm transition-all duration-200 disabled:opacity-50 font-medium"
+          onClick={() => handleButtonClick('profile')}
+          disabled={loading.profile}
+        >
+          <Person size={20} />
+          {loading.profile ? 'Loading...' : 'Profile'}
+        </button>
 
-      <button
-        className="flex items-center justify-start mb-2 w-[150px] p-2 hover:bg-gray-100 rounded text-left disabled:opacity-50"
-        onClick={() => handleButtonClick('bookingHistory')}
-        disabled={loading.bookingHistory}
-      >
-        <Settings className="mr-2" />
-        {loading.bookingHistory ? 'Loading...' : 'BookingHistory'}
-      </button>
+        <button
+          className="w-full flex items-center gap-4 p-3.5 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/50 hover:shadow-sm transition-all duration-200 disabled:opacity-50 font-medium"
+          onClick={() => handleButtonClick('bookingHistory')}
+          disabled={loading.bookingHistory}
+        >
+          <Gear size={20} />
+          {loading.bookingHistory ? 'Loading...' : 'Booking History'}
+        </button>
+      </div>
 
-      <button
-        className="flex items-center justify-start mt-auto w-[150px] p-2 text-red-600 hover:bg-red-50 rounded text-left disabled:opacity-50"
-        onClick={() => handleButtonClick('logout')}
-        disabled={loading.logout}
-      >
-        <Logout className="mr-2" />
-        {loading.logout ? 'Loading...' : 'Logout'}
-      </button>
+      <div className="mt-auto pt-6 border-t border-slate-200">
+        <button
+          className="w-full flex items-center gap-4 p-3.5 rounded-xl text-red-600 hover:bg-red-50 hover:shadow-sm transition-all duration-200 disabled:opacity-50 font-medium"
+          onClick={() => handleButtonClick('logout')}
+          disabled={loading.logout}
+        >
+          <BoxArrowRight size={20} />
+          {loading.logout ? 'Loading...' : 'Logout'}
+        </button>
+      </div>
     </div>
   );
 }
@@ -222,120 +234,179 @@ export default function Screen() {
 
   return (
     <div
-      className={`w-full min-h-screen p-6 flex flex-col items-center bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] transition-all duration-300 ${isMenuOpen ? 'pl-[260px]' : ''}`}
+      className={`min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 transition-all duration-300 ${isMenuOpen ? 'lg:pl-[280px]' : ''}`}
     >
-        <div className="font-bold text-xl text-center mb-5">
-          {username ? <h4>Welcome, {username}</h4> : <h2>Welcome, Guest</h2>}
-        </div>
-          
-        {/* Header section with menu, search, and notifications */}
-        <div className="flex items-center justify-between w-full max-w-[1200px] mb-2">
-          <button
-            className="mr-4 p-2 border border-gray-300 rounded hover:bg-gray-100"
-            onClick={() => setIsMenuOpen(true)}
-          >
-            <Menu />
-          </button>
+      <div className="max-w-7xl mx-auto p-6 md:p-8 space-y-8">
 
-          <div className="flex-grow max-w-[500px] relative">
-             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="text-gray-400" />
+        {/* Header section with menu, search, and notifications */}
+        <header className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 w-full md:w-auto">
+             <button
+              onClick={() => setIsMenuOpen(true)}
+              className="p-3 bg-white/60 backdrop-blur-sm border border-white/40 shadow-sm rounded-xl hover:bg-white hover:shadow-md transition-all text-slate-600"
+            >
+              <List size={24} />
+            </button>
+            <div>
+               <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+                {username ? `Welcome, ${username}` : 'Welcome, Guest'}
+              </h1>
+              <p className="text-slate-500 text-sm font-medium">Find your perfect coach</p>
             </div>
-            <input
-              className="w-full py-3 pl-10 pr-4 bg-white/70 backdrop-blur-md hover:bg-white/80 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Search by Name or Sport..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
           </div>
 
-          <span className="ml-4 font-bold hidden sm:inline">
-            Total Coaches: {people.length}
-          </span>
+          <div className="flex items-center gap-4 w-full md:w-auto flex-1 justify-end">
+             <div className="relative w-full max-w-md group">
+               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+              </div>
+              <input
+                className="w-full py-3.5 pl-11 pr-4 bg-white/60 backdrop-blur-sm border border-white/40 shadow-sm rounded-2xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
+                placeholder="Search by name or sport..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
 
-          <button
-            className="ml-4 p-2 border border-gray-300 rounded hover:bg-gray-100"
-            onClick={() => navigate('')}
-          >
-            <NotificationsOff />
-          </button>
-        </div>
+            <button
+              className="p-3 bg-white/60 backdrop-blur-sm border border-white/40 shadow-sm rounded-xl hover:bg-white hover:shadow-md transition-all text-slate-600 relative"
+              onClick={() => navigate('')}
+            >
+              <BellSlash size={20} />
+            </button>
+
+             <div className="hidden lg:flex flex-col items-end">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Coaches</span>
+                <span className="text-lg font-bold text-indigo-600">{people.length}</span>
+             </div>
+          </div>
+        </header>
 
         {/* Date selection section */}
-        
-        <div className="flex items-center mb-8 w-full max-w-[1200px] overflow-x-auto pb-2">
-          <button onClick={() => handleDateNavigation('back')} className="mr-4 p-2 hover:bg-gray-200 rounded-full">
-            <ChevronLeft />
-          </button>
+        <div className="w-full overflow-x-auto pb-4 pt-2 scrollbar-hide">
+            <div className="flex items-center justify-between md:justify-start gap-4 min-w-max mx-auto md:mx-0">
+               <button
+                 onClick={() => handleDateNavigation('back')}
+                 className="p-3 bg-white/60 backdrop-blur-sm rounded-full border border-white/40 shadow-sm hover:bg-white hover:shadow-md transition-all text-slate-500 hover:text-indigo-600"
+               >
+                <ChevronLeft size={20} />
+              </button>
 
-          <div className="relative flex items-center">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="mb-6 mt-8 mr-6 p-3 w-[48px] h-[48px] rounded-[25px] border-2 border-[#007BFF] bg-white shadow-md focus:outline-none focus:border-[#0056b3] focus:shadow-[0_0_5px_rgba(0,123,255,0.5)]"
-              style={{ maxWidth: '300px' }}
-            />
+               <div className="flex items-center gap-3 bg-white/30 backdrop-blur-md p-2 rounded-2xl border border-white/30">
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={handleDateChange}
+                      className="w-12 h-12 opacity-0 absolute inset-0 z-10 cursor-pointer"
+                    />
+                    <div className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm border border-indigo-100 text-indigo-500 font-bold text-lg">
+                       <span className="transform -translate-y-0.5">🗓️</span>
+                    </div>
+                  </div>
 
-            <div className="flex space-x-4">
-              {dates.map((date) => (
-                <button
-                  key={date}
-                  onClick={() => setSelectedDate(date)}
-                  className={`min-w-[100px] h-[40px] rounded-xl px-4 font-medium transition-colors ${
-                    selectedDate === date
-                      ? 'bg-blue-200 text-black'
-                      : 'border border-blue-500 text-blue-500 hover:bg-blue-50'
-                  }`}
-                >
-                  {formatDate(date)}
-                </button>
-              ))}
+                  <div className="flex items-center gap-3">
+                    {dates.map((date) => (
+                      <button
+                        key={date}
+                        onClick={() => setSelectedDate(date)}
+                        className={`
+                          px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border
+                          ${selectedDate === date
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-200'
+                            : 'bg-white/60 text-slate-600 border-transparent hover:bg-white hover:border-white hover:shadow-sm'
+                          }
+                        `}
+                      >
+                        {formatDate(date)}
+                      </button>
+                    ))}
+                  </div>
+               </div>
+
+              <button
+                 onClick={() => handleDateNavigation('forward')}
+                 className="p-3 bg-white/60 backdrop-blur-sm rounded-full border border-white/40 shadow-sm hover:bg-white hover:shadow-md transition-all text-slate-500 hover:text-indigo-600"
+               >
+                <ChevronRight size={20} />
+              </button>
             </div>
-          </div>
-
-          <button onClick={() => handleDateNavigation('forward')} className="ml-4 p-2 hover:bg-gray-200 rounded-full">
-            <ChevronRight />
-          </button>
         </div>
 
 
         {/* Coach cards section */}
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 w-full max-w-[1200px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
           {filteredPeople.map((person) => (
-            <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
-              <h2 className="text-xl font-bold mb-2">
-                {person.name}
-              </h2>
-              <p className="text-gray-700">Sport: {person.sport}</p>
-              <p className="text-gray-700 mb-4">Phone: {person.phoneNumber}</p>
-              <button
-                className="w-full py-2 bg-blue-500 text-white rounded font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors mt-auto"
-                onClick={() => handleViewSlot(person.coachId)}
-                disabled={loading[person.coachId]}
-              >
-                {loading[person.coachId] ? 'Loading...' : 'View Slot'}
-              </button>
+            <div
+              key={person.id}
+              className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group relative overflow-hidden"
+            >
+              {/* Decorative gradient blob */}
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-indigo-50 rounded-full blur-2xl group-hover:bg-indigo-100 transition-colors"></div>
+
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xl shrink-0">
+                    {person.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-lg font-bold text-slate-800 leading-tight truncate">
+                      {person.name}
+                    </h2>
+                     <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold mt-1 truncate max-w-full">
+                      {person.sport}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mb-6 text-sm">
+                   <div className="flex items-center gap-2 text-slate-500">
+                      <span className="font-medium text-slate-400">Phone:</span>
+                      <span className="truncate">{person.phoneNumber}</span>
+                   </div>
+                </div>
+
+                <button
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300 disabled:opacity-50 disabled:shadow-none transition-all mt-auto flex items-center justify-center gap-2"
+                  onClick={() => handleViewSlot(person.coachId)}
+                  disabled={loading[person.coachId]}
+                >
+                  {loading[person.coachId] ? (
+                     <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Loading...</span>
+                     </>
+                  ) : (
+                    <>
+                      <span>View Slots</span>
+                      <ChevronRight size={16} />
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
         {/* Calendar modal */}
         {isCalendarOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setIsCalendarOpen(false)}>
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setIsCalendarOpen(false)}>
             <div
-              className="bg-white/90 backdrop-blur-md shadow-2xl p-6 rounded-lg"
+              className="bg-white p-6 rounded-2xl shadow-2xl border border-white/50 transform transition-all scale-100 animate-in fade-in zoom-in duration-200"
               onClick={(e) => e.stopPropagation()}
             >
+              <h3 className="text-lg font-bold text-slate-800 mb-4">Select Date</h3>
               <input
                 type="date"
                 value={selectedDate}
                 onChange={handleDateChange}
-                className="text-base p-3 rounded-xl border border-gray-300 bg-white/70"
+                className="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
               />
             </div>
           </div>
         )}
+
+      </div>
 
         {/* Side menu component */}
         <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
