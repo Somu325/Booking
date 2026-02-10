@@ -1,21 +1,24 @@
 
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2'; // Importing Bar chart from react-chartjs-2
-import { Typography, Box, AppBar, Toolbar, IconButton, Drawer, List, ListItemText, Collapse, Grid, ListItemButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'; // Importing logout icon
+import {
+  Menu as MenuIcon,
+  ExpandLess,
+  ExpandMore,
+  Dashboard as DashboardIcon,
+  InsertInvitation as InsertInvitationIcon,
+  Person as PersonIcon,
+  Group as GroupIcon,
+  ExitToApp as ExitToAppIcon
+} from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
-import "./Dashboard.css"
 import { Domain_URL } from "../../config";
 import Cookies from 'js-cookie';
 import moment from 'moment';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -57,6 +60,7 @@ function Dashboard() {
           labels: weekdays,
           datasets: [
             {
+              label: 'Daily Bookings',
               data: dailyCounts,
               backgroundColor: 'rgba(255, 165, 0, 0.6)', // Orange color
             },
@@ -96,6 +100,7 @@ function Dashboard() {
           labels: weeklyLabels.filter(Boolean),
           datasets: [
             {
+              label: 'Weekly Bookings',
               data: weeklyCounts,
               backgroundColor: 'rgba(0, 77, 64, 0.6)', // Dark green color
             },
@@ -117,16 +122,6 @@ function Dashboard() {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
-  
-    const boxElement = document.querySelector('.MuiBox-root');
-  
-    if (boxElement) {
-      if (!sidebarOpen) {
-        boxElement.classList.add('MuiBox-open'); // Shift content when sidebar is open
-      } else {
-        boxElement.classList.remove('MuiBox-open'); // Reset content position when sidebar closes
-      }
-    }
   };
   
 
@@ -157,141 +152,193 @@ function Dashboard() {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleSidebar}>
-            <MenuIcon />
-          </IconButton>
-          <Typography className='Admin' variant="h6" sx={{ flexGrow: 1 }}>
-            Admin Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <div className="h-screen flex flex-col font-sans">
+      <nav className="bg-[#1976d2] text-white p-4 shadow-md flex items-center">
+        <button onClick={toggleSidebar} className="mr-4 p-2 rounded hover:bg-white/10">
+          <MenuIcon />
+        </button>
+        <h6 className="text-xl font-medium flex-grow">
+          Admin Dashboard
+        </h6>
+      </nav>
 
-      <Drawer
-  anchor="left"
-  open={sidebarOpen}
-  onClose={toggleSidebar}
-  ModalProps={{
-    keepMounted: true, // Keeps the drawer in the DOM when closed
-  }}
-  style={{
-    zIndex: 1300, // Ensures the menu is above the graphs
-  }}
->
-<Box sx={{ width: 200 }} role="presentation">
-          <List>
-            <ListItemButton onClick={toggleDashboardMenu}>
-              <DashboardIcon />
-              <ListItemText primary="Dashboard" />
-              {dashboardOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={dashboardOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} onClick={toggleSidebar} component={Link} to="/AdminOverview">
-                  <ListItemText primary="Overview" />
-                </ListItemButton>
-                <ListItemButton sx={{ pl: 4 }} onClick={toggleSidebar} component={Link} to="/Analyst">
-                  <ListItemText primary="Analytics" />
-                </ListItemButton>
-              </List>
-            </Collapse>
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[1200] lg:hidden"
+          onClick={toggleSidebar}
+        ></div>
+      )}
 
-            <ListItemButton onClick={toggleUserMenu}>
-              <GroupIcon />
-              <ListItemText primary="Manage Coach" />
-              {userOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={userOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageCoach">
-                  <ListItemText primary="Coach Profile" />
-                </ListItemButton>
-              </List>
-            </Collapse>
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 w-[250px] h-full bg-white shadow-xl z-[1300] transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:h-auto`}
+        // Note: Logic for sidebar behavior changed slightly. The original was a drawer.
+        // Here I made it responsive: fixed and hidden by default on mobile (controlled by sidebarOpen),
+        // but wait, the original logic was just a drawer toggled by button.
+        // Let's stick to the original behavior: A drawer that slides in.
+        // It seems the original drawer covered content or pushed it.
+        // "marginLeft: sidebarOpen ? '250px' : '0'" implies pushing.
+      >
+         {/* Resetting Sidebar logic to match original intent more closely but with Tailwind */}
+      </div>
 
-            <ListItemButton onClick={toggleCoachMenu}>
-              <PersonIcon />
-              <ListItemText primary="Manage User" />
-              {coachOpen ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={coachOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton sx={{ pl: 4 }} component={Link} to="/ManageUser">
-                  <ListItemText primary="User Profile" />
-                </ListItemButton>
-              </List>
-            </Collapse>
+      {/* Re-implementing structure to support pushing content */}
+      <div className="flex flex-1 overflow-hidden relative">
+        <aside
+          className={`absolute top-0 left-0 h-full w-[250px] bg-white shadow-lg z-20 transition-transform duration-300 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          <div className="w-[200px] p-2">
+            <ul className="space-y-1">
+              <li>
+                <button
+                  onClick={toggleDashboardMenu}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded"
+                >
+                  <DashboardIcon className="mr-4 text-gray-600" />
+                  <span className="flex-grow">Dashboard</span>
+                  {dashboardOpen ? <ExpandLess /> : <ExpandMore />}
+                </button>
+                {dashboardOpen && (
+                  <ul className="pl-4 mt-1 space-y-1">
+                    <li>
+                      <Link
+                        to="/AdminOverview"
+                        onClick={toggleSidebar}
+                        className="block p-2 pl-8 hover:bg-gray-100 rounded text-sm"
+                      >
+                        Overview
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/Analyst"
+                        onClick={toggleSidebar}
+                        className="block p-2 pl-8 hover:bg-gray-100 rounded text-sm"
+                      >
+                        Analytics
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
 
-            <ListItemButton onClick={toggleBookingMenu} component={Link} to="/Booking">
-              <InsertInvitationIcon />
-              <ListItemText primary="Booking" />
-            </ListItemButton>
+              <li>
+                <button
+                  onClick={toggleUserMenu}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded"
+                >
+                  <GroupIcon className="mr-4 text-gray-600" />
+                  <span className="flex-grow">Manage Coach</span>
+                  {userOpen ? <ExpandLess /> : <ExpandMore />}
+                </button>
+                {userOpen && (
+                  <ul className="pl-4 mt-1 space-y-1">
+                    <li>
+                      <Link
+                        to="/ManageCoach"
+                        className="block p-2 pl-8 hover:bg-gray-100 rounded text-sm"
+                      >
+                        Coach Profile
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
 
-            <ListItemButton onClick={() => { gotoBookingcancel(); toggleSidebar(); }}>
-              <InsertInvitationIcon />
-              <ListItemText primary="Booking Cancel" />
-            </ListItemButton>
+              <li>
+                <button
+                  onClick={toggleCoachMenu}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded"
+                >
+                  <PersonIcon className="mr-4 text-gray-600" />
+                  <span className="flex-grow">Manage User</span>
+                  {coachOpen ? <ExpandLess /> : <ExpandMore />}
+                </button>
+                {coachOpen && (
+                  <ul className="pl-4 mt-1 space-y-1">
+                    <li>
+                      <Link
+                        to="/ManageUser"
+                        className="block p-2 pl-8 hover:bg-gray-100 rounded text-sm"
+                      >
+                        User Profile
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </li>
 
-            <ListItemButton onClick={handleLogout}>
-              <ExitToAppIcon />
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </List>
-        </Box>
-      </Drawer>
+              <li>
+                <Link
+                  to="/Booking"
+                  onClick={toggleBookingMenu}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded"
+                >
+                  <InsertInvitationIcon className="mr-4 text-gray-600" />
+                  <span>Booking</span>
+                </Link>
+              </li>
 
-      <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, transition: 'margin-left 0.3s', marginLeft: sidebarOpen ? '250px' : '0' }}>
-        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
-        {loading ? (
-          <p style={{ textAlign: 'center' }}>Loading data...</p>
-        ) : (
-          <>
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
-              <Grid item xs={12} md={6}>
-                <Box sx={{ textAlign: 'center', mt: 3 }}>
-                  <Typography variant="h5">Daily Bookings</Typography>
-                  <Box sx={{ width: '100%', maxWidth: '600px', mx: 'auto', mt: 2 }}>
+              <li>
+                <button
+                  onClick={() => { gotoBookingcancel(); toggleSidebar(); }}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded"
+                >
+                  <InsertInvitationIcon className="mr-4 text-gray-600" />
+                  <span>Booking Cancel</span>
+                </button>
+              </li>
+
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center p-2 text-left hover:bg-gray-100 rounded text-red-600 hover:text-red-700"
+                >
+                  <ExitToAppIcon className="mr-4" />
+                  <span>Logout</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main
+          className={`flex-1 overflow-y-auto p-4 transition-[margin-left] duration-300 ${sidebarOpen ? 'ml-[250px]' : 'ml-0'}`}
+        >
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          {loading ? (
+            <p className="text-center">Loading data...</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center">
+              <div className="w-full">
+                <div className="text-center mt-6">
+                  <h5 className="text-xl font-medium mb-4">Daily Bookings</h5>
+                  <div className="w-full max-w-[600px] mx-auto mt-4 h-[200px]">
                     <Bar
-                      data={{
-                        labels: dailyData.labels,
-                        datasets: [{
-                          label: 'Daily Bookings',
-                          data: dailyData.datasets[0].data,
-                          backgroundColor: 'rgba(255, 165, 0, 0.6)', // Orange color
-                        }]
-                      }}
-                      options={{ maintainAspectRatio: false }}
-                      height={200}
+                      data={dailyData as any}
+                      options={{ maintainAspectRatio: false, responsive: true }}
                     />
-                  </Box>
-                </Box>
-              </Grid>
+                  </div>
+                </div>
+              </div>
 
-              <Grid item xs={12} md={6}>
-                <Box sx={{ textAlign: 'center', mt: 3 }}>
-                  <Typography variant="h5">Weekly Bookings</Typography>
-                  <Box sx={{ width: '100%', maxWidth: '600px', mx: 'auto', mt: 2 }}>
+              <div className="w-full">
+                <div className="text-center mt-6">
+                  <h5 className="text-xl font-medium mb-4">Weekly Bookings</h5>
+                  <div className="w-full max-w-[600px] mx-auto mt-4 h-[200px]">
                     <Bar
-                      data={{
-                        labels: weeklyData.labels,
-                        datasets: [{
-                          label: 'Weekly Bookings',
-                          data: weeklyData.datasets[0].data,
-                          backgroundColor: 'rgba(0, 77, 64, 0.6)', // Dark green color
-                        }]
-                      }}
-                      options={{ maintainAspectRatio: false }}
-                      height={200}
+                      data={weeklyData as any}
+                      options={{ maintainAspectRatio: false, responsive: true }}
                     />
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
-          </>
-        )}
-      </Box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
