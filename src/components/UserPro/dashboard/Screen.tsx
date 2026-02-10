@@ -3,19 +3,8 @@
 
 import { useEffect, useState, ChangeEvent, useRef } from 'react';
 import axios from 'axios';
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
-import CssBaseline from '@mui/joy/CssBaseline';
-import Box from '@mui/joy/Box';
-import Typography from '@mui/joy/Typography';
-import Input from '@mui/joy/Input';
-import IconButton from '@mui/joy/IconButton';
-import Card from '@mui/joy/Card';
-import Button from '@mui/joy/Button';
-import Modal from '@mui/joy/Modal';
-import ModalDialog from '@mui/joy/ModalDialog';
-import { Search, Menu, Person, Settings, Logout, ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { Search, Menu, Person, Settings, Logout, ChevronLeft, ChevronRight, NotificationsOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import NotificationsOff from '@mui/icons-material/NotificationsOff';
 
 import { Domain_URL } from '../../config';
 
@@ -33,11 +22,6 @@ interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-// Custom theme configuration
-const theme = extendTheme({
-  // your existing theme configuration
-});
 
 // SideMenu component for navigation
 function SideMenu({ isOpen, onClose }: SideMenuProps) {
@@ -95,57 +79,41 @@ function SideMenu({ isOpen, onClose }: SideMenuProps) {
   };
 
   return (
-    <Box
+    <div
       ref={menuRef}
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '250px',
-        height: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(10px)',
-        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-        transition: 'transform 0.3s ease-in-out',
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        p: 2,
-        boxShadow: '0 0 20px rgba(0,0,0,0.1)',
-      }}
+      className={`fixed top-0 left-0 w-[250px] h-full bg-white/90 backdrop-blur-md transform transition-transform duration-300 ease-in-out z-[1000] flex flex-col p-4 shadow-[0_0_20px_rgba(0,0,0,0.1)] ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
     >
-      <Button onClick={onClose}>Close Menu</Button>
-      <Button
-        startDecorator={<Person />}
-        variant="plain"
-        color="neutral"
-        sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
+      <button onClick={onClose} className="mb-4 text-left p-2 hover:bg-gray-100 rounded">Close Menu</button>
+
+      <button
+        className="flex items-center justify-start mb-2 w-[150px] p-2 hover:bg-gray-100 rounded text-left disabled:opacity-50"
         onClick={() => handleButtonClick('profile')}
-        loading={loading.profile}
+        disabled={loading.profile}
       >
-        Profile
-      </Button>
-      <Button
-        startDecorator={<Settings />}
-        variant="plain"
-        color="neutral"
-        sx={{ justifyContent: 'flex-start', mb: 2, width: '150px' }}
+        <Person className="mr-2" />
+        {loading.profile ? 'Loading...' : 'Profile'}
+      </button>
+
+      <button
+        className="flex items-center justify-start mb-2 w-[150px] p-2 hover:bg-gray-100 rounded text-left disabled:opacity-50"
         onClick={() => handleButtonClick('bookingHistory')}
-        loading={loading.bookingHistory}
+        disabled={loading.bookingHistory}
       >
-        BookingHistory
-      </Button>
-      <Button
-        startDecorator={<Logout />}
-        variant="plain"
-        color="danger"
-        sx={{ justifyContent: 'flex-start', mt:'unset', width: '150px' }}
+        <Settings className="mr-2" />
+        {loading.bookingHistory ? 'Loading...' : 'BookingHistory'}
+      </button>
+
+      <button
+        className="flex items-center justify-start mt-auto w-[150px] p-2 text-red-600 hover:bg-red-50 rounded text-left disabled:opacity-50"
         onClick={() => handleButtonClick('logout')}
-        loading={loading.logout}
+        disabled={loading.logout}
       >
-        Logout
-      </Button>
-    </Box>
+        <Logout className="mr-2" />
+        {loading.logout ? 'Loading...' : 'Logout'}
+      </button>
+    </div>
   );
 }
 
@@ -253,200 +221,124 @@ export default function Screen() {
   };
 
   return (
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <Box
-        sx={{
-          width: '100%',
-          minHeight: '100vh',
-          p: 3,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-          ...(isMenuOpen && { pl: '260px' }),
-        }}
-      >
-
-         <Box sx={{ fontWeight: 'bold', fontSize: '20px', textAlign: 'center',mb:'20px' }}>
-         {username ? <h4>Welcome, {username}</h4> : <h2>Welcome, Guest</h2>}
-    </Box>
+    <div
+      className={`w-full min-h-screen p-6 flex flex-col items-center bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] transition-all duration-300 ${isMenuOpen ? 'pl-[260px]' : ''}`}
+    >
+        <div className="font-bold text-xl text-center mb-5">
+          {username ? <h4>Welcome, {username}</h4> : <h2>Welcome, Guest</h2>}
+        </div>
           
         {/* Header section with menu, search, and notifications */}
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          width: '100%',
-          maxWidth: '1200px',
-          mb: 1,
-        }}>
-          <IconButton
-            size="lg"
-            variant="outlined"
-            color="neutral"
-            sx={{ mr: 2 }}
+        <div className="flex items-center justify-between w-full max-w-[1200px] mb-2">
+          <button
+            className="mr-4 p-2 border border-gray-300 rounded hover:bg-gray-100"
             onClick={() => setIsMenuOpen(true)}
           >
             <Menu />
-          </IconButton>
+          </button>
 
-          <Input
-            size="lg"
-            placeholder="Search by Name or Sport..."
-            startDecorator={<Search />}
-            sx={{
-              flexGrow: 1,
-              maxWidth: 500,
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              backdropFilter: 'blur(10px)',
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
-              borderRadius: '20px',
-              '& .MuiInput-input': { padding: '12px 16px' },
-            }}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="flex-grow max-w-[500px] relative">
+             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="text-gray-400" />
+            </div>
+            <input
+              className="w-full py-3 pl-10 pr-4 bg-white/70 backdrop-blur-md hover:bg-white/80 rounded-[20px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Search by Name or Sport..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-          <Typography sx={{ ml: 2, fontWeight: 'bold' }}>
+          <span className="ml-4 font-bold hidden sm:inline">
             Total Coaches: {people.length}
-          </Typography>
+          </span>
 
-          <IconButton
-            size="lg"
-            variant="outlined"
-            color="neutral"
-            sx={{ ml: 2 }}
+          <button
+            className="ml-4 p-2 border border-gray-300 rounded hover:bg-gray-100"
             onClick={() => navigate('')}
           >
             <NotificationsOff />
-          </IconButton>
-        </Box>
+          </button>
+        </div>
 
         {/* Date selection section */}
         
-        <Box
-  sx={{
-    display: 'flex',
-    alignItems: 'center',
-    mb: 4,
-    width: '100%',
-    maxWidth: '1200px',
-    overflowX: 'auto',
-  }}
->
-  <IconButton onClick={() => handleDateNavigation('back')} sx={{ mr: 2 }}>
-    <ChevronLeft />
-  </IconButton>
+        <div className="flex items-center mb-8 w-full max-w-[1200px] overflow-x-auto pb-2">
+          <button onClick={() => handleDateNavigation('back')} className="mr-4 p-2 hover:bg-gray-200 rounded-full">
+            <ChevronLeft />
+          </button>
 
-  <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-    <Input
-      type="date"
-      value={selectedDate}
-      onChange={handleDateChange}
-      sx={{
-        mb: 3,
-        borderRadius: '25px',
-        width: '48px',
-        height: '48px',
-        mt: 4,
-        mr: 3,
-        maxWidth: 300,
-        p: 1.5,
-        border: '2px solid #007BFF',
-        backgroundColor: 'white',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        '&:focus': {
-          outline: 'none',
-          borderColor: '#0056b3',
-          boxShadow: '0 0 5px rgba(0, 123, 255, 0.5)',
-        },
-      }}
-    />
-
-    {dates.map((date) => (
-      <Button
-        key={date}
-        variant={selectedDate === date ? 'soft' : 'outlined'}
-        color="primary"
-        onClick={() => setSelectedDate(date)}
-        sx={{
-          minWidth: 100,
-          height: 40,
-          borderRadius: 12,
-          mr: 2,
-          ...(selectedDate === date && {
-            bgcolor: 'lightblue',
-            color: 'black',
-          }),
-        }}
-      >
-        {formatDate(date)}
-      </Button>
-    ))}
-  </Box>
-
-  <IconButton onClick={() => handleDateNavigation('forward')} sx={{ ml: 2 }}>
-    <ChevronRight />
-  </IconButton>
-</Box>
-
-
-        {/* Coach cards section */}
-        <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: 3,
-          width: '100%',
-          maxWidth: '1200px',
-        }}>
-          {filteredPeople.map((person) => (
-            <Card key={person.id} variant="outlined">
-              <Typography level="h2" fontSize="xl" fontWeight="lg" mb={1}>
-                {person.name}
-              </Typography>
-              <Typography>Sport: {person.sport}</Typography>
-              <Typography mb={2}>Phone: {person.phoneNumber}</Typography>
-              <Button
-                fullWidth
-                variant="solid"
-                color="primary"
-                onClick={() => handleViewSlot(person.coachId)}
-                loading={loading[person.coachId]}
-              >
-                View Slot
-              </Button>
-            </Card>
-          ))}
-        </Box>
-
-        {/* Calendar modal */}
-        <Modal open={isCalendarOpen} onClose={() => setIsCalendarOpen(false)}>
-          <ModalDialog sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-          }}>
-            <Input
+          <div className="relative flex items-center">
+            <input
               type="date"
               value={selectedDate}
               onChange={handleDateChange}
-              sx={{
-                fontSize: '16px',
-                padding: '12px',
-                borderRadius: '12px',
-                border: '1px solid #ccc',
-                backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              }}
+              className="mb-6 mt-8 mr-6 p-3 w-[48px] h-[48px] rounded-[25px] border-2 border-[#007BFF] bg-white shadow-md focus:outline-none focus:border-[#0056b3] focus:shadow-[0_0_5px_rgba(0,123,255,0.5)]"
+              style={{ maxWidth: '300px' }}
             />
-          </ModalDialog>
-        </Modal>
+
+            <div className="flex space-x-4">
+              {dates.map((date) => (
+                <button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={`min-w-[100px] h-[40px] rounded-xl px-4 font-medium transition-colors ${
+                    selectedDate === date
+                      ? 'bg-blue-200 text-black'
+                      : 'border border-blue-500 text-blue-500 hover:bg-blue-50'
+                  }`}
+                >
+                  {formatDate(date)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={() => handleDateNavigation('forward')} className="ml-4 p-2 hover:bg-gray-200 rounded-full">
+            <ChevronRight />
+          </button>
+        </div>
+
+
+        {/* Coach cards section */}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 w-full max-w-[1200px]">
+          {filteredPeople.map((person) => (
+            <div key={person.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
+              <h2 className="text-xl font-bold mb-2">
+                {person.name}
+              </h2>
+              <p className="text-gray-700">Sport: {person.sport}</p>
+              <p className="text-gray-700 mb-4">Phone: {person.phoneNumber}</p>
+              <button
+                className="w-full py-2 bg-blue-500 text-white rounded font-medium hover:bg-blue-600 disabled:opacity-50 transition-colors mt-auto"
+                onClick={() => handleViewSlot(person.coachId)}
+                disabled={loading[person.coachId]}
+              >
+                {loading[person.coachId] ? 'Loading...' : 'View Slot'}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar modal */}
+        {isCalendarOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setIsCalendarOpen(false)}>
+            <div
+              className="bg-white/90 backdrop-blur-md shadow-2xl p-6 rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                className="text-base p-3 rounded-xl border border-gray-300 bg-white/70"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Side menu component */}
         <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      </Box>
-    </CssVarsProvider>
+    </div>
   );
 }
-
-
