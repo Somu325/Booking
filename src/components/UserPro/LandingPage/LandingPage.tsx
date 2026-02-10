@@ -16,7 +16,7 @@ interface RoleOption {
 const roles: RoleOption[] = [
   {
     name: 'User',
-    icon: <Person size={64} />,
+    icon: <Person size={48} />,
     color: '#3498db',
     hoverColor: '#2980b9',
     path: '/user-login',
@@ -26,7 +26,7 @@ const roles: RoleOption[] = [
   },
   {
     name: 'Coach',
-    icon: <PersonVcard size={64} />,
+    icon: <PersonVcard size={48} />,
     color: '#e74c3c',
     hoverColor: '#c0392b',
     path: '/Coach-login',
@@ -36,7 +36,7 @@ const roles: RoleOption[] = [
   },
   {
     name: 'Admin',
-    icon: <Headset size={64} />,
+    icon: <Headset size={48} />,
     color: '#2ecc71',
     hoverColor: '#27ae60',
     path: '/Adminlogin',
@@ -58,59 +58,79 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 p-4 font-sans">
-      <div className="w-full max-w-5xl">
-        <div className="text-center mb-6">
-          <p className="text-sm text-gray-500 font-medium tracking-wide uppercase">
-            Note: This app is designed for desktop/laptop use only
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6 font-sans">
+
+      {/* Background decorative blobs */}
+      <div className="absolute top-20 left-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+      <div className="absolute top-20 right-20 w-72 h-72 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+      <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+
+      <div className="relative w-full max-w-5xl">
+
+        {/* Note: keeping existing functionality but styling it subtly */}
+        <div className="text-center mb-8">
+           <span className="inline-block px-4 py-1.5 rounded-full bg-white/40 backdrop-blur-sm border border-white/30 text-xs font-semibold text-slate-500 tracking-wider uppercase shadow-sm">
+            Desktop Experience
+          </span>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-8 md:p-16 transition-all duration-500">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 text-center mb-12 tracking-tight">
-            Choose your role
-          </h1>
+        <div className="relative bg-white/40 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 p-8 md:p-16 overflow-hidden">
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {/* Subtle grid pattern overlay */}
+          <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
+
+          <div className="text-center mb-16 relative z-10">
+            <h1 className="text-5xl md:text-6xl font-bold text-slate-800 tracking-tight mb-4 drop-shadow-sm">
+              Choose your role
+            </h1>
+            <p className="text-lg text-slate-500 font-medium max-w-2xl mx-auto">
+              Select your account type to proceed to the dashboard.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 relative z-10">
             {roles.map((role) => (
               <div
                 key={role.name}
-                className={`
+                className="
                   group relative flex flex-col items-center justify-center p-8
-                  bg-white rounded-2xl shadow-lg border border-transparent
+                  bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-sm
                   cursor-pointer transition-all duration-300 ease-out
-                  hover:scale-105 hover:shadow-2xl hover:-translate-y-2
-                  ${role.bgHover} ${role.borderHover}
-                `}
+                  hover:bg-white/80 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1
+                  hover:border-indigo-100
+                "
                 onClick={() => handleRoleSelect(role)}
               >
                 <div
                   className={`
-                    mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3
-                    ${role.tailwindColor}
+                    mb-6 p-5 rounded-full bg-white shadow-sm border border-slate-100
+                    transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3
+                    text-slate-600 group-hover:text-indigo-600
                   `}
                 >
                   {role.icon}
                 </div>
 
-                <h2 className="text-2xl font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
+                <h2 className="text-xl font-bold text-slate-700 group-hover:text-slate-900 transition-colors">
                   {role.name}
                 </h2>
 
-                {/* Decorative element for hover state */}
-                <div className={`absolute inset-0 rounded-2xl border-2 border-transparent ${role.borderHover} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+                <p className="mt-2 text-sm text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  Click to login as {role.name}
+                </p>
+
+                {/* Decorative glow on hover */}
+                <div className="absolute -inset-px bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-lg -z-10" />
               </div>
             ))}
           </div>
 
           {selectedRole && (
-            <div className="text-center animate-pulse">
-              <div className="inline-block px-6 py-3 bg-slate-100 rounded-full">
-                <p className="text-lg font-medium text-slate-700">
-                  You selected: <span className="font-bold text-blue-600">{selectedRole}</span>
-                </p>
-                <p className="text-sm text-slate-500 mt-1">
-                  Redirecting to Login Page...
+            <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="bg-slate-900/90 backdrop-blur-md text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3 border border-slate-700/50">
+                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                <p className="text-base font-medium">
+                  Redirecting to <span className="font-bold text-indigo-300">{selectedRole}</span> login...
                 </p>
               </div>
             </div>
