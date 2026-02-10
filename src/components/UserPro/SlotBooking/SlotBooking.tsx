@@ -1,23 +1,9 @@
 
-
 'use client'
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
-import CssBaseline from '@mui/joy/CssBaseline'
-import Box from '@mui/joy/Box'
-import Typography from '@mui/joy/Typography'
-import Button from '@mui/joy/Button'
-import Card from '@mui/joy/Card'
-import Grid from '@mui/joy/Grid'
-import Modal from '@mui/joy/Modal'
-import ModalClose from '@mui/joy/ModalClose'
-import Sheet from '@mui/joy/Sheet'
-import Select from '@mui/joy/Select'
-import Option from '@mui/joy/Option'
-import CircularProgress from '@mui/joy/CircularProgress'
-import { ArrowBack, AccessTime, Person, Info } from '@mui/icons-material'
+import { ArrowBack, AccessTime, Person, Info, Close } from '@mui/icons-material'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Domain_URL } from '../../config'
 
@@ -47,64 +33,6 @@ interface Subset {
   name: string
   childId: string
 }
-
-const theme = extendTheme({
-  colorSchemes: {
-    light: {
-      palette: {
-        primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
-        },
-        background: {
-          body: 'rgba(255, 255, 255, 0.8)',
-        },
-      },
-    },
-  },
-  components: {
-    JoyCard: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          backdropFilter: 'blur(10px)',
-          transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-    JoyButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          textTransform: 'none',
-          fontWeight: 600,
-        },
-      },
-    },
-    JoySelect: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          },
-        },
-      },
-    },
-  },
-})
 
 export default function SlotBooking() {
   const { coachId } = useParams<{ coachId: string }>()
@@ -254,249 +182,170 @@ export default function SlotBooking() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center h-screen">
+         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
     )
   }
 
   return (
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{
-        p: 4,
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-      }}>
-        <Box sx={{ maxWidth: 1200, margin: 'auto' }}>
-          <Button
-            startDecorator={<ArrowBack />}
-            variant="outlined"
-            sx={{ mb: 4 ,backgroundColor:'#0B6BCB',color: 'white','&:hover': {
-              backgroundColor: '#0D8CEB', // lighter blue for hover
-            },
-          }}
+    <div className="p-4 min-h-screen bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2]">
+        <div className="max-w-7xl mx-auto">
+          <button
+            className="mb-4 bg-[#0B6BCB] text-white hover:bg-[#0D8CEB] flex items-center px-4 py-2 rounded-xl font-semibold transition-colors duration-200"
             onClick={handleBack}
           >
+            <ArrowBack className="mr-2" />
             Back
-          </Button>
-          <Typography level="h2" sx={{ mb: 4, textAlign: 'center' }}>
+          </button>
+          <h2 className="mb-8 text-center text-4xl font-bold text-gray-800">
           Select a Slot for {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { timeZone: 'America/New_York' })}
-          </Typography>
-          <Grid container spacing={3}>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {slots.length > 0 ? (
               slots.map((slot) => (
-                <Grid xs={12} sm={6} md={4} lg={3} key={slot.slotId}>
-                  <Card variant="outlined" sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <AccessTime sx={{ mr: 1 }} />
-                      <Typography level="h4">
+                <div key={slot.slotId} className="p-6 h-full flex flex-col bg-white/70 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-center mb-4 text-gray-800">
+                      <AccessTime className="mr-2" />
+                      <h4 className="text-xl font-semibold">
                         {slot.startTime} - {slot.endTime}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      level="body-md"
-                      sx={{
-                        mb: 2,
-                        color: 
-                        slot.status === 'booked' ? 'danger.500' : 
-                        slot.status === 'completed' ? 'orange' : 
-                        'green',
-                      fontWeight: 'bold',
-                      }}
+                      </h4>
+                    </div>
+                    <p
+                      className={`mb-4 font-bold text-base ${
+                        slot.status === 'booked' ? 'text-red-500' :
+                        slot.status === 'completed' ? 'text-orange-500' :
+                        'text-green-600'
+                      }`}
                     >
                       {slot.status}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 2, mt: 'auto' }}>
-                      <Button
-                        variant="soft"
-                        color="neutral"
-                        startDecorator={<Info />}
-                        sx={{ flexGrow: 1 }}
+                    </p>
+                    <div className="flex gap-4 mt-auto">
+                      <button
+                        className="flex-grow flex items-center justify-center px-4 py-2 bg-gray-100 text-gray-800 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
                         onClick={() => handleView(slot)}
                       >
+                        <Info className="mr-2" />
                         View
-                      </Button>
-                      <Button
-                        variant="solid"
-                        color="primary"
-                        startDecorator={<Person />}
-                        sx={{ flexGrow: 1 }}
+                      </button>
+                      <button
+                        className={`flex-grow flex items-center justify-center px-4 py-2 text-white rounded-xl font-semibold transition-colors ${
+                             slot.status === 'booked' || slot.status === 'completed'  || slot.status === 'unbooked'  || slot.status === 'inprogress'
+                             ? 'bg-gray-400 cursor-not-allowed'
+                             : 'bg-[#0B6BCB] hover:bg-[#0D8CEB]'
+                        }`}
                         onClick={() => handleBook(slot)}
                         disabled={slot.status === 'booked' || slot.status === 'completed'  || slot.status === 'unbooked'  || slot.status === 'inprogress'}
                       >
+                        <Person className="mr-2" />
                         {slot.status === 'booked' ? 'Booked' : 'Book'}
-                      </Button>
-                    </Box>
-                  </Card>
-                </Grid>
+                      </button>
+                    </div>
+                  </div>
               ))
             ) : (
-              <Grid xs={12}>
-                <Typography level="body-md" sx={{ mt: 2, textAlign: 'center' }}>
+              <div className="col-span-full">
+                <p className="mt-4 text-center text-gray-600 text-lg">
                   No slots available for the selected date.
-                </Typography>
-              </Grid>
+                </p>
+              </div>
             )}
-          </Grid>
-        </Box>
-      </Box>
+          </div>
+        </div>
 
-      <Modal
-        aria-labelledby="modal-title"
-        aria-describedby="modal-desc"
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Sheet
-          variant="outlined"
-          sx={{
-            width: 400,
-            maxWidth: '90%',
-            borderRadius: 'md',
-            p: 3,
-            boxShadow: 'lg',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <ModalClose
-            variant="outlined"
-            sx={{
-              top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/25 * var(--IconButton-size))',
-              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
-              borderRadius: '50%',
-              bgcolor: 'background.body',
-            }}
-          />
-          <Typography component="h2" id="modal-title" level="h4" textColor="inherit" fontWeight="lg" mb={2}>
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="relative w-full max-w-md p-6 rounded-xl shadow-2xl bg-white/90 backdrop-blur-md border border-gray-200">
+            <button
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
+                onClick={() => setIsModalOpen(false)}
+            >
+                <Close />
+            </button>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
             Coach Information
-          </Typography>
+          </h2>
           {coachDetails ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography><strong>Name:</strong> {coachDetails.name}</Typography>
-              <Typography><strong>Sport:</strong> {coachDetails.sport}</Typography>
-              <Typography><strong>Mobile Number:</strong> {coachDetails.phoneNumber}</Typography>
-              <Typography><strong>Bio:</strong> {coachDetails.bio}</Typography>
-            </Box>
+            <div className="flex flex-col gap-2 text-gray-700">
+              <p><strong>Name:</strong> {coachDetails.name}</p>
+              <p><strong>Sport:</strong> {coachDetails.sport}</p>
+              <p><strong>Mobile Number:</strong> {coachDetails.phoneNumber}</p>
+              <p><strong>Bio:</strong> {coachDetails.bio}</p>
+            </div>
           ) : (
-            <Typography>Loading coach details...</Typography>
+            <p className="text-gray-600">Loading coach details...</p>
           )}
-        </Sheet>
-      </Modal>
+        </div>
+        </div>
+      )}
 
-      <Modal
-        aria-labelledby="subuser-modal-title"
-        aria-describedby="subuser-modal-desc"
-        open={isSubsetModalOpen}
-        onClose={() => setIsSubsetModalOpen(false)}
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Sheet
-          variant="outlined"
-          sx={{
-            width: 400,
-            maxWidth: '90%',
-            borderRadius: 'md',
-            p: 3,
-            boxShadow: 'lg',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <ModalClose
-            variant="outlined"
-            sx={{
-              top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/25 * var(--IconButton-size))',
-              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
-              borderRadius: '50%',
-              bgcolor: 'background.body',
-            }}
-          />
-          <Typography component="h2" id="subuser-modal-title" level="h4" textColor="inherit" fontWeight="lg" mb={2}>
-            Select Children for  Booking Coach
-          </Typography>
+      {isSubsetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="relative w-full max-w-md p-6 rounded-xl shadow-2xl bg-white/90 backdrop-blur-md border border-gray-200">
+          <button
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
+                onClick={() => setIsSubsetModalOpen(false)}
+            >
+                <Close />
+            </button>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            Select Children for Booking Coach
+          </h2>
 
 
 {subsets.length > 0 ? (
   <>
-    <Typography id="subuser-modal-desc" textColor="text.tertiary" mb={2}>
+    <p className="mb-4 text-gray-500">
       You can select Children for this booking.
-    </Typography>
-    <Select
-      placeholder="Select subuser 1"
+    </p>
+    <select
+      className="w-full p-2 mb-4 bg-white/70 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       value={selectedSubuser1}
-      onChange={(_, newValue) => setSelectedSubuser1(newValue as string)}
-      sx={{ mb: 2 }}
+      onChange={(e) => setSelectedSubuser1(e.target.value)}
     >
-      <Option value="" disabled>Add Child</Option>
+      <option value="" disabled>Add Child</option>
       {subsets.map((subuser) => (
-        <Option key={subuser.childId} value={subuser.childId}>
+        <option key={subuser.childId} value={subuser.childId}>
           {subuser.name}
-        </Option>
+        </option>
       ))}
-    </Select>
+    </select>
 
-    <Button
+    <button
       onClick={handleConfirmBooking}
-      sx={{ mt: 2 }}
-      fullWidth
-      variant="solid"
-      color="primary"
+      className={`w-full py-2 px-4 mt-2 rounded-xl font-semibold text-white transition-colors ${
+         !selectedSubuser1 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#0B6BCB] hover:bg-[#0D8CEB]'
+      }`}
       disabled={!selectedSubuser1} // Disable if no child is selected
     >
       Confirm Booking
-    </Button>
+    </button>
   </>
 ) : (
-  <Typography>No Children available. Please add children in your profile.</Typography>
+  <p className="text-gray-700">No Children available. Please add children in your profile.</p>
 )}
+        </div>
+      </div>
+      )}
 
-
-
-        </Sheet>
-      </Modal>
-
-      <Modal
-        aria-labelledby="error-modal-title"
-        aria-describedby="error-modal-desc"
-        open={!!error}
-        onClose={() => setError(null)}
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Sheet
-          variant="outlined"
-          sx={{
-            width: 400,
-            maxWidth: '90%',
-            borderRadius: 'md',
-            p: 3,
-            boxShadow: 'lg',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <ModalClose
-            variant="outlined"
-            sx={{
-              top: 'calc(-1/4 * var(--IconButton-size))',
-              right: 'calc(-1/25 * var(--IconButton-size))',
-              boxShadow: '0 2px 12px 0 rgba(0 0 0 / 0.2)',
-              borderRadius: '50%',
-              bgcolor: 'background.body',
-            }}
-          />
-          <Typography component="h2" id="error-modal-title" level="h4" textColor="inherit" fontWeight="lg" mb={2}>
+      {!!error && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="relative w-full max-w-md p-6 rounded-xl shadow-2xl bg-white/90 backdrop-blur-md border border-gray-200">
+            <button
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
+                onClick={() => setError(null)}
+            >
+                <Close />
+            </button>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
             Booking Status
-          </Typography>
-          <Typography id="error-modal-desc" textColor="text.tertiary">
+          </h2>
+          <p className="text-gray-500">
             {error}
-          </Typography>
-        </Sheet>
-      </Modal>
-    </CssVarsProvider>
+          </p>
+        </div>
+        </div>
+      )}
+    </div>
   )
 }
