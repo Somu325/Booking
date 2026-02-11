@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill } from "react-bootstrap-icons";
+import { EnvelopeFill, LockFill, EyeFill, EyeSlashFill, ArrowLeft } from "react-bootstrap-icons";
 import { Domain_URL } from "../../config";
 import Cookies from "js-cookie";
 import { jwtDecode, JwtPayload } from "jwt-decode";
@@ -84,30 +84,40 @@ const LoginForm = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5f7fa] to-[#c3cfe2] bg-cover p-4"
+      className="min-h-screen flex items-center justify-center bg-white p-6 font-sans text-slate-900"
     >
-      <div className="w-full max-w-xs">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate('/')}
+        className="absolute top-6 left-6 p-2 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors duration-300"
+        aria-label="Back to Role Selection"
+      >
+        <ArrowLeft size={20} />
+        <span className="text-sm font-medium">Back</span>
+      </button>
+
+      <div className="w-full max-w-[400px]">
         <div
-          className="flex flex-col items-center bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]"
+          className="flex flex-col items-center bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-sm"
         >
-          <img src="/cric.jpg" alt="Logo" width={100} height={100} className="mb-4 rounded-full" />
-          <h1 className="text-3xl font-bold mb-2 text-center text-gray-800">
-            Welcome
+          <img src="/cric.jpg" alt="Logo" width={80} height={80} className="mb-6 rounded-full" />
+          <h1 className="text-3xl font-light tracking-tight mb-2 text-center text-slate-900">
+            Welcome back
           </h1>
-          <p className="text-gray-600 mb-6 text-center">
-            Sign in to continue your journey
+          <p className="text-slate-500 mb-8 text-center text-sm">
+            Sign in to your User account
           </p>
 
           {error && (
-            <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-[50px] relative mb-4 text-center">
+            <div className="w-full bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-xl relative mb-6 text-center">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-2 w-full">
-            <div className="mb-4 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <EnvelopeFill color="#6C63FF" />
+          <form onSubmit={handleSubmit} className="w-full space-y-4">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-600 text-slate-400">
+                <EnvelopeFill />
               </div>
               <input
                 id="email"
@@ -116,16 +126,16 @@ const LoginForm = () => {
                 required
                 autoComplete="email"
                 autoFocus
-                placeholder="Enter Email.."
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full py-3 pl-10 pr-3 rounded-[50px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6C63FF] focus:border-transparent"
+                className="w-full py-3.5 pl-11 pr-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all duration-200"
               />
             </div>
 
-            <div className="mb-2 relative">
-               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <LockFill color="#6C63FF" />
+            <div className="relative group">
+               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-600 text-slate-400">
+                <LockFill />
               </div>
               <input
                 id="password"
@@ -136,41 +146,38 @@ const LoginForm = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full py-3 pl-10 pr-10 rounded-[50px] border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#6C63FF] focus:border-transparent"
+                 className="w-full py-3.5 pl-11 pr-11 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all duration-200"
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-3 flex items-center cursor-pointer bg-transparent border-none"
+                className="absolute inset-y-0 right-4 flex items-center cursor-pointer bg-transparent border-none text-slate-400 hover:text-slate-600 transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                 {showPassword ? <EyeSlashFill color="#6C63FF" /> : <EyeFill color="#6C63FF" />}
+                 {showPassword ? <EyeSlashFill /> : <EyeFill />}
               </button>
             </div>
 
-            <div className="text-right mb-4">
-              <a href="/Sendotp" className="text-[#6C63FF] hover:underline text-sm font-medium">
-                Forgot Password?
+            <div className="text-right">
+              <a href="/Sendotp" className="text-indigo-600 hover:text-indigo-800 text-xs font-medium transition-colors">
+                Forgot password?
               </a>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-[#6C63FF] hover:bg-[#5a52d5] text-white font-semibold rounded-[50px] shadow-md focus:outline-none focus:ring-2 focus:ring-[#6C63FF] focus:ring-opacity-75 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              className="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl shadow-lg shadow-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center mt-6"
             >
               {loading ? (
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               ) : "Sign In"}
             </button>
 
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600">
-                Don&apos;t have an account?{" "}
-                <a href="/SignUp" className="text-[#FF6584] hover:underline font-medium">
-                  Sign Up
+            <div className="text-center mt-8 pt-4 border-t border-slate-50">
+              <p className="text-sm text-slate-500">
+                No account yet?{" "}
+                <a href="/SignUp" className="text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                  Create one
                 </a>
               </p>
             </div>
