@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Domain_URL } from '../config';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowLeft, CalendarPlus, Clock, CheckCircle, ExclamationCircle } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment-timezone';
+import CoachShell from '../Layout/CoachShell';
 
 const Schedule = () => {
   const [startTime, setStartTime] = useState('09:00');
@@ -43,7 +44,6 @@ const Schedule = () => {
 
   const isDateInFuture = (selectedDate: string) => {
     const currentDateInLocal = getCurrentDateInLocal();
-    console.log("current date is", currentDateInLocal.format('YYYY-MM-DD HH:mm:ss'));
     return moment(selectedDate, 'MM/DD/YYYY').isSameOrAfter(currentDateInLocal, 'day');
   };
 
@@ -58,7 +58,6 @@ const Schedule = () => {
     const end = moment(endDate, 'MM/DD/YYYY');
     const validDays = selectedDays.map((day: string) => moment().day(day).format('dddd'));
     
-    // Loop through each date in the range and check if it matches any of the selected days
     let isValid = false;
     for (let m = moment(start); m.isBefore(end) || m.isSame(end, 'day'); m.add(1, 'days')) {
       if (validDays.includes(m.format('dddd'))) {
@@ -140,8 +139,6 @@ const Schedule = () => {
               daysOfWeek,
           }),
       };
-
-      console.log("payload is",payload)
   
       const endpoint = scheduleType === 'daily' 
         ? `${Domain_URL}/slot/createSlot`
@@ -194,171 +191,203 @@ const Schedule = () => {
   };
 
   return (
-    <div className="p-6 rounded-xl shadow-md bg-[#f5f5f5] max-w-2xl mx-auto mt-16 flex flex-col items-center relative">
-      <button
-        className="absolute top-4 left-4 z-10 p-2 rounded-full hover:bg-gray-200 transition-colors"
-        onClick={() => navigate('/Coach-Dashboard')}
-      >
-        <ArrowBack />
-      </button>
-
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Create Your Schedule
-      </h2>
-
-      <div className="flex items-center space-x-6 mb-6">
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="radio"
-            name="scheduleType"
-            value="daily"
-            checked={scheduleType === 'daily'}
-            onChange={handleScheduleTypeChange}
-            className="text-blue-600 focus:ring-blue-500"
-          />
-          <span className="text-gray-700">Daily</span>
-        </label>
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="radio"
-            name="scheduleType"
-            value="weekly"
-            checked={scheduleType === 'weekly'}
-            onChange={handleScheduleTypeChange}
-            className="text-blue-600 focus:ring-blue-500"
-          />
-          <span className="text-gray-700">Weekly</span>
-        </label>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-        <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Slot Type</label>
-            <select
-              id="slotType"
-              value={slotType}
-              onChange={e => setSlotType(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              <option value="general">General</option>
-              <option value="personal">Personal</option>
-            </select>
-        </div>
-
-        {scheduleType === 'daily' ? (
-          <div className="w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-            <input
-              type="date"
-              value={moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD')}
-              onChange={e => setDate(moment(e.target.value).format('MM/DD/YYYY'))}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <CoachShell title="Scheduler">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+               <CalendarPlus size={24} />
+            </div>
+            <div>
+               <h2 className="text-xl font-bold text-gray-900">Create Schedule</h2>
+               <p className="text-sm text-gray-500">Set your availability for clients.</p>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="col-span-1 sm:col-span-2 grid grid-cols-2 gap-4">
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                <input
-                  type="date"
-                  value={moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
-                  onChange={e => setStartDate(moment(e.target.value).format('MM/DD/YYYY'))}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                <input
-                  type="date"
-                  value={moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
-                  onChange={e => setEndDate(moment(e.target.value).format('MM/DD/YYYY'))}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="col-span-1 sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Days of Week</label>
-              <div className="flex flex-wrap gap-3 bg-white p-3 border border-gray-300 rounded-md">
-                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                    <label key={day} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={daysOfWeek.includes(day)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setDaysOfWeek([...daysOfWeek, day]);
-                          } else {
-                            setDaysOfWeek(daysOfWeek.filter(d => d !== day));
-                          }
-                        }}
-                        className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
-                      />
-                      <span className="text-sm text-gray-700">{day}</span>
-                    </label>
-                  ))}
-              </div>
-            </div>
-          </>
-        )}
 
-        <div className="w-full">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={e => setStartTime(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="w-full">
-          <label className="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-          <input
-            type="time"
-            value={endTime}
-            onChange={e => setEndTime(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          <div className="flex bg-gray-50 p-1 rounded-lg mb-8 w-fit">
+            <label className={`
+              flex items-center gap-2 px-4 py-2 rounded-md cursor-pointer transition-all text-sm font-medium
+              ${scheduleType === 'daily' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}
+            `}>
+              <input
+                type="radio"
+                name="scheduleType"
+                value="daily"
+                checked={scheduleType === 'daily'}
+                onChange={handleScheduleTypeChange}
+                className="hidden"
+              />
+              Daily
+            </label>
+            <label className={`
+              flex items-center gap-2 px-4 py-2 rounded-md cursor-pointer transition-all text-sm font-medium
+              ${scheduleType === 'weekly' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}
+            `}>
+              <input
+                type="radio"
+                name="scheduleType"
+                value="weekly"
+                checked={scheduleType === 'weekly'}
+                onChange={handleScheduleTypeChange}
+                className="hidden"
+              />
+              Weekly
+            </label>
+          </div>
 
-        <div className="col-span-1 sm:col-span-2">
-          {slotType === 'personal' && (
-            <div className="w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-                <textarea
-                  rows={4}
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                 <label className="text-sm font-medium text-gray-700 block">Slot Type</label>
+                 <select
+                    id="slotType"
+                    value={slotType}
+                    onChange={e => setSlotType(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                  >
+                    <option value="general">General</option>
+                    <option value="personal">Personal</option>
+                  </select>
+              </div>
+
+              {scheduleType === 'daily' ? (
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 block">Date</label>
+                  <input
+                    type="date"
+                    value={moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+                    onChange={e => setDate(moment(e.target.value).format('MM/DD/YYYY'))}
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700 block">Start Date</label>
+                    <input
+                      type="date"
+                      value={moment(startDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+                      onChange={e => setStartDate(moment(e.target.value).format('MM/DD/YYYY'))}
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700 block">End Date</label>
+                    <input
+                      type="date"
+                      value={moment(endDate, 'MM/DD/YYYY').format('YYYY-MM-DD')}
+                      onChange={e => setEndDate(moment(e.target.value).format('MM/DD/YYYY'))}
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                    />
+                  </div>
+                </>
+              )}
             </div>
-          )}
+
+             {scheduleType === 'weekly' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 block">Repeat On</label>
+                  <div className="flex flex-wrap gap-2">
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                        <label
+                          key={day}
+                          className={`
+                            cursor-pointer px-3 py-1.5 rounded-lg border text-sm transition-all
+                            ${daysOfWeek.includes(day)
+                              ? 'bg-indigo-50 border-indigo-200 text-indigo-700 font-medium'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                            }
+                          `}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={daysOfWeek.includes(day)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setDaysOfWeek([...daysOfWeek, day]);
+                              } else {
+                                setDaysOfWeek(daysOfWeek.filter(d => d !== day));
+                              }
+                            }}
+                            className="hidden"
+                          />
+                          {day.slice(0, 3)}
+                        </label>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 block flex items-center gap-2">
+                     <Clock size={14} /> Start Time
+                  </label>
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={e => setStartTime(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700 block flex items-center gap-2">
+                     <Clock size={14} /> End Time
+                  </label>
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={e => setEndTime(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                  />
+                </div>
+             </div>
+
+             {slotType === 'personal' && (
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700 block">Comment</label>
+                    <textarea
+                      rows={3}
+                      value={comment}
+                      onChange={e => setComment(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                      placeholder="Add a note for this slot..."
+                    />
+                </div>
+              )}
+
+            {errorMessage && (
+              <div className="p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3 text-red-700 text-sm">
+                 <ExclamationCircle className="mt-0.5 shrink-0" size={16} />
+                 {errorMessage}
+              </div>
+            )}
+
+            {successMessage && (
+               <div className="p-4 bg-green-50 border border-green-100 rounded-lg flex items-start gap-3 text-green-700 text-sm">
+                 <CheckCircle className="mt-0.5 shrink-0" size={16} />
+                 {successMessage}
+              </div>
+            )}
+
+            <div className="pt-4">
+               <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`w-full py-3 rounded-xl font-semibold text-white transition-all shadow-md ${
+                      isSubmitting
+                      ? 'bg-indigo-400 cursor-not-allowed shadow-none'
+                      : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 hover:shadow-lg hover:-translate-y-0.5'
+                  }`}
+                >
+                  {isSubmitting ? 'Generating...' : 'Generate Slots'}
+                </button>
+            </div>
+
+          </form>
         </div>
       </div>
-
-      {errorMessage && (
-        <p className="mt-4 text-red-600 text-sm font-medium">
-          {errorMessage}
-        </p>
-      )}
-      {successMessage && (
-        <p className="mt-4 text-green-600 text-sm font-medium">
-          {successMessage}
-        </p>
-      )}
-
-      <button
-        onClick={handleSubmit}
-        disabled={isSubmitting}
-        className={`mt-6 px-6 py-2 rounded-md font-semibold text-white transition-all ${
-            isSubmitting
-            ? 'bg-blue-400 cursor-not-allowed opacity-70'
-            : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
-        }`}
-      >
-        {isSubmitting ? 'Creating...' : 'Create Slots'}
-      </button>
-    </div>
+    </CoachShell>
   );
 };
 

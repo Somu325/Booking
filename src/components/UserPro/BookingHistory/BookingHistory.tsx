@@ -2,37 +2,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import {
-  CssVarsProvider,
-  extendTheme,
-  CssBaseline,
-  Box,
-  Typography,
-  Table,
-  Sheet,
-  Chip,
-  CircularProgress,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Button,
-  Select,
-  Option,
-  FormControl,
-  FormLabel,
-  Card,
-  CardContent,
-  CardActions,
-} from '@mui/joy'
-import {
-  ArrowBack,
-  CalendarToday,
-  Person,
-  AccessTime,
-} from '@mui/icons-material'
 import axios from 'axios'
 import { Domain_URL } from '../../config'
 import { useNavigate } from 'react-router-dom'
+import {
+  ArrowLeft,
+  CalendarCheck,
+  Person,
+  Clock,
+  ChatLeftText,
+  X
+} from 'react-bootstrap-icons'
+import UserShell from '../../Layout/UserShell'
 
 interface Booking {
   id: number
@@ -52,11 +33,7 @@ interface Booking {
   comment: string
 }
 
-const theme = extendTheme({
-  // Theme configuration
-})
-
-export default function Component() {
+export default function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([])
   const [userId, setUserId] = useState<string | null>(null)
@@ -142,14 +119,19 @@ export default function Component() {
     setFilteredBookings([...otherBookings, ...completedBookings])
   }
 
-  const getStatusColor = (status: string) => {
-    const statusColors: Record<string, 'primary' | 'success' | 'danger' | 'neutral'> = {
-      progress: 'primary',
-      completed: 'success',
-      canceled: 'danger',
-      booked: 'danger',
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'canceled':
+        return 'bg-red-50 text-red-700 border-red-200';
+      case 'booked':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'progress':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
-    return statusColors[status.toLowerCase()] || 'neutral'
   }
 
   const uniqueDates = Array.from(
@@ -169,269 +151,236 @@ export default function Component() {
   }
 
   const formatTime = (timeString: string | null | undefined) => {
-    if (!timeString) return 'N/A' // Return 'N/A' if timeString is null or undefined
+    if (!timeString) return 'N/A'
     const [hours, minutes] = timeString.split(':')
     return new Date(0, 0, 0, parseInt(hours), parseInt(minutes)).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   }
 
   return (
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <Box
-        sx={{
-          p: { xs: 2, md: 4 },
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        }}
-      >
-        <Box sx={{ maxWidth: '100%', mb: 2 }}>
-          <Button
-            startDecorator={<ArrowBack />}
-            onClick={() => navigate('/screen')}
-            variant="outlined"
-            color="neutral"
-            sx={{
-              mb: 2,
-              backgroundColor: '#0B6BCB',
-              color: 'white',
-              width: { xs: '100%', sm: 'auto' },
-              '&:hover': {
-                backgroundColor: '#0D8CEB',
-              },
-            }}
-          >
-            Back to Dashboard
-          </Button>
-          <Typography
-            level="h2"
-            sx={{
-              mb: 4,
-              textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: { xs: '1.5rem', md: '2.5rem' },
-            }}
-          >
-            Booking History
-          </Typography>
-
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 2,
-              mb: 2,
-              flexWrap: 'wrap',
-              justifyContent: { xs: 'center', md: 'flex-end' },
-            }}
-          >
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Filter by Date</FormLabel>
-              <Select
+    <UserShell title="Booking History">
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex gap-4 w-full md:w-auto">
+            <div className="relative">
+              <select
                 value={dateFilter}
-                onChange={(_, value) => setDateFilter(value || '')}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="appearance-none w-full bg-white border border-gray-200 text-gray-700 py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium shadow-sm transition-all cursor-pointer hover:border-gray-300"
               >
-                <Option value="">All Dates</Option>
+                <option value="">All Dates</option>
                 {uniqueDates.map((date) => (
-                  <Option key={date} value={date}>
-                    {date}
-                  </Option>
+                  <option key={date} value={date}>{date}</option>
                 ))}
-              </Select>
-            </FormControl>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
 
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Filter by Status</FormLabel>
-              <Select
+            <div className="relative">
+              <select
                 value={statusFilter}
-                onChange={(_, value) => setStatusFilter(value || '')}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="appearance-none w-full bg-white border border-gray-200 text-gray-700 py-2.5 px-4 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm font-medium shadow-sm transition-all cursor-pointer hover:border-gray-300"
               >
-                <Option value="">All Statuses</Option>
+                <option value="">All Statuses</option>
                 {uniqueStatuses.map((status) => (
-                  <Option key={status} value={status}>
-                    {status}
-                  </Option>
+                  <option key={status} value={status}>{status}</option>
                 ))}
-              </Select>
-            </FormControl>
-          </Box>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', height: 200 }}>
-              <CircularProgress size="lg" />
-            </Box>
-          ) : error ? (
-            <Typography color="danger" sx={{ mb: 2, textAlign: 'center' }}>
-              {error}
-            </Typography>
-          ) : filteredBookings.length === 0 ? (
-            <Typography sx={{ mb: 2, textAlign: 'center' }}>
-              No bookings found.
-            </Typography>
-          ) : (
-            <>
-              {/* Mobile view: Cards */}
-              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-                {filteredBookings.map((booking) => (
-                  <Card key={booking.id} sx={{ mb: 2 }}>
-                    <CardContent>
-                      <Typography level='body-md'>{booking.userName}</Typography>
-                      <Typography>Coach: {booking.coachName}</Typography>
-                      <Typography>Child: {booking.childName}</Typography>
-                      <Typography>
-                        Date: {convertToLocalDate(booking.date).split(',')[0]}
-                      </Typography>
-                      <Typography>
-                        Time: {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-                      </Typography>
-                      <Chip
-                        variant="soft"
-                        color={getStatusColor(booking.status)}
-                        size="sm"
-                        sx={{ mt: 1 }}
-                      >
-                         <Typography>
-                        Status : {booking.status}
-                      </Typography>
-                     
-                      </Chip>
-                    </CardContent>
-                    <CardActions>
-                      <Button 
-                        variant="outlined" 
-                        color="primary" 
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+             <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center p-8 bg-white rounded-xl border border-red-100 text-red-600">
+            {error}
+          </div>
+        ) : filteredBookings.length === 0 ? (
+          <div className="text-center p-12 bg-white rounded-xl border border-dashed border-gray-200 text-gray-500">
+            No bookings found matching your filters.
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                      <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Info</th>
+                      <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Coach Info</th>
+                      <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                      <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredBookings.map((booking) => (
+                      <tr
+                        key={booking.id}
+                        className="hover:bg-gray-50 transition-colors cursor-pointer group"
                         onClick={() => setSelectedBooking(booking)}
                       >
-                        View Details
-                      </Button>
-                    </CardActions>
-                  </Card>
-                ))}
-              </Box>
-
-              {/* Desktop view: Table */}
-              <Sheet 
-                variant="outlined" 
-                sx={{ 
-                  display: { xs: 'none', md: 'block' },
-                  boxShadow: 'lg', 
-                  width: '100%',
-                  overflow: 'auto'
-                }}
-              >
-                <Box sx={{ minWidth: '1000px' }}>
-                  <Table stickyHeader hoverRow>
-                    <thead>
-                      <tr>
-                        <th>User Name</th>
-                        <th>Coach Name</th>
-                        <th>Child Name</th>
-                        <th>Slot Date</th>
-                        <th>Slot</th>
-                        <th>Status</th>
-                        <th>Comment</th>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                              <Person size={14} />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 text-sm">{booking.userName}</p>
+                              <p className="text-xs text-gray-500">Child: {booking.childName || 'N/A'}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                           <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <span>{booking.coachName}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-2 text-sm text-gray-700">
+                                <CalendarCheck size={14} className="text-gray-400" />
+                                <span>{convertToLocalDate(booking.date).split(',')[0]}</span>
+                             </div>
+                             <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <Clock size={12} />
+                                <span>{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
+                             </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(booking.status)}`}>
+                            {booking.status}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                           <button className="text-indigo-600 hover:text-indigo-800 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                             View
+                           </button>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {filteredBookings.map((booking) => (
-                        <tr
-                          key={booking.id}
-                          onClick={() => setSelectedBooking(booking)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Person fontSize="small" />
-                              {booking.userName}
-                            </Box>
-                          </td>
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Person fontSize="small" />
-                              {booking.coachName}
-                            </Box>
-                          </td>
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Person fontSize="small" />
-                              {booking.childName}
-                            </Box>
-                          </td>
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <CalendarToday fontSize="small" />
-                              {convertToLocalDate(booking.date).split(',')[0]}
-                            </Box>
-                          </td>
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <AccessTime fontSize="small" />
-                              {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-                            </Box>
-                          </td>
-                          <td>
-                            <Chip
-                              variant="soft"
-                              color={getStatusColor(booking.status)}
-                              size="sm"
-                            >
-                              {booking.status}
-                            </Chip>
-                          </td>
-                          <td>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              {booking.comment || 'No Comment'}
-                            </Box>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </Box>
-              </Sheet>
-            </>
-          )}
-        </Box>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-        <Modal open={Boolean(selectedBooking)} onClose={() => setSelectedBooking(null)}>
-          <ModalDialog sx={{ minWidth: 'sm' }}>
-            <ModalClose />
-            <Typography level="h4" sx={{ mb: 2 }}>
-              Booking Details
-            </Typography>
-            {selectedBooking && (
-              <Box>
-                <Typography>
-                  <strong>User:</strong> {selectedBooking.userName}
-                </Typography>
-                <Typography>
-                  <strong>Coach:</strong> {selectedBooking.coachName}
-                </Typography>
-                <Typography>
-                  <strong>Child Name:</strong> {selectedBooking.childName}
-                </Typography>
-                <Typography>
-                  <strong>Date:</strong>{' '}
-                  {convertToLocalDate(selectedBooking.date).split(',')[0]}
-                </Typography>
-                <Typography>
-                  <strong>Time:</strong> {formatTime(selectedBooking.startTime)} - {formatTime(selectedBooking.endTime)}
-                </Typography>
-                <Typography>
-                  <strong>Booking Type:</strong> {selectedBooking.bookingType}
-                </Typography>
-                <Typography>
-                  <strong>Status:</strong>{' '}
-                  <Chip
-                    variant="soft"
-                    color={getStatusColor(selectedBooking.status)}
-                  >
-                    {selectedBooking.status}
-                  </Chip>
-                </Typography>
-              </Box>
-            )}
-          </ModalDialog> 
-        </Modal>
-      </Box>
-    </CssVarsProvider>
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-4">
+              {filteredBookings.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm active:scale-[0.99] transition-transform"
+                  onClick={() => setSelectedBooking(booking)}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                     <div>
+                        <h3 className="font-semibold text-gray-900">{booking.coachName}</h3>
+                        <p className="text-sm text-gray-500">Coach</p>
+                     </div>
+                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(booking.status)}`}>
+                        {booking.status}
+                     </span>
+                  </div>
+
+                  <div className="space-y-2 text-sm border-t border-gray-100 pt-3">
+                     <div className="flex justify-between">
+                       <span className="text-gray-500">Date</span>
+                       <span className="font-medium text-gray-900">{convertToLocalDate(booking.date).split(',')[0]}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span className="text-gray-500">Time</span>
+                       <span className="font-medium text-gray-900">{formatTime(booking.startTime)} - {formatTime(booking.endTime)}</span>
+                     </div>
+                      <div className="flex justify-between">
+                       <span className="text-gray-500">User</span>
+                       <span className="font-medium text-gray-900">{booking.userName}</span>
+                     </div>
+                      <div className="flex justify-between">
+                       <span className="text-gray-500">Child</span>
+                       <span className="font-medium text-gray-900">{booking.childName || 'N/A'}</span>
+                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-6 border-b border-gray-100">
+               <h3 className="text-lg font-bold text-gray-900">Booking Details</h3>
+               <button onClick={() => setSelectedBooking(null)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors">
+                 <X size={20} />
+               </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+               <div className="space-y-1">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Coach</span>
+                  <p className="text-base font-medium text-gray-900">{selectedBooking.coachName}</p>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</span>
+                      <p className="text-sm text-gray-700">{convertToLocalDate(selectedBooking.date).split(',')[0]}</p>
+                  </div>
+                   <div className="space-y-1">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</span>
+                      <p className="text-sm text-gray-700">{formatTime(selectedBooking.startTime)} - {formatTime(selectedBooking.endTime)}</p>
+                  </div>
+               </div>
+
+               <div className="space-y-1">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Participants</span>
+                  <p className="text-sm text-gray-700">User: {selectedBooking.userName}</p>
+                  <p className="text-sm text-gray-700">Child: {selectedBooking.childName || 'N/A'}</p>
+               </div>
+
+               <div className="space-y-1">
+                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</span>
+                   <div>
+                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedBooking.status)}`}>
+                        {selectedBooking.status}
+                      </span>
+                   </div>
+               </div>
+
+               {selectedBooking.comment && (
+                 <div className="space-y-1 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                      <ChatLeftText size={12} /> Comment
+                    </span>
+                    <p className="text-sm text-gray-600">{selectedBooking.comment}</p>
+                 </div>
+               )}
+            </div>
+
+            <div className="p-6 pt-0">
+               <button
+                onClick={() => setSelectedBooking(null)}
+                className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-xl font-medium transition-colors"
+               >
+                 Close
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </UserShell>
   )
 }

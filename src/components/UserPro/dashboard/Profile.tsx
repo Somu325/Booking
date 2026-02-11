@@ -4,23 +4,23 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
-import CssBaseline from '@mui/joy/CssBaseline'
-import Box from '@mui/joy/Box'
-import Button from '@mui/joy/Button'
-import Card from '@mui/joy/Card'
-import CardContent from '@mui/joy/CardContent'
-import Typography from '@mui/joy/Typography'
-import Input from '@mui/joy/Input'
-import IconButton from '@mui/joy/IconButton'
-import Modal from '@mui/joy/Modal'
-import ModalDialog from '@mui/joy/ModalDialog'
-import ModalClose from '@mui/joy/ModalClose'
-import { Add, Edit, Delete, AccountCircle, VerifiedUser, ArrowBack, Save } from '@mui/icons-material'
+import {
+  ArrowLeft,
+  Person,
+  PersonPlus,
+  Pencil,
+  Trash,
+  CheckCircleFill,
+  ExclamationCircle,
+  ShieldCheck,
+  Save,
+  X,
+  PersonCircle
+} from 'react-bootstrap-icons'
 
 import { Domain_URL } from '../../config'
+import UserShell from '../../Layout/UserShell'
 
-// Define interfaces for User and EmailVerificationData
 interface User {
   userId: string
   name: string
@@ -37,67 +37,6 @@ interface EmailVerificationData {
   orderId: string
 }
 
-// Custom theme configuration
-const theme = extendTheme({
-  colorSchemes: {
-    light: {
-      palette: {
-        background: {
-          body: 'rgba(255, 255, 255, 0.8)',
-        },
-        primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
-        },
-      },
-    },
-  },
-  components: {
-    JoyCard: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          backdropFilter: 'blur(10px)',
-          transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-    JoyButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          textTransform: 'none',
-          fontWeight: 600,
-        },
-      },
-    },
-    JoyInput: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          },
-        },
-      },
-    },
-  },
-})
-
-
-// Error Boundary component for handling errors in the component tree
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
@@ -114,9 +53,9 @@ class ErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <Typography color="danger">
+        <div className="p-4 text-red-600 bg-red-50 rounded-lg">
           Something went wrong. Please try again later.
-        </Typography>
+        </div>
       )
     }
 
@@ -125,7 +64,6 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function UserProfile({ userEmail = '' }: { userEmail?: string }) {
-  // State variables for user data and UI control
   const [email, setEmail] = useState<string | null>(null)
   const [userData, setUserData] = useState<User | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -159,20 +97,16 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   const navigate = useNavigate()
 
-   // Effect to set email from localStorage on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setEmail(localStorage.getItem('useremail'))
     }
   }, [])
 
-  // Function to fetch user data from the server
-
   const fetchUserData = async () => {
     try {
       const response = await axios.get(`${Domain_URL}/user/email/${userEmail || email}`)
       const data: User = response.data
-        // Set user data and temporary state variables
       if (data) {
         setUserData(data)
         setTempName(data.name)
@@ -183,24 +117,17 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         setIsEmailVerified(data.verified ?? false)
         setUserId(data.userId)
         setChildDetails(data.children?.map(child => ({ ...child })) || [])
-      } else {
-        // Navigate to /userlogin if no data is returned
-        //navigate('/userlogin')
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
-      // Navigate to /userlogin on error
-     // navigate('/userlogin')
     }
   }
 
-  // Effect to fetch user data when component mounts or email changes
   useEffect(() => {
     fetchUserData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userEmail, email])
 
-    // Effect to handle OTP resend timer
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (timer > 0) {
@@ -211,8 +138,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return () => clearInterval(interval)
   }, [timer])
 
-
-  // Function to validate user name
   const validateName = (name: string) => {
     if (name.length < 2) {
       setNameError('Name should contain only Alphabets')
@@ -226,7 +151,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return true
   }
 
-// Function to validate phone number
   const validatePhoneNumber = (phone: string) => {
     if (!/^\d{10}$/.test(phone)) {
       setPhoneError('Plase enter a valid Phone number ')
@@ -238,17 +162,14 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   const validateEmail = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
     if (!email.trim()) {
       setEmailError('Email is required.');
       return false;
     }
-
     if (!emailPattern.test(email)) {
       setEmailError('Please enter a valid email address.');
       return false;
     }
-
     setEmailError('');
     return true;
   };
@@ -259,7 +180,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     validateEmail(updatedEmail);
   };
 
-// Function to validate childname
   const validateChildName = (name: string) => {
     if (name.length < 2) {
       setChildNameError('Name should contain only Alphabets')
@@ -273,7 +193,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return true
   }
  
-  // Function to validate child age
   const validateChildAge = (age: string) => {
     const ageNum = parseInt(age, 10)
     if (isNaN(ageNum) || ageNum < 6 || ageNum > 15) {
@@ -284,8 +203,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     return true
   }
 
-
-  // Function to update user data
   const updateUserData = async () => {
     if (!validateName(tempName) || !validatePhoneNumber(tempPhoneNumber)) {
       return
@@ -318,7 +235,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
-    // Function to update child data
   const handleUpdateChild = async (childId: string) => {
     if (!validateChildName(updatedChild.name) || !validateChildAge(updatedChild.age)) {
       return
@@ -343,7 +259,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
-  // Function to add a new child
   const addChild = async () => {
     if (!validateChildName(newChildName) || !validateChildAge(newChildAge) || !newChildGender) {
       return
@@ -372,8 +287,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
-
-   // Function to delete a child
   const handleDeleteChild = async (childId: string) => {
     setIsLoading(true)
     try {
@@ -388,20 +301,18 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
-   // Function to initiate email verification process
   const verifyEmail = async () => {
     try {
       const response = await axios.post(`${Domain_URL}/api/send-otp2`, { email: tempEmail })
       setEmailVerificationData(response.data)
       setShowEmailModal(true)
-      setTimer(120) // Set 2-minute timer
+      setTimer(120)
     } catch (error) {
       console.error('Error verifying email:', error)
       alert('This email is already registered');
     }
   }
 
-   // Function to confirm OTP and complete email verification
   const confirmOtp = async (email: string | undefined, otp: string, orderId: string) => {
     try {
       const response = await axios.post(`${Domain_URL}/api/verify-otp`, {
@@ -416,7 +327,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         setIsEmailVerified(true)
         setShowEmailModal(false)
         
-        // Update user data after successful verification
         const updatedUserData = {
           name: tempName,
           age: parseInt(tempAge, 10),
@@ -430,8 +340,7 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         fetchUserData()
        
         if (response.status === 200) {
-    
-          setTimeout(() => navigate('/user-login'), 5000); // 5-second delay
+          setTimeout(() => navigate('/user-login'), 5000);
         }
       }
     } catch (error) {
@@ -440,7 +349,6 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     }
   }
 
-  // Function to update user's verified status  
   const updateVerifiedStatus = async (email: string | undefined) => {
     try {
       await axios.put(`${Domain_URL}/user/email/${email}`, {
@@ -454,265 +362,275 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
 
   return (
     <ErrorBoundary>
-      <CssVarsProvider theme={theme}>
-        <CssBaseline />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-            padding: 4,
-          }}
-        >
+      <UserShell title="My Profile">
+        <div className="max-w-3xl mx-auto space-y-8">
 
-            {/* Back to Dashboard button */}
-           <Button
-            startDecorator={<ArrowBack />}
-            onClick={() => navigate('/screen')}
-            variant="outlined"
-            color="neutral"
-            sx={{
-              mb: 2,
-               backgroundColor:'#0B6BCB',
-              color: 'white',
-              width: { xs: '100%', sm: 'auto' },
-              '&:hover': {
-                backgroundColor: '#0D8CEB', // lighter blue for hover
-              },
-            }}
-          >
-            Back to Dashboard
-          </Button>
-          <Box sx={{ maxWidth: 800, margin: 'auto' }}>
-            <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
-                {/* User profile header */}
-              <AccountCircle sx={{ fontSize: 80, color: 'primary.main' }} />
-              <Typography level="h2" component="h1" sx={{ mt: 2 }}>
-                {userData?.name || 'User'}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 1 }}>
-                <Typography level="body-md">{userData?.email || userEmail || email}</Typography>
+          {/* Profile Header */}
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm flex flex-col items-center text-center">
+             <div className="w-24 h-24 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mb-4">
+                <PersonCircle size={64} />
+             </div>
+             <h1 className="text-2xl font-bold text-gray-900">{userData?.name || 'User'}</h1>
+             <div className="flex items-center gap-2 mt-2 text-gray-600">
+                <span>{userData?.email || userEmail || email}</span>
                 {isEmailVerified ? (
-                  <VerifiedUser sx={{ marginLeft: 1, color: 'success.main' }} />
+                  <CheckCircleFill className="text-green-500" size={16} />
                 ) : (
-                  <Button
-                    variant="plain"
-                    color="primary"
+                  <button
                     onClick={() => setShowEmailModal(true)}
-                    sx={{ marginLeft: 1 }}
+                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded"
                   >
                     Verify Email
-                  </Button>
+                  </button>
                 )}
-              </Box>
-            </Box>
+             </div>
+          </div>
   
-     {/* User profile edit form */}
-            <Card variant="outlined" sx={{ mb: 4 }}>
-              <CardContent>
-                {isEditMode ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Input
-                      placeholder="Name"
-                      value={tempName}
-                      onChange={(e) => {
-                        setTempName(e.target.value)
-                        
-                        validateName(e.target.value)
-                      }}
-                      error={!!nameError}
-                    />
-                    {nameError && <Typography color="danger">{nameError}</Typography>}
-                    <Input
-                      placeholder="Phone Number"
-                      value={tempPhoneNumber}
-                      onChange={(e) => {
-                        let input = e.target.value;
-                        if (input.startsWith("0")) {
-                          input = input.slice(1);
-                        }
-                        // Allow only up to 10 digits
-                        if (input.length <= 10 && /^\d*$/.test(input)) {
-                          setTempPhoneNumber(input);
-                          validatePhoneNumber(input);
-                        }
-                      }}
-                      error={!!phoneError}
-                    />
-                     {/* Email Input */}
-                    <Input
-                      placeholder="Email"
-                      value={tempEmail}
-                      onChange={handleEmailChange}
-                      fullWidth
-                      style={{ marginBottom: '10px' }}
-                      error={!!emailError}
-                    />
-                    
-                    {emailError && <Typography color="danger">{emailError}</Typography>}
-
-                    {phoneError && <Typography color="danger">{phoneError}</Typography>}
-                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError || !!emailError || isLoading}>
-                      {isLoading ? 'Updating...' : 'Update Profile'}
-                    </Button>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Typography>
-                      <strong>Name:</strong> {userData?.name}
-                    </Typography>
-                    <Typography>
-                      <strong>Phone Number:</strong> {userData?.mobileNumber}
-                    </Typography>
-                    <Button sx={{width:'100px' ,  mx: 'auto' }} onClick={() => setIsEditMode(true)}>Edit Profile</Button>
-                  </Box>
+          {/* Profile Edit Form */}
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+             <div className="flex justify-between items-center mb-6">
+                <h2 className="text-lg font-bold text-gray-900">Personal Information</h2>
+                {!isEditMode && (
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                  >
+                    <Pencil size={14} /> Edit
+                  </button>
                 )}
-              </CardContent>
-            </Card>
- {/* Children section */}
-            <Box sx={{ marginTop: 4 }}>
-              <Box sx={{ display: 'flex', 
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 2
-              }}>
-                <Typography level="h3">Add Child</Typography>
-                <Button
-                  startDecorator={<Add />}
-                  onClick={() => setShowAddChildForm(!showAddChildForm)}
-                  variant="outlined"
-                >
-                  Add Child
-                </Button>
-              </Box>
+             </div>
 
-              <Typography level="body-lg" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Total Children: {childDetails.length}
-              </Typography>
-   
+             <div className="space-y-4">
+                {isEditMode ? (
+                  <>
+                    <div className="space-y-1">
+                       <label className="text-sm font-medium text-gray-700">Name</label>
+                       <input
+                         className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                         placeholder="Name"
+                         value={tempName}
+                         onChange={(e) => {
+                           setTempName(e.target.value)
+                           validateName(e.target.value)
+                         }}
+                       />
+                       {nameError && <p className="text-xs text-red-500">{nameError}</p>}
+                    </div>
+
+                    <div className="space-y-1">
+                       <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                       <input
+                         className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                         placeholder="Phone Number"
+                         value={tempPhoneNumber}
+                         onChange={(e) => {
+                            let input = e.target.value;
+                            if (input.startsWith("0")) input = input.slice(1);
+                            if (input.length <= 10 && /^\d*$/.test(input)) {
+                              setTempPhoneNumber(input);
+                              validatePhoneNumber(input);
+                            }
+                         }}
+                       />
+                       {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
+                    </div>
+
+                    <div className="space-y-1">
+                       <label className="text-sm font-medium text-gray-700">Email</label>
+                       <input
+                         className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                         placeholder="Email"
+                         value={tempEmail}
+                         onChange={handleEmailChange}
+                       />
+                       {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                       <button
+                         onClick={updateUserData}
+                         disabled={!!nameError || !!phoneError || !!emailError || isLoading}
+                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                       >
+                         {isLoading ? 'Saving...' : 'Save Changes'}
+                       </button>
+                       <button
+                         onClick={() => setIsEditMode(false)}
+                         className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                       >
+                         Cancel
+                       </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                        <span className="block text-sm font-medium text-gray-500">Name</span>
+                        <p className="mt-1 text-gray-900">{userData?.name}</p>
+                     </div>
+                     <div>
+                        <span className="block text-sm font-medium text-gray-500">Phone Number</span>
+                        <p className="mt-1 text-gray-900">{userData?.mobileNumber}</p>
+                     </div>
+                     <div className="md:col-span-2">
+                        <span className="block text-sm font-medium text-gray-500">Email</span>
+                        <p className="mt-1 text-gray-900">{userData?.email}</p>
+                     </div>
+                  </div>
+                )}
+             </div>
+          </div>
+
+          {/* Children Section */}
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+             <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Children</h2>
+                  <p className="text-sm text-gray-500">Total: {childDetails.length}</p>
+                </div>
+                <button
+                  onClick={() => setShowAddChildForm(!showAddChildForm)}
+                  className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  <PersonPlus size={16} />
+                  Add Child
+                </button>
+             </div>
+
               {/* Add child form */}
               {showAddChildForm && (
-                <Card variant="outlined" sx={{ marginBottom: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <Input
-                        placeholder="Child's Name"
-                        value={newChildName}
-                        onChange={(e) => {
-                          setNewChildName(e.target.value)
-                          validateChildName(e.target.value)
-                        }}
-                        error={!!childNameError}
-                      />
-                      {childNameError && <Typography color="danger">{childNameError}</Typography>}
-                      <Input
-                        placeholder="Child's Age"
-                        value={newChildAge}
-                        onChange={(e) => {
-                          setNewChildAge(e.target.value)
-                          validateChildAge(e.target.value)
-                        }}
-                        type="number"
-                        error={!!childAgeError}
-                      />
-                      {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
-                      <select
-                        value={newChildGender}
-                        onChange={(e) => setNewChildGender(e.target.value)}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '12px',
-                          border: '1px solid #ccc',
-                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                        }}
+                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-6">
+                   <h3 className="text-sm font-bold text-gray-900 mb-4">Add New Child</h3>
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="space-y-1">
+                        <input
+                          className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                          placeholder="Child's Name"
+                          value={newChildName}
+                          onChange={(e) => {
+                            setNewChildName(e.target.value)
+                            validateChildName(e.target.value)
+                          }}
+                        />
+                        {childNameError && <p className="text-xs text-red-500">{childNameError}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <input
+                          className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                          placeholder="Age"
+                          type="number"
+                          value={newChildAge}
+                          onChange={(e) => {
+                            setNewChildAge(e.target.value)
+                            validateChildAge(e.target.value)
+                          }}
+                        />
+                        {childAgeError && <p className="text-xs text-red-500">{childAgeError}</p>}
+                      </div>
+                      <div>
+                        <select
+                          className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                          value={newChildGender}
+                          onChange={(e) => setNewChildGender(e.target.value)}
+                        >
+                          <option value="" disabled>Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                        </select>
+                      </div>
+                   </div>
+                   <div className="flex gap-3">
+                      <button
+                        onClick={addChild}
+                        disabled={!!childNameError || !!childAgeError || !newChildGender || isLoading}
+                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
                       >
-                        <option value="" disabled>
-                          Select Gender
-                        </option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender || isLoading}>
                         {isLoading ? 'Adding...' : 'Add Child'}
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
+                      </button>
+                      <button
+                        onClick={() => setShowAddChildForm(false)}
+                        className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                   </div>
+                </div>
               )}
  
-         {/* List of children */}
+             {/* List of children */}
+             <div className="space-y-4">
               {childDetails.length > 0 ? (
                 childDetails.map((child) => (
-                  <Card key={child.childId} variant="outlined" sx={{ marginBottom: 2 }}>
-                    <CardContent>
+                  <div key={child.childId} className="bg-white border border-gray-100 rounded-lg p-4 hover:border-gray-200 transition-colors">
                       {editableChildId === child.childId ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <Input
-                            value={updatedChild.name}
-                            onChange={(e) => {
-                              setUpdatedChild({ ...updatedChild, name: e.target.value })
-                              validateChildName(e.target.value)
-                            }}
-                            placeholder="Name"
-                            error={!!childNameError}
-                          />
-                          {childNameError && <Typography color="danger">{childNameError}</Typography>}
-                          <Input
-                            value={updatedChild.age}
-                            onChange={(e) => {
-                              setUpdatedChild({ ...updatedChild, age: e.target.value })
-                              validateChildAge(e.target.value)
-                            }}
-                            type="number"
-                            placeholder="Age"
-                            error={!!childAgeError}
-                          />
-                          {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
-                          <select
-                            value={updatedChild.gender}
-                            onChange={(e) =>
-                              setUpdatedChild({ ...updatedChild, gender: e.target.value })
-                            }
-                            required
-                            style={{
-                              width: '100%',
-                              padding: '12px',
-                              borderRadius: '12px',
-                              border: '1px solid #ccc',
-                              backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                            }}
-                          >
-                            <option value="" disabled>
-                              Select Gender
-                            </option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                          </select>
-                          <Button
-                            sx={{width:'100px' ,  mx: 'auto' }}
-                            onClick={() => handleUpdateChild(child.childId)}
-                            disabled={!!childNameError || !!childAgeError || isLoading}
-                            startDecorator={<Save />}
-                          >
-                            {isLoading ? 'Saving...' : 'Save'}
-                          </Button>
-                        </Box>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                           <div className="space-y-1">
+                              <label className="text-xs font-medium text-gray-500">Name</label>
+                              <input
+                                className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
+                                value={updatedChild.name}
+                                onChange={(e) => {
+                                  setUpdatedChild({ ...updatedChild, name: e.target.value })
+                                  validateChildName(e.target.value)
+                                }}
+                              />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-xs font-medium text-gray-500">Age</label>
+                              <input
+                                className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
+                                value={updatedChild.age}
+                                onChange={(e) => {
+                                  setUpdatedChild({ ...updatedChild, age: e.target.value })
+                                  validateChildAge(e.target.value)
+                                }}
+                                type="number"
+                              />
+                           </div>
+                           <div className="space-y-1">
+                              <label className="text-xs font-medium text-gray-500">Gender</label>
+                              <select
+                                className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
+                                value={updatedChild.gender}
+                                onChange={(e) =>
+                                  setUpdatedChild({ ...updatedChild, gender: e.target.value })
+                                }
+                              >
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                              </select>
+                           </div>
+                           <div className="flex gap-2">
+                              <button
+                                onClick={() => handleUpdateChild(child.childId)}
+                                disabled={!!childNameError || !!childAgeError || isLoading}
+                                className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                                title="Save"
+                              >
+                                <Save size={16} />
+                              </button>
+                              <button
+                                onClick={() => setEditableChildId(null)}
+                                className="bg-white border border-gray-300 text-gray-600 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                                title="Cancel"
+                              >
+                                <X size={16} />
+                              </button>
+                           </div>
+                        </div>
                       ) : (
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Box>
-                            <Typography>
-                              <strong>Name:</strong> {child.name}
-                            </Typography>
-                            <Typography>
-                              <strong>Age:</strong> {child.age}
-                            </Typography>
-                            <Typography>
-                              <strong>Gender:</strong> {child.gender}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <IconButton
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-4">
+                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                                <Person size={20} />
+                             </div>
+                             <div>
+                                <p className="font-semibold text-gray-900">{child.name}</p>
+                                <p className="text-xs text-gray-500">{child.age} years • {child.gender}</p>
+                             </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
                               onClick={() => {
                                 setEditableChildId(child.childId)
                                 setUpdatedChild({
@@ -721,113 +639,141 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
                                   gender: child.gender,
                                 })
                               }}
+                              className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                             >
-                              <Edit />
-                            </IconButton>
-                            <IconButton onClick={() => handleDeleteChild(child.childId)} disabled={isLoading}>
-                              <Delete />
-                            </IconButton>
-                          </Box>
-                        </Box>
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteChild(child.childId)}
+                              disabled={isLoading}
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            >
+                              <Trash size={16} />
+                            </button>
+                          </div>
+                        </div>
                       )}
-                    </CardContent>
-                  </Card>
+                  </div>
                 ))
               ) : (
-                <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
-                  No children added yet. Click the button above to add.
-                </Typography>
+                <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                  <p className="text-gray-500 text-sm">No children added yet.</p>
+                </div>
               )}
-            </Box>
+             </div>
+          </div>
   
-  {/* Email verification modal */}
-            <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4">Verify Your Email</Typography>
-                <Typography>{tempEmail}</Typography>
-                <Button onClick={verifyEmail} disabled={timer > 0}>
-                  {timer > 0 ? `Resend OTP (${timer}s)` : 'Send OTP'}
-                </Button>
-                <Input
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-                <Button
-                  onClick={() =>
-                    confirmOtp(tempEmail, otp, emailVerificationData.orderId)
-                  }
-                >
-                  Verify OTP
-                </Button>
-              </ModalDialog>
-            </Modal>
- 
-   {/* Email verification prompt modal */}
-            <Modal open={showVerificationPrompt} onClose={() => setShowVerificationPrompt(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4">Email Verification Required</Typography>
-                <Typography>You've changed your email. Please verify your new email address.</Typography>
-                <Button onClick={() => {
-                  setShowVerificationPrompt(false)
-                  verifyEmail()
-                }}>
-                  Verify Email
-                </Button>
-              </ModalDialog>
-            </Modal>
+          {/* Email verification modal */}
+          {showEmailModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+               <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 border border-gray-100">
+                  <div className="flex justify-between items-start mb-6">
+                     <h3 className="text-lg font-bold text-gray-900">Verify Email</h3>
+                     <button onClick={() => setShowEmailModal(false)} className="text-gray-400 hover:text-gray-600">
+                       <X size={20} />
+                     </button>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">We'll send a code to <span className="font-semibold text-gray-900">{tempEmail}</span></p>
 
-     {/* Success modal */}
-            <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4" color="success">
-                 OTP Veriffied Successfully! 
-                 </Typography>
-              <Typography level="body-md" color="success" sx={{ mt: 1 }}>
-               New email verified. Please login with your new email and the same password.
-              </Typography>
-              </ModalDialog>
-            </Modal>
+                  <div className="space-y-4">
+                     <button
+                       onClick={verifyEmail}
+                       disabled={timer > 0}
+                       className="w-full py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 transition-colors"
+                     >
+                       {timer > 0 ? `Resend OTP (${timer}s)` : 'Send OTP'}
+                     </button>
+
+                     <div className="space-y-2">
+                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Enter OTP</label>
+                        <input
+                          placeholder="000000"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-center font-mono text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                        />
+                     </div>
+
+                     <button
+                        onClick={() => confirmOtp(tempEmail, otp, emailVerificationData.orderId)}
+                        className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-medium shadow-sm hover:bg-indigo-700 transition-colors"
+                      >
+                        Verify & Update
+                      </button>
+                  </div>
+               </div>
+            </div>
+          )}
+ 
+          {/* Email verification prompt modal */}
+          {showVerificationPrompt && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+               <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 border border-gray-100 text-center">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-4">
+                     <ShieldCheck size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Verification Required</h3>
+                  <p className="text-sm text-gray-600 mb-6">You've changed your email address. Please verify it to continue.</p>
+                  <div className="flex gap-3">
+                     <button
+                       onClick={() => {
+                         setShowVerificationPrompt(false)
+                         verifyEmail()
+                       }}
+                       className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                     >
+                       Verify Now
+                     </button>
+                     <button
+                       onClick={() => setShowVerificationPrompt(false)}
+                       className="flex-1 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                     >
+                       Cancel
+                     </button>
+                  </div>
+               </div>
+            </div>
+          )}
+
+          {/* Success modal */}
+          {showSuccessModal && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+               <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 border border-gray-100 text-center">
+                  <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 mx-auto mb-4">
+                     <CheckCircleFill size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Success!</h3>
+                  <p className="text-sm text-gray-600 mb-6">Email verified successfully. Please login with your new credentials.</p>
+                  <button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="w-full py-2.5 bg-gray-100 text-gray-900 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Close
+                  </button>
+               </div>
+            </div>
+          )}
   
-       {/* Error modal */}
-            <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4" color="danger">
-                  Incorrect OTP. Try Again!
-                </Typography>
-              </ModalDialog>
-            </Modal>
-          </Box>
-        </Box>
-      </CssVarsProvider>
+          {/* Error modal */}
+          {showErrorModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+               <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 border border-gray-100 text-center">
+                  <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600 mx-auto mb-4">
+                     <ExclamationCircle size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Verification Failed</h3>
+                  <p className="text-sm text-gray-600 mb-6">The OTP you entered is incorrect. Please try again.</p>
+                  <button
+                    onClick={() => setShowErrorModal(false)}
+                    className="w-full py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+               </div>
+            </div>
+          )}
+        </div>
+      </UserShell>
     </ErrorBoundary>
   )
 }

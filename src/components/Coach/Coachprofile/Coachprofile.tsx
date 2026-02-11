@@ -1,32 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-  TextField,
-  Paper,
-  Grid,
-  Alert,
-  Snackbar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import {
-  AccountCircle,
-  Phone,
-  Star,
-  CheckCircle,
-  Edit,
-  Email,
-  ArrowBack,
-} from '@mui/icons-material';
 import axios from 'axios';
 import { Domain_URL } from '../../config';
 import { useNavigate } from 'react-router-dom';
+import {
+  PersonCircle,
+  Telephone,
+  Award,
+  CheckCircleFill,
+  Pencil,
+  Envelope,
+  ArrowLeft,
+  X,
+  ExclamationCircle
+} from 'react-bootstrap-icons';
+import CoachShell from '../../Layout/CoachShell';
 
 interface CoachData {
   name: string;
@@ -47,7 +35,7 @@ interface VerifyOtpResponse {
   message: string;
 }
 
-export default function Component() {
+export default function CoachProfile() {
   const [coachId, setCoachId] = useState<string | null>(null);
   const [coachDetails, setCoachDetails] = useState<CoachData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -55,6 +43,7 @@ export default function Component() {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [updatedDetails, setUpdatedDetails] = useState<Partial<CoachData>>({});
   const navigate = useNavigate();
+
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -73,8 +62,7 @@ export default function Component() {
 
   const [nameError, setNameError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  // State for storing validation error specific to the email field
-const [emailError, setEmailError] = useState<string | null>(null); 
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   useEffect(() => {
     const storedCoachId = localStorage.getItem('coachId');
@@ -119,37 +107,31 @@ const [emailError, setEmailError] = useState<string | null>(null);
     try {
       const { emailVerified, ...dataToUpdate } = { ...coachDetails, ...updatedDetails };
   
-      // Validate name
       if (!dataToUpdate.name || !/^[a-zA-Z0-9\s]+$/.test(dataToUpdate.name)) {
         setSnackbar({ open: true, message: 'Please enter a valid name (alphanumeric characters only).', severity: 'error' });
         return;
       }
   
-      // Validate phone number
       if (!dataToUpdate.phoneNumber || !/^[1-9]\d{9}$/.test(dataToUpdate.phoneNumber)) {
         setSnackbar({ open: true, message: 'Please enter a valid 10-digit phone number.', severity: 'error' });
         return;
       }
   
-      // Validate email
       if (!dataToUpdate.email || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(dataToUpdate.email)) {
         setSnackbar({ open: true, message: 'Please enter a valid email address.', severity: 'error' });
         return;
       }
   
-      // If email is changed, trigger OTP verification
       if (dataToUpdate.email !== coachDetails?.email) {
         setShowOtpModal(true);
         await handleSendOTP(dataToUpdate.email as string);
         return;
       }
   
-      // Update profile on the server
       await axios.put(`${Domain_URL}/coach/update/${coachId}`, dataToUpdate);
       setSnackbar({ open: true, message: 'Profile updated successfully.', severity: 'success' });
       setEditMode(false);
   
-      // Fetch updated data
       const data = await fetchCoachData(coachId);
       if (data) {
         setCoachDetails(data);
@@ -165,7 +147,7 @@ const [emailError, setEmailError] = useState<string | null>(null);
     }
   };
   
-  const handleInputChange = (field: keyof CoachData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (field: keyof CoachData) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const value = event.target.value;
 
     if (field === 'name') {
@@ -178,12 +160,10 @@ const [emailError, setEmailError] = useState<string | null>(null);
       }
     }
 
-    // Function to validate an email address format
     const validateEmail = (email: string) => {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       return emailRegex.test(email);
     };
-
 
     if (field === 'email') {
       if (!validateEmail(value)) {
@@ -192,9 +172,6 @@ const [emailError, setEmailError] = useState<string | null>(null);
         setEmailError(null);
       }
     }
-    
-    
-    
 
     if (field === 'phoneNumber') {
       if (!/^[1-9]\d{9}$/.test(value)) {
@@ -224,8 +201,7 @@ const [emailError, setEmailError] = useState<string | null>(null);
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
-     // setSnackbar({ open: true, message: 'Error sending OTP.', severity: 'error' });
-     alert('This email is already registered');
+      alert('This email is already registered');
     }
   };
 
@@ -261,228 +237,184 @@ const [emailError, setEmailError] = useState<string | null>(null);
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Loading Profile...</Typography>
-      </Box>
+      <CoachShell title="My Profile">
+        <div className="flex justify-center items-center h-screen">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <span className="ml-2 text-gray-600">Loading Profile...</span>
+        </div>
+      </CoachShell>
     );
   }
 
   return (
-    <Box sx={{ p: 10,  background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', borderRadius: '8px' }}>
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate('/Coach-Dashboard')}
-        variant="outlined"
-        color="primary"
-        sx={{
-          mb: 2,
-           backgroundColor: '#0B6BCB',
-          color: 'white',
-          width: { xs: '100%', sm: 'auto' },
-          '&:hover': {
-            backgroundColor: '#0D8CEB',
-          },
-        }}
-      >
-        Back to Dashboard
-      </Button>
+    <CoachShell title="My Profile">
+      <div className="max-w-3xl mx-auto space-y-8">
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-        <AccountCircle sx={{ fontSize: 96, color: 'text.secondary' }} />
-        <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold', color: 'primary.main' }}>{coachDetails?.name}</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-          <Typography variant="body1" sx={{ mr: 1, color: 'black' }}>{coachDetails?.email}</Typography>
-          {isEmailVerified && <CheckCircle color="success" />}
-        </Box>
-      </Box>
+        {/* Profile Header */}
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm flex flex-col items-center text-center">
+           <div className="w-24 h-24 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mb-4">
+              <PersonCircle size={64} />
+           </div>
+           <h1 className="text-2xl font-bold text-gray-900">{coachDetails?.name}</h1>
+           <div className="flex items-center gap-2 mt-2 text-gray-600 justify-center">
+              <span>{coachDetails?.email}</span>
+              {isEmailVerified && <CheckCircleFill className="text-green-500" size={16} />}
+           </div>
+        </div>
 
-      <Paper elevation={2} sx={{ p: 2, borderRadius: '5px', bgcolor: 'background.default' }}>
-        <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Phone sx={{ mr: 1 }} />
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  Phone: {coachDetails?.phoneNumber || ' '}
-                </Typography>
-              </Box>
-           </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Star sx={{ mr: 1 }} />
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  Sport: {coachDetails?.sport || ' '}
-                </Typography>
-              </Box>
-           </Grid>
-
-           <Grid item xs={12}>
-              <Box
-                  sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  width: '100%',
-                  overflow: 'hidden',
-                  paddingRight: '8px',         // Adds right padding to avoid text cutoff
-                  boxSizing: 'border-box',     // Ensures padding is accounted within the Box width
-                  }}
-                >
-              <Star sx={{ mr: 1, flexShrink: 0 }} />
-              <Typography
-                variant="body1"
-                      sx={{
-                        color: 'black',
-                        whiteSpace: 'normal',         // Allows wrapping within the grid
-                        wordBreak: 'break-word',      // Breaks long words to fit within the container
-                        width: '100%',                // Occupies full width of the parent Box
-                        overflowWrap: 'anywhere',     // Breaks text at any point to avoid overflow
-                        lineHeight: 1.5,
-                      }}
-                    >
-                Bio: {coachDetails?.bio || 'N/A'}
-              </Typography>
-              </Box>          
-            </Grid>
-
-
-
-
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Email sx={{ mr: 1 }} />
-                <Typography variant="body1" sx={{ color: 'black' }}>
-                  Gender: {coachDetails?.gender || 'N/A'}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant="outlined"
-                color="primary"
+        {/* Details Card */}
+        <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+           <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-gray-900">Personal Information</h2>
+              <button
                 onClick={() => setEditMode(!editMode)}
-                 size="small"
-                startIcon={<Edit />}
-                sx={{ textTransform: 'none' }}
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
               >
-                {editMode ? 'Cancel' : 'Edit Profile'}
-              </Button>
-            </Box>         
-             </Grid>
-        </Grid> 
+                <Pencil size={14} /> {editMode ? 'Cancel Edit' : 'Edit Profile'}
+              </button>
+           </div>
 
-        {editMode && (
-          <Box mt={3}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Name"
-                  variant="outlined"
-                  fullWidth
-                  value={updatedDetails.name ?? coachDetails?.name ?? ''}
-                  onChange={handleInputChange('name')}
-                   
-              disabled={!editMode}
-              error={!!nameError}
-              helperText={nameError}
-                />
-                
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Phone Number"
-                  variant="outlined"
-                  fullWidth
-                  value={updatedDetails.phoneNumber ?? coachDetails?.phoneNumber ?? ''}
-                  onChange={handleInputChange('phoneNumber')}
-                  disabled={!editMode}
-                  error={!!phoneError}
-                  helperText={phoneError}
-                />
-              </Grid>
+           {editMode ? (
+             <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                     <label className="text-sm font-medium text-gray-700">Name</label>
+                     <input
+                       className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                       value={updatedDetails.name ?? coachDetails?.name ?? ''}
+                       onChange={handleInputChange('name')}
+                     />
+                     {nameError && <p className="text-xs text-red-500">{nameError}</p>}
+                  </div>
+                  <div className="space-y-1">
+                     <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                     <input
+                       className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                       value={updatedDetails.phoneNumber ?? coachDetails?.phoneNumber ?? ''}
+                       onChange={handleInputChange('phoneNumber')}
+                     />
+                     {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
+                  </div>
+                  <div className="space-y-1">
+                     <label className="text-sm font-medium text-gray-700">Sport</label>
+                     <select
+                       className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                       value={coachDetails?.sport} // Non-editable based on original code
+                       disabled
+                     >
+                       <option value="Cricket">Cricket</option>
+                       {/* Add other options as needed */}
+                     </select>
+                  </div>
+                  <div className="space-y-1">
+                     <label className="text-sm font-medium text-gray-700">Email</label>
+                     <input
+                       className="w-full p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                       value={updatedDetails.email ?? coachDetails?.email ?? ''}
+                       onChange={handleInputChange('email')}
+                     />
+                     {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+                  </div>
+                </div>
 
-              <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Sport"
-                    variant="outlined"
-                    fullWidth
-                    value={coachDetails?.sport } // Display current sport (non-editable)
-   
-                    select
-                    SelectProps={{
-                    native: true,
-                  }}
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={() => setEditMode(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
                   >
-                <option value="Cricket" >Cricket</option>
-                {/* Add more sport options as necessary */}
-                </TextField>
-              </Grid>
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateProfile}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+             </div>
+           ) : (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                   <Telephone className="text-gray-400 mt-1" size={18} />
+                   <div>
+                      <span className="block text-sm font-medium text-gray-500">Phone</span>
+                      <p className="text-gray-900">{coachDetails?.phoneNumber}</p>
+                   </div>
+                </div>
+                <div className="flex items-start gap-3">
+                   <Award className="text-gray-400 mt-1" size={18} />
+                   <div>
+                      <span className="block text-sm font-medium text-gray-500">Sport</span>
+                      <p className="text-gray-900">{coachDetails?.sport}</p>
+                   </div>
+                </div>
+                <div className="flex items-start gap-3 md:col-span-2">
+                   <Award className="text-gray-400 mt-1" size={18} />
+                   <div>
+                      <span className="block text-sm font-medium text-gray-500">Bio</span>
+                      <p className="text-gray-900 whitespace-pre-wrap">{coachDetails?.bio || 'N/A'}</p>
+                   </div>
+                </div>
+                <div className="flex items-start gap-3">
+                   <Envelope className="text-gray-400 mt-1" size={18} />
+                   <div>
+                      <span className="block text-sm font-medium text-gray-500">Gender</span>
+                      <p className="text-gray-900">{coachDetails?.gender || 'N/A'}</p>
+                   </div>
+                </div>
+             </div>
+           )}
+        </div>
+      </div>
 
-              <Grid item xs={12}>
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  fullWidth
-                  value={updatedDetails.email ?? coachDetails?.email ?? ''}
-                  onChange={handleInputChange('email')}
-                  error={!!emailError}
-                  helperText={emailError}
-                />
-              </Grid>
-            </Grid>
+      {/* Snackbar replacement */}
+      {snackbar.open && (
+         <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2 z-50 ${snackbar.severity === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+            {snackbar.severity === 'success' ? <CheckCircleFill /> : <ExclamationCircle />}
+            {snackbar.message}
+            <button onClick={() => setSnackbar({ ...snackbar, open: false })} className="ml-2 hover:bg-white/20 rounded-full p-1">
+              <X />
+            </button>
+         </div>
+      )}
 
-            <Box mt={3} display="flex" justifyContent="space-between">
-              <Button variant="outlined" color="secondary" onClick={() => setEditMode(false)}>
-                Cancel
-              </Button>
-              <Button variant="contained" color="primary" onClick={handleUpdateProfile}>
-                Save Changes
-              </Button>
-            </Box>
-          </Box>
-        )}
-      </Paper>
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-100">
+              <div className="mb-4">
+                 <h3 className="text-lg font-bold text-gray-900">Email Verification</h3>
+                 <p className="text-sm text-gray-500">Enter the OTP sent to your new email.</p>
+              </div>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
-      <Dialog open={showOtpModal} onClose={() => setShowOtpModal(false)}>
-        <DialogTitle>Email Verification</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Enter OTP"
-            variant="outlined"
-            fullWidth
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-          />
-          <Box mt={2}>
-            <Typography variant="body2" color="textSecondary">
-              Resend OTP in {timer} seconds
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowOtpModal(false)} color="secondary">
-            Cancel
-          </Button>
-          <Button onClick={confirmOtp} color="primary">
-            Verify OTP
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+              <div className="space-y-4">
+                 <input
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-center font-mono text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                 />
+                 <p className="text-xs text-gray-500 text-center">
+                    Resend OTP in {timer} seconds
+                 </p>
+                 <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => setShowOtpModal(false)}
+                      className="flex-1 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmOtp}
+                      className="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                    >
+                      Verify OTP
+                    </button>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
+    </CoachShell>
   );
 }
-
-
