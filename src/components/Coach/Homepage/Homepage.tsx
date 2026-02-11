@@ -6,13 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Cookies from 'js-cookie';
+import { Calendar, ChevronLeft, ChevronRight, Filter, X } from 'react-bootstrap-icons';
+import CoachShell from '../../Layout/CoachShell';
 
 const Coachdashboard: React.FC = () => {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filter, setFilter] = useState<string>('All');
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [slots, setSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +41,11 @@ const Coachdashboard: React.FC = () => {
   }
 
   const coachId = localStorage.getItem('coachId');
-  const coachName = localStorage.getItem('coachName');
 
   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
 
   const handleNext = () => setStartDate((prev) => addDays(prev, 5));
   const handlePrevious = () => setStartDate((prev) => addDays(prev, -5));
-  const toggleMenu = () => setMenuOpen((prev) => !prev);
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => setFilter(event.target.value);
 
   const handleRowClick = async (slot: any) => {
@@ -56,7 +54,6 @@ const Coachdashboard: React.FC = () => {
         const response = await axios.get(`${Domain_URL}/bookings/slot/${slot.slotId}`);
         const bookingData = response.data;
         
-        // Populate the booking details from the response
         const booking: Booking = {
           bookingId: bookingData.bookingId,
           userId: bookingData.userId,
@@ -73,8 +70,8 @@ const Coachdashboard: React.FC = () => {
           startTime: bookingData.slot.startTime,
           endTime: bookingData.slot.endTime,
           slotType: bookingData.bookingType,
-          slotDuration: "60 min", // Assume 60 min for simplicity
-          date: bookingData.slot.date.split('T')[0], // Assuming it's in UTC format
+          slotDuration: "60 min",
+          date: bookingData.slot.date.split('T')[0],
         };
         
         setSelectedBooking(booking);
@@ -120,7 +117,6 @@ const Coachdashboard: React.FC = () => {
     return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
   };
 
-  // Filter and sort slots
   const filteredSlots = slots
     .filter((slot) => {
       const slotDate = convertToLocalDate(slot.date);
@@ -134,200 +130,228 @@ const Coachdashboard: React.FC = () => {
       return timeA - timeB;
     });
 
-  const getStatusClass = (status: string) => {
-    switch (status) {
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
       case 'available':
-        return 'text-green-600 font-bold';
+        return 'bg-green-50 text-green-700 border-green-200';
       case 'completed':
-        return 'text-red-600 font-bold';
+        return 'bg-red-50 text-red-700 border-red-200';
       case 'upcoming':
-        return 'text-blue-600 font-bold';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'cancelled':
-        return 'text-black font-bold';
+      case 'canceled':
+        return 'bg-gray-100 text-gray-700 border-gray-200';
       case 'booked':
-        return 'text-[rgb(8,178,235)] font-bold';
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
       default:
-        return '';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   const [isMobile, setIsMobile] = useState(false);
   
-  // Detect screen width on component mount and resize
   useEffect(() => {
     const updateScreenSize = () => {
-      setIsMobile(window.innerWidth <= 768); // Set mobile breakpoint at 768px
+      setIsMobile(window.innerWidth <= 768);
     };
 
-    updateScreenSize(); // Initial check
-    window.addEventListener('resize', updateScreenSize); // Listen for resize events
-
+    updateScreenSize();
+    window.addEventListener('resize', updateScreenSize);
     return () => {
-      window.removeEventListener('resize', updateScreenSize); // Clean up event listener
+      window.removeEventListener('resize', updateScreenSize);
     };
   }, []);
 
-
   return (
-    <div className="flex h-screen bg-[#f0f4f8] font-sans w-full overflow-x-hidden">
-      <div className={`fixed top-0 h-full bg-[#535a62] text-white flex flex-col items-center p-8 transition-[left] duration-300 z-[1000] ${menuOpen ? 'left-0' : '-left-full'} w-full md:w-[250px]`}>
-        <button className="absolute top-4 right-4 bg-none border-none text-[2rem] text-white cursor-pointer hover:scale-110" onClick={toggleMenu}>
-          &times;
-        </button>
-        <nav className="mt-8 w-full">
-          <ul className="list-none p-0">
-            <li className="my-4 cursor-pointer text-[1.2rem] text-center hover:text-gray-300" onClick={() => navigate('/Coach-Profile')}>Profile</li>
-            <li className="my-4 cursor-pointer text-[1.2rem] text-center hover:text-gray-300" onClick={() => navigate('/Coach-Analytics')}>Analytics</li>
-            <li className="my-4 cursor-pointer text-[1.2rem] text-center hover:text-gray-300" onClick={() => navigate('/Schedule')}>Scheduler</li>
-            <li className="my-4 cursor-pointer text-[1.2rem] text-center text-red-500 hover:underline" onClick={() => {
-              localStorage.clear()
-              localStorage.removeItem('coachId');
-              localStorage.removeItem('email');
-              Cookies.remove('Coachtoken');
-              navigate('/Coach-login');
-            }}>
-              Logout
-            </li>
-          </ul>
-        </nav>
-      </div>
-
-      <div className={`flex-1 transition-[margin-left] duration-300 ${menuOpen ? 'md:ml-[250px]' : 'ml-0'}`}>
-        <header className="flex justify-between items-center w-full py-3 px-6 shadow-md rounded-lg mx-auto bg-white mb-6">
-          <div className="text-[2rem] cursor-pointer" onClick={toggleMenu}>
-            &#9776;
-          </div>
-          <h2 className="text-xl font-bold">Welcome, {coachName}</h2>
-          <div className="relative inline-block">
-            <div className="text-2xl">&#128276;</div>
-            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-red-500 transform -rotate-45"></div>
-          </div>
-        </header>
-
-        <main className="flex flex-col items-center w-full px-4 md:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-evenly w-full gap-8 mb-8">
-            <div className="flex items-center gap-4 md:gap-32">
-              <span className="text-[2rem] cursor-pointer" onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-                &#128197;
-              </span>
-              <div className="flex items-center justify-evenly flex-grow gap-4">
-                <span className="text-[1.5rem] cursor-pointer text-[#007aff] hover:text-[#005bb5]" onClick={handlePrevious}>&#10094;</span>
-                {dates.map((date, index) => (
-                  <span
-                    key={index}
-                    className={`text-base cursor-pointer px-4 py-2 rounded transition-colors ${date.getTime() === selectedDate.getTime() ? 'bg-[#007bffb3] text-white font-bold' : 'text-[#007aff] hover:bg-gray-100'}`}
-                    onClick={() => setSelectedDate(date)}
-                  >
-                    {format(date, 'MMM d yyyy')}
-                  </span>
-                ))}
-                <span className="text-[1.5rem] cursor-pointer text-[#007aff] hover:text-[#005bb5]" onClick={handleNext}>&#10095;</span>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <label htmlFor="filter" className="mr-2 font-bold md:ml-24 ml-1">
-                Filter:
-              </label>
-              <select
-                id="filter"
-                value={filter}
-                onChange={handleFilterChange}
-                className="p-2 border border-gray-300 rounded text-base cursor-pointer bg-white"
+    <CoachShell title="Dashboard">
+      <div className="space-y-6">
+        {/* Controls Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+           <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+              <button
+                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                className="p-2 bg-gray-50 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors border border-gray-200"
               >
-                <option value="All">All</option>
-                <option value="completed">Completed</option>
-                <option value="available">Available</option>
-                <option value="booked">Booked</option>
-                <option value="canceled">canceled</option>
-                <option value="unbooked">Unbooked</option>
-              </select>
-            </div>
-          </div>
+                <Calendar size={20} />
+              </button>
 
-          {isCalendarOpen && (
-            <div className="mb-6">
+              <button onClick={handlePrevious} className="p-2 text-gray-500 hover:text-indigo-600">
+                <ChevronLeft size={20} />
+              </button>
+
+              <div className="flex gap-2">
+                {dates.map((date, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedDate(date)}
+                    className={`
+                      px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap
+                      ${date.getTime() === selectedDate.getTime()
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+                        : 'text-gray-600 hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    {format(date, 'MMM d')}
+                  </button>
+                ))}
+              </div>
+
+              <button onClick={handleNext} className="p-2 text-gray-500 hover:text-indigo-600">
+                <ChevronRight size={20} />
+              </button>
+           </div>
+
+           <div className="flex items-center gap-2 w-full md:w-auto">
+              <div className="relative w-full">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Filter className="text-gray-400" size={14} />
+                </div>
+                <select
+                  value={filter}
+                  onChange={handleFilterChange}
+                  className="w-full pl-9 pr-8 py-2 bg-gray-50 border border-gray-200 text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm appearance-none cursor-pointer"
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="completed">Completed</option>
+                  <option value="available">Available</option>
+                  <option value="booked">Booked</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+           </div>
+        </div>
+
+        {isCalendarOpen && (
+          <div className="flex justify-center mb-6">
+            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-lg">
               <DatePicker
                 selected={selectedDate}
                 onChange={handleDateChange}
                 inline
-                className="custom-datepicker"
               />
             </div>
-          )}
-
-          <div className="w-[95%] max-w-[1000px] mx-auto">
-            {loading ? (
-              <div className="mt-5 text-lg text-[#666] text-center">Loading slots...</div>
-            ) : error ? (
-              <div className="mt-5 text-lg text-[#666] text-center">{error}</div>
-            ) : filteredSlots.length === 0 ? (
-              <div className="mt-5 text-lg text-[#666] text-center">No slots available</div>
-            ) : (
-              isMobile ? (
-                <div className="flex flex-col gap-4 mt-5">
-                  {filteredSlots.map((slot, index) => (
-                    <div key={index} className="bg-white p-4 rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform flex flex-col gap-2 border border-gray-200" onClick={() => handleRowClick(slot)}>
-                      <div className="font-bold">Time: {`${slot.startTime} - ${slot.endTime}`}</div>
-                      <div className="font-bold">Status:
-                        <span className={`ml-2 ${getStatusClass(slot.status)}`}>{slot.status}</span>
-                      </div>
-                      <div className="text-sm text-[#555]">Duration: {slot.duration} mins</div>
-                      <div className="text-sm text-[#555]">Slot Type: {slot.slotType}</div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse mt-2">
-                    <thead>
-                      <tr>
-                        <th className="p-3 border border-[#ddd] text-left bg-[#f4f4f4] font-bold">Date</th>
-                        <th className="p-3 border border-[#ddd] text-left bg-[#f4f4f4] font-bold">Time</th>
-                        <th className="p-3 border border-[#ddd] text-left bg-[#f4f4f4] font-bold">Status</th>
-                        <th className="p-3 border border-[#ddd] text-left bg-[#f4f4f4] font-bold">Duration</th>
-                        <th className="p-3 border border-[#ddd] text-left bg-[#f4f4f4] font-bold">Slot Type</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSlots.map((slot, index) => (
-                        <tr key={index} className="hover:bg-[#f1f1f1] cursor-pointer" onClick={() => handleRowClick(slot)}>
-                          <td className="p-3 border border-[#ddd]">{format(selectedDate, 'MMM d, yyyy')}</td>
-                          <td className="p-3 border border-[#ddd]">{`${slot.startTime} - ${slot.endTime}`}</td>
-                          <td className={`p-3 border border-[#ddd] ${getStatusClass(slot.status)}`}>{slot.status}</td>
-                          <td className="p-3 border border-[#ddd]">{slot.duration} mins</td>
-                          <td className="p-3 border border-[#ddd]">{slot.slotType}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )
-            )}
           </div>
-        </main>
+        )}
+
+        {/* Slots Content */}
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden min-h-[400px]">
+           {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+           ) : error ? (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                {error}
+              </div>
+           ) : filteredSlots.length === 0 ? (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                No slots available for this date.
+              </div>
+           ) : (
+              <>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                   <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 border-b border-gray-100">
+                           <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                           <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</th>
+                           <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                           <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Duration</th>
+                           <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                         {filteredSlots.map((slot, index) => (
+                           <tr
+                              key={index}
+                              onClick={() => handleRowClick(slot)}
+                              className="hover:bg-gray-50 transition-colors cursor-pointer"
+                           >
+                              <td className="py-4 px-6 text-sm text-gray-900">{format(selectedDate, 'MMM d, yyyy')}</td>
+                              <td className="py-4 px-6 text-sm text-gray-900 font-medium">{`${slot.startTime} - ${slot.endTime}`}</td>
+                              <td className="py-4 px-6">
+                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(slot.status)}`}>
+                                    {slot.status}
+                                 </span>
+                              </td>
+                              <td className="py-4 px-6 text-sm text-gray-600">{slot.duration} mins</td>
+                              <td className="py-4 px-6 text-sm text-gray-600 capitalize">{slot.slotType}</td>
+                           </tr>
+                         ))}
+                      </tbody>
+                   </table>
+                </div>
+
+                {/* Mobile List */}
+                <div className="md:hidden p-4 space-y-4">
+                   {filteredSlots.map((slot, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleRowClick(slot)}
+                        className="bg-gray-50 border border-gray-200 rounded-lg p-4 active:scale-[0.98] transition-transform"
+                      >
+                         <div className="flex justify-between items-start mb-2">
+                            <span className="font-semibold text-gray-900">{slot.startTime} - {slot.endTime}</span>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(slot.status)}`}>
+                               {slot.status}
+                            </span>
+                         </div>
+                         <div className="flex justify-between text-sm text-gray-500">
+                            <span>{slot.duration} mins</span>
+                            <span className="capitalize">{slot.slotType}</span>
+                         </div>
+                      </div>
+                   ))}
+                </div>
+              </>
+           )}
+        </div>
       </div>
 
       {selectedBooking && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-[1000]">
-          <div className="bg-white p-4 rounded-lg w-[350px] max-w-[90%] relative shadow-lg">
-            <button className="absolute top-2 right-2 text-2xl bg-none border-none text-black hover:text-red-500 cursor-pointer" onClick={() => setSelectedBooking(null)}>
-              &times;
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
+               <h3 className="text-lg font-bold text-gray-900">Booking Details</h3>
+               <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                 <X size={20} />
+               </button>
+            </div>
 
-            <h3 className="text-lg font-bold text-center mt-0 mb-4">Booking Details</h3>
-            <div className="text-sm">
-              <p className="mb-2"><strong>User Name:</strong> {selectedBooking.userName}</p>
-              <p className="mb-2"><strong>Child Name:</strong> {selectedBooking.childName}</p>
-              <p className="mb-2"><strong>Date:</strong> {selectedBooking.date?.split('T')[0]}</p>
-              <p className="mb-2"><strong>Start Time:</strong> {selectedBooking.startTime}</p>
-              <p className="mb-2"><strong>End Time:</strong> {selectedBooking.endTime}</p>
-              <p className="mb-2"><strong>Slot Type:</strong> {selectedBooking.slotType}</p>
-              <p className="mb-2"><strong>Status:</strong> <span>{selectedBooking.status}</span></p>
+            <div className="space-y-3">
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">User</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.userName}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Child</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.childName || 'N/A'}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Date</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.date}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Time</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.startTime} - {selectedBooking.endTime}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Type</span>
+                  <span className="text-sm font-medium text-gray-900 capitalize">{selectedBooking.slotType}</span>
+               </div>
+               <div className="flex justify-between items-center pt-2">
+                  <span className="text-sm text-gray-500">Status</span>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedBooking.status)}`}>
+                      {selectedBooking.status}
+                  </span>
+               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </CoachShell>
   );
 };
 

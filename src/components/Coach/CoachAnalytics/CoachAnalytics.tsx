@@ -3,32 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  CssVarsProvider,
-  extendTheme,
-  CssBaseline,
-  Box,
-  Typography,
-  Table,
-  Sheet,
-  Chip,
-  CircularProgress,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Button,
-  Select,
-  Option,
-  FormControl,
-  FormLabel,
-  Input,
-  Card,
-  CardContent,
-  CardActions,
-} from '@mui/joy';
-import { ArrowBack, ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Domain_URL } from '../../config';
+import { ChevronLeft, ChevronRight, Filter, Search, X, Calendar, Clock } from 'react-bootstrap-icons';
+import CoachShell from '../../Layout/CoachShell';
 
 interface Booking {
   bookingId: string;
@@ -50,10 +28,6 @@ interface Booking {
   date: string | null;
 }
 
-const theme = extendTheme({
-  // Theme customization (colors, typography, etc.)
-});
-
 export default function CoachAnalytics() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
@@ -67,7 +41,7 @@ export default function CoachAnalytics() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10); // Increased for better table view
 
   const navigate = useNavigate();
   const CoachId = localStorage.getItem('coachId');
@@ -158,250 +132,269 @@ export default function CoachAnalytics() {
     }
   
     setFilteredBookings(filtered);
+    setCurrentPage(1); // Reset to first page on filter change
   };
 
-  const getStatusColor = (status: string) => {
-    const statusColors: Record<string, 'primary' | 'success' | 'danger' | 'neutral'> = {
-      progress: 'primary',
-      completed: 'success',
-      canceled: 'danger',
-      upcoming: 'neutral',
-    };
-    return statusColors[status.toLowerCase()] || 'neutral';
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'canceled':
+        return 'bg-red-50 text-red-700 border-red-200';
+      case 'upcoming':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'progress':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
   };
 
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
   const currentItems = filteredBookings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <CssVarsProvider theme={theme}>
-      <CssBaseline />
-      <Box
-        sx={{
-          p: { xs: 2, md: 4 },
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        }}
-      >
-        <Box sx={{ maxWidth: 2000 }}>
-          <Button
-            startDecorator={<ArrowBack />}
-            onClick={() => navigate('/Coach-Dashboard')}
-            variant="outlined"
-            color="neutral"
-            sx={{
-              mb: 2,
-              backgroundColor: '#0B6BCB',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: '#1b90ed',
-              },
-            }}
-          >
-            Back to Dashboard
-          </Button>
+    <CoachShell title="Analytics">
+      <div className="space-y-6">
+        {/* Header Summary */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+           <div>
+              <h2 className="text-lg font-bold text-gray-900">Booking Analytics</h2>
+              <p className="text-sm text-gray-500">View and manage your booking history.</p>
+           </div>
+           <div className="text-right">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Total Bookings</span>
+              <p className="text-2xl font-bold text-indigo-600">{filteredBookings.length}</p>
+           </div>
+        </div>
 
-          {coachName && (
-            <Typography level="h4" sx={{ mb: 2, textAlign: 'center', fontWeight: 'bold' }}>
-              Coach: {coachName}
-            </Typography>
-          )}
+        {/* Filters */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+           <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <Filter size={14} /> Filters
+           </h3>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">Status</label>
+                 <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  >
+                    <option value="">All</option>
+                    <option value="booked">Booked</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="progress">Progress</option>
+                    <option value="canceled">Canceled</option>
+                    <option value="completed">Completed</option>
+                  </select>
+              </div>
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">Child Name</label>
+                 <input
+                    value={childNameSearch}
+                    onChange={(e) => setChildNameSearch(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+              </div>
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">Start Time</label>
+                 <input
+                    value={startTimeSearch}
+                    onChange={(e) => setStartTimeSearch(e.target.value)}
+                    placeholder="HH:MM"
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+              </div>
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">End Time</label>
+                 <input
+                    value={endTimeSearch}
+                    onChange={(e) => setEndTimeSearch(e.target.value)}
+                    placeholder="HH:MM"
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+              </div>
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">Start Date</label>
+                 <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+              </div>
+              <div className="space-y-1">
+                 <label className="text-xs font-medium text-gray-500">End Date</label>
+                 <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+              </div>
+           </div>
+        </div>
 
-          <Typography level="h2" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
-            Analytics
-          </Typography>
+        {/* Results */}
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden min-h-[400px]">
+           {loading ? (
+              <div className="flex justify-center items-center h-64">
+                 <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+           ) : error ? (
+              <div className="flex justify-center items-center h-64 text-gray-500">
+                 {error}
+              </div>
+           ) : (
+              <>
+                 {/* Desktop Table */}
+                 <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                       <thead>
+                          <tr className="bg-gray-50 border-b border-gray-100">
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Child</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Duration</th>
+                             <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                          </tr>
+                       </thead>
+                       <tbody className="divide-y divide-gray-100">
+                          {currentItems.length > 0 ? (
+                             currentItems.map((booking) => (
+                                <tr
+                                   key={booking.bookingId}
+                                   onClick={() => setSelectedBooking(booking)}
+                                   className="hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                   <td className="py-4 px-6 text-sm text-gray-900 font-medium">{booking.userName}</td>
+                                   <td className="py-4 px-6 text-sm text-gray-600">{booking.childName || '-'}</td>
+                                   <td className="py-4 px-6 text-sm text-gray-600">{booking.date}</td>
+                                   <td className="py-4 px-6 text-sm text-gray-600">{booking.startTime} - {booking.endTime}</td>
+                                   <td className="py-4 px-6">
+                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(booking.status)}`}>
+                                         {booking.status}
+                                      </span>
+                                   </td>
+                                   <td className="py-4 px-6 text-sm text-gray-600">{booking.slotDuration}</td>
+                                   <td className="py-4 px-6 text-sm text-gray-600 capitalize">{booking.slotType}</td>
+                                </tr>
+                             ))
+                          ) : (
+                             <tr>
+                                <td colSpan={7} className="py-12 text-center text-gray-500">No bookings found</td>
+                             </tr>
+                          )}
+                       </tbody>
+                    </table>
+                 </div>
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2, justifyContent: 'flex-end' }}>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Filter by Status</FormLabel>
-              <Select 
-                value={statusFilter} 
-                onChange={(_, value) => setStatusFilter(value || '')} 
-              >
-                <Option value="">All</Option>
-                <Option value="booked">booked</Option>
-                <Option value="upcoming">Upcoming</Option>
-                <Option value="progress">Progress</Option>
-                <Option value="canceled">canceled</Option>
-                <Option value="completed">completed</Option>
-              </Select>
-            </FormControl>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Search by Child Name</FormLabel>
-              <Input
-                value={childNameSearch}
-                onChange={(e) => setChildNameSearch(e.target.value)}
-                placeholder="Enter child name"
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Search by Start Time</FormLabel>
-              <Input
-                value={startTimeSearch}
-                onChange={(e) => setStartTimeSearch(e.target.value)}
-                placeholder="Enter start time"
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Search by End Time</FormLabel>
-              <Input
-                value={endTimeSearch}
-                onChange={(e) => setEndTimeSearch(e.target.value)}
-                placeholder="Enter end time"
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>Start Date</FormLabel>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </FormControl>
-            <FormControl sx={{ minWidth: { xs: '100%', sm: 'auto' } }}>
-              <FormLabel>End Date</FormLabel>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </FormControl>
-          </Box>
-
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <CircularProgress />
-            </Box>
-          ) : error ? (
-            <Typography sx={{ textAlign: 'center' }}>{error}</Typography>
-          ) : (
-            <>
-              {/* {/ Mobile view: Cards /} */}
-              <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-                {currentItems.length > 0 ? (
-                  currentItems.map((booking) => (
-                    <Card key={booking.bookingId} sx={{ mb: 2 }}>
-                      <CardContent>
-                        <Typography level='body-md'>{booking.userName}</Typography>
-                        <Typography>Child: {booking.childName}</Typography>
-                        <Typography>Date: {booking.date}</Typography>
-                        <Typography>Time: {booking.startTime} - {booking.endTime}</Typography>
-                        <Typography>Duration: {booking.slotDuration}</Typography>
-                        <Typography>Type: {booking.slotType}</Typography>
-                        <Chip 
-                          color={getStatusColor(booking.status)}
-                          sx={{ mt: 1 }}
-                        >
-                          {booking.status}
-                        </Chip>
-                      </CardContent>
-                      <CardActions>
-                        <Button onClick={() => setSelectedBooking(booking)}>View Details</Button>
-                      </CardActions>
-                    </Card>
-                  ))
-                ) : (
-                  <Typography sx={{ textAlign: 'center' }}>No bookings found</Typography>
-                )}
-              </Box>
-
-              {/* {/ Desktop view: Table /} */}
-              <Sheet 
-                variant="outlined" 
-                sx={{ 
-                  display: { xs: 'none', md: 'block' },
-                  borderRadius: 'sm', 
-                  overflow: 'auto' 
-                }}
-              >
-                <Table stickyHeader>
-                  <thead>
-                    <tr>
-                      <th>User</th>
-                      <th>Child</th>
-                      <th>Coach</th>
-                      <th>Date</th>
-                      <th>Start Time</th>
-                      <th>End Time</th>
-                      <th>Duration</th>
-                      <th>Slot Type</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                 {/* Mobile List */}
+                 <div className="md:hidden p-4 space-y-4">
                     {currentItems.length > 0 ? (
-                      currentItems.map((booking) => (
-                        <tr key={booking.bookingId} onClick={() => setSelectedBooking(booking)} style={{ cursor: 'pointer' }}>
-                          <td>{booking.userName}</td>
-                          <td>{booking.childName}</td>
-                          <td>{booking.coachName}</td>
-                          <td>{booking.date?.split('T')[0]}</td>
-                          <td>{booking.startTime}</td>
-                          <td>{booking.endTime}</td>
-                          <td>{booking.slotDuration}</td>
-                          <td>{booking.slotType}</td>
-                          <td>
-                            <Chip color={getStatusColor(booking.status)}>{booking.status}</Chip>
-                          </td>
-                        </tr>
-                      ))
+                       currentItems.map((booking) => (
+                          <div
+                             key={booking.bookingId}
+                             onClick={() => setSelectedBooking(booking)}
+                             className="bg-gray-50 border border-gray-200 rounded-lg p-4 active:scale-[0.98] transition-transform"
+                          >
+                             <div className="flex justify-between items-start mb-2">
+                                <span className="font-semibold text-gray-900">{booking.userName}</span>
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(booking.status)}`}>
+                                   {booking.status}
+                                </span>
+                             </div>
+                             <div className="text-sm text-gray-600 space-y-1">
+                                <p>Child: {booking.childName || '-'}</p>
+                                <p>Date: {booking.date}</p>
+                                <p>Time: {booking.startTime} - {booking.endTime}</p>
+                             </div>
+                          </div>
+                       ))
                     ) : (
-                      <tr>
-                        <td colSpan={9} style={{ textAlign: 'center' }}>No bookings found</td>
-                      </tr>
+                       <div className="text-center text-gray-500 py-8">No bookings found</div>
                     )}
-                  </tbody>
-                </Table>
-              </Sheet>
-            </>
-          )}
+                 </div>
+              </>
+           )}
+        </div>
 
-          {/* {/ Pagination Controls /} */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              variant="outlined"
-              sx={{ mr: 2 }}
-            >
-              <ArrowBackIos />
-            </Button>
-            <Typography>{`Page ${currentPage} of ${totalPages}`}</Typography>
-            <Button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              variant="outlined"
-              sx={{ ml: 2 }}
-            >
-              <ArrowForwardIos />
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* {/ Modal for booking details /} */}
-      <Modal open={Boolean(selectedBooking)} onClose={() => setSelectedBooking(null)}>
-        <ModalDialog>
-          <ModalClose />
-          <Typography>Booking Details</Typography>
-          {selectedBooking && (
-            <Box sx={{ mt: 2 }}>
-              <Typography><strong>User Name:</strong> {selectedBooking.userName}</Typography>
-              <Typography><strong>Child Name:</strong> {selectedBooking.childName}</Typography>
-              <Typography><strong>Coach Name:</strong> {selectedBooking.coachName}</Typography>
-              <Typography><strong>Date:</strong> {selectedBooking.date?.split('T')[0]}</Typography>
-              <Typography><strong>Start Time:</strong> {selectedBooking.startTime}</Typography>
-              <Typography><strong>End Time:</strong> {selectedBooking.endTime}</Typography>
-              <Typography><strong>Slot Type:</strong> {selectedBooking.slotType}</Typography>
-              <Typography><strong>Duration:</strong> {selectedBooking.slotDuration}</Typography>
-              <Typography><strong>Status:</strong> <Chip color={getStatusColor(selectedBooking.status)}>{selectedBooking.status}</Chip></Typography>
-            </Box>
+         {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 pt-4">
+               <button
+                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                 disabled={currentPage === 1}
+                 className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+               >
+                 <ChevronLeft />
+               </button>
+               <span className="text-sm font-medium text-gray-700">Page {currentPage} of {totalPages}</span>
+               <button
+                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                 disabled={currentPage === totalPages}
+                 className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white transition-colors"
+               >
+                 <ChevronRight />
+               </button>
+            </div>
           )}
-          <Button variant="outlined" onClick={() => setSelectedBooking(null)} sx={{ mt: 2 }}>
-            Close
-          </Button>
-        </ModalDialog>
-      </Modal>
-    </CssVarsProvider>
+      </div>
+
+      {/* Booking Details Modal */}
+      {selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-gray-100" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
+               <h3 className="text-lg font-bold text-gray-900">Booking Details</h3>
+               <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                 <X size={20} />
+               </button>
+            </div>
+
+            <div className="space-y-3">
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">User Name</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.userName}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Child Name</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.childName || 'N/A'}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Coach Name</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.coachName}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Date</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.date}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Time</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.startTime} - {selectedBooking.endTime}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Duration</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedBooking.slotDuration}</span>
+               </div>
+               <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Type</span>
+                  <span className="text-sm font-medium text-gray-900 capitalize">{selectedBooking.slotType}</span>
+               </div>
+               <div className="flex justify-between items-center pt-2">
+                  <span className="text-sm text-gray-500">Status</span>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedBooking.status)}`}>
+                      {selectedBooking.status}
+                  </span>
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </CoachShell>
   );
 }

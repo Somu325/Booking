@@ -1,26 +1,12 @@
+
+'use client'
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './BookingList.css';
-import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from '@mui/material';
-import { FaArrowLeft } from 'react-icons/fa';
 import { Domain_URL } from "../../config";
-import { useNavigate } from 'react-router-dom'; 
-import { useMediaQuery } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import AdminShell from '../../Layout/AdminShell';
+import { ChevronLeft, ChevronRight, Eye, X } from 'react-bootstrap-icons';
 
 interface Booking {
   id: string;
@@ -30,17 +16,16 @@ interface Booking {
   slotId: string;
 }
 
-const BookingList: React.FC = () => {
+export default function BookingList() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
-  const navigate = useNavigate();
-
-  const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  useEffect(() => {
+    fetchBookings();
+  }, []);
 
   const fetchBookings = async () => {
     try {
@@ -52,118 +37,139 @@ const BookingList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const paginatedBookings = bookings.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  const totalPages = Math.ceil(bookings.length / rowsPerPage);
 
-  const handleView = (booking: Booking) => {
-    setSelectedBooking(booking);
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'canceled':
+        return 'bg-red-50 text-red-700 border-red-200';
+      case 'booked':
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
   };
-
-  const closeDetails = () => {
-    setSelectedBooking(null);
-  };
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const goBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
-  const paginatedBookings = bookings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <div>
-      <button onClick={goBackToDashboard} className="go-back-button">
-        <FaArrowLeft /> Go Back to Dashboard
-      </button>
-
-      <Box sx={{ flex: 1, overflowY: 'auto', padding: 2 }}>
-        <h2>Booking Details</h2>
-        {error && <Typography color="error">{error}</Typography>}
-
-        {isMobile ? (
-          <div>
-            {paginatedBookings.map((booking) => (
-              <div key={booking.id} className="booking-card">
-                <p><strong>User Name:</strong> {booking.userName}</p>
-                <p><strong>Coach Name:</strong> {booking.coachName}</p>
-                <p><strong>Status:</strong> {booking.status}</p>
-                <p><strong>Slot ID:</strong> {booking.slotId}</p>
-                <div className="booking-actions">
-                  <button onClick={() => handleView(booking)}>View</button>
-                </div>
-              </div>
-            ))}
+    <AdminShell title="Bookings">
+      <div className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            {error}
           </div>
-        ) : (
-          <TableContainer style={{ overflowX: 'auto' }}>
-            <Table>
-              <TableHead sx={{ backgroundColor: '#007bff', '& .MuiTableCell-root': { color: 'white' }, '& .MuiTableRow-root:hover': { backgroundColor: 'transparent' } }}>
-                <TableRow>
-                  <TableCell>User Name</TableCell>
-                  <TableCell>Coach Name</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedBookings.map((booking) => (
-                  <TableRow key={booking.id}>
-                    <TableCell>{booking.userName}</TableCell>
-                    <TableCell>{booking.coachName}</TableCell>
-                    <TableCell>{booking.status}</TableCell>
-                    <TableCell>
-                      <button onClick={() => handleView(booking)}>View</button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
         )}
 
-        <TablePagination
-          component="div"
-          count={bookings.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 25]}
-          sx={{
-            display: 'flex',
-            justifyContent: isMobile ? 'center' : 'flex-start',
-            paddingTop: 2,
-          }}
-        />
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+           <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                 <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Name</th>
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Coach Name</th>
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-gray-100">
+                    {paginatedBookings.map((booking) => (
+                       <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="py-4 px-6 text-sm text-gray-900 font-medium">{booking.userName}</td>
+                          <td className="py-4 px-6 text-sm text-gray-600">{booking.coachName}</td>
+                          <td className="py-4 px-6">
+                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(booking.status)}`}>
+                                {booking.status}
+                             </span>
+                          </td>
+                          <td className="py-4 px-6">
+                             <button
+                               onClick={() => setSelectedBooking(booking)}
+                               className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                               title="View Details"
+                             >
+                                <Eye size={16} />
+                             </button>
+                          </td>
+                       </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
 
-        <Dialog open={!!selectedBooking} onClose={closeDetails}>
-          <DialogTitle>Booking Details</DialogTitle>
-          <DialogContent>
-            {selectedBooking && (
-              <>
-                <p><strong>User Name:</strong> {selectedBooking.userName}</p>
-                <p><strong>Coach Name:</strong> {selectedBooking.coachName}</p>
-                <p><strong>Status:</strong> {selectedBooking.status}</p>
-                <p><strong>Slot ID:</strong> {selectedBooking.slotId}</p>
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeDetails} color="primary">Close</Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    </div>
+           {/* Pagination */}
+           {bookings.length > 0 && (
+             <div className="border-t border-gray-100 p-4 flex items-center justify-between">
+                <span className="text-sm text-gray-500">
+                   Showing {page * rowsPerPage + 1} to {Math.min((page + 1) * rowsPerPage, bookings.length)} of {bookings.length} entries
+                </span>
+                <div className="flex gap-2">
+                   <button
+                     onClick={() => setPage(Math.max(0, page - 1))}
+                     disabled={page === 0}
+                     className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:bg-white transition-colors"
+                   >
+                     <ChevronLeft size={16} />
+                   </button>
+                   <button
+                     onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                     disabled={page === totalPages - 1}
+                     className="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:bg-white transition-colors"
+                   >
+                     <ChevronRight size={16} />
+                   </button>
+                </div>
+             </div>
+           )}
+
+           {bookings.length === 0 && !error && (
+              <div className="p-8 text-center text-gray-500">No bookings found.</div>
+           )}
+        </div>
+      </div>
+
+      {/* Modal */}
+      {selectedBooking && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setSelectedBooking(null)}>
+            <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-gray-100" onClick={e => e.stopPropagation()}>
+               <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                  <h3 className="text-lg font-bold text-gray-900">Booking Details</h3>
+                  <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600">
+                    <X size={20} />
+                  </button>
+               </div>
+               <div className="space-y-3">
+                  <div className="flex justify-between">
+                     <span className="text-sm text-gray-500">User</span>
+                     <span className="text-sm font-medium text-gray-900">{selectedBooking.userName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                     <span className="text-sm text-gray-500">Coach</span>
+                     <span className="text-sm font-medium text-gray-900">{selectedBooking.coachName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                     <span className="text-sm text-gray-500">Slot ID</span>
+                     <span className="text-sm font-medium text-gray-900">{selectedBooking.slotId}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2">
+                     <span className="text-sm text-gray-500">Status</span>
+                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusStyle(selectedBooking.status)}`}>
+                        {selectedBooking.status}
+                     </span>
+                  </div>
+               </div>
+               <div className="mt-6">
+                  <button
+                    onClick={() => setSelectedBooking(null)}
+                    className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Close
+                  </button>
+               </div>
+            </div>
+         </div>
+      )}
+    </AdminShell>
   );
-};
-
-export default BookingList;
+}

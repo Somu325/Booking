@@ -1,10 +1,12 @@
+
+'use client'
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box } from '@mui/material';
-import { FaArrowLeft } from 'react-icons/fa';
-import './RealTime.css'; // Updated CSS for card view
 import { Domain_URL } from "../../config";
 import { useNavigate } from 'react-router-dom';
+import AdminShell from '../../Layout/AdminShell';
+import { People, Activity, CalendarCheck } from 'react-bootstrap-icons';
 
 interface User {
   userId: string;
@@ -14,34 +16,27 @@ interface User {
   email: string;
 }
 
-const RealTime: React.FC = () => {
+export default function RealTime() {
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const [activeSessions, setActiveSessions] = useState<number>(0);
   const [bookedSlots, setBookedSlots] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [userDetails, setUserDetails] = useState<User[]>([]);
-  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
-  const navigate = useNavigate();
 
-  // Fetch data for analytics
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
 
-        // Fetch total user count
         const usersResponse = await axios.get(`${Domain_URL}/user/count`);
         setTotalUsers(usersResponse.data.count);
 
-        // Fetch active sessions count
         const sessionsResponse = await axios.get(`${Domain_URL}/bookings/progress/count`);
         setActiveSessions(sessionsResponse.data.count);
 
-        // Fetch booked slots count
         const slotsResponse = await axios.get(`${Domain_URL}/slot/booked/count`);
         setBookedSlots(slotsResponse.data.count);
 
-        // Fetch user details and sort them by name in ascending order
         const userDetailsResponse = await axios.get(`${Domain_URL}/user/users`);
         const sortedUserDetails = userDetailsResponse.data.sort((a: User, b: User) =>
           a.name.localeCompare(b.name)
@@ -55,90 +50,94 @@ const RealTime: React.FC = () => {
     };
 
     fetchUserData();
-
-    // Handle resize events for dynamic responsiveness
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <AdminShell title="Analytics">
+        <div className="flex justify-center items-center h-64">
+           <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </AdminShell>
+    );
   }
 
-  const goBackToDashboard = () => {
-    navigate('/dashboard');
-  };
-
   return (
-    <div>
-      <button onClick={goBackToDashboard} className="go-back-button">
-        <FaArrowLeft /> Go Back to Dashboard
-      </button>
+    <AdminShell title="Analytics">
+      <div className="space-y-8">
 
-      {/* Real-time Analytics Content */}
-      <Box sx={{ flex: 1, overflowY: 'auto', padding: 2 }}>
-        <div className="analytics-container">
-          <h1>Analytics</h1>
-          <div className="summary-cards">
-            <div className="summary-card">
-              <h3>Total Users</h3>
-              <p>{totalUsers}</p>
-            </div>
-            <div className="summary-card">
-              <h3>Active Sessions</h3>
-              <p>{activeSessions}</p>
-            </div>
-            <div className="summary-card">
-              <h3>Booked Slots</h3>
-              <p>{bookedSlots}</p>
-            </div>
-          </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                    <People size={24} />
+                 </div>
+                 <div>
+                    <p className="text-sm font-medium text-gray-500">Total Users</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{totalUsers}</h3>
+                 </div>
+              </div>
+           </div>
 
-          <h2>User Details</h2>
-          {isMobile ? (
-            // Render user details as cards on mobile
-            <div className="user-card-container">
-              {userDetails.map((user) => (
-                <div className="user-card" key={user.userId}>
-                  <h3>{user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : 'N/A'}</h3>
-                  <p>Email: {user.email || 'N/A'}</p>
-                  <p>Mobile: {user.mobileNumber || 'N/A'}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            // Render user details as a table on desktop
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Mobile Number</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userDetails.length > 0 ? (
-                  userDetails.map((user) => (
-                    <tr key={user.userId}>
-                      <td>{user.name ? user.name.charAt(0).toUpperCase() + user.name.slice(1).toLowerCase() : 'N/A'}</td>
-                      <td>{user.email || 'N/A'}</td>
-                      <td>{user.mobileNumber || 'N/A'}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={3}>No user details available.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
+           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                    <Activity size={24} />
+                 </div>
+                 <div>
+                    <p className="text-sm font-medium text-gray-500">Active Sessions</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{activeSessions}</h3>
+                 </div>
+              </div>
+           </div>
+
+           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                    <CalendarCheck size={24} />
+                 </div>
+                 <div>
+                    <p className="text-sm font-medium text-gray-500">Booked Slots</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{bookedSlots}</h3>
+                 </div>
+              </div>
+           </div>
         </div>
-      </Box>
-    </div>
-  );
-};
 
-export default RealTime;
+        {/* User Table */}
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+           <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="text-lg font-bold text-gray-900">User Details</h3>
+           </div>
+           <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                 <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                       <th className="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Mobile</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-gray-100">
+                    {userDetails.length > 0 ? (
+                       userDetails.map((user) => (
+                          <tr key={user.userId} className="hover:bg-gray-50 transition-colors">
+                             <td className="py-4 px-6 text-sm text-gray-900 font-medium capitalize">{user.name}</td>
+                             <td className="py-4 px-6 text-sm text-gray-600">{user.email}</td>
+                             <td className="py-4 px-6 text-sm text-gray-600">{user.mobileNumber}</td>
+                          </tr>
+                       ))
+                    ) : (
+                       <tr>
+                          <td colSpan={3} className="py-8 text-center text-gray-500">No user details available.</td>
+                       </tr>
+                    )}
+                 </tbody>
+              </table>
+           </div>
+        </div>
+      </div>
+    </AdminShell>
+  );
+}
