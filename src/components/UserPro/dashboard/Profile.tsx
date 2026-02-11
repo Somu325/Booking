@@ -1,254 +1,160 @@
+'use client';
 
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
-import { CssVarsProvider, extendTheme } from '@mui/joy/styles'
-import CssBaseline from '@mui/joy/CssBaseline'
-import Box from '@mui/joy/Box'
-import Button from '@mui/joy/Button'
-import Card from '@mui/joy/Card'
-import CardContent from '@mui/joy/CardContent'
-import Typography from '@mui/joy/Typography'
-import Input from '@mui/joy/Input'
-import IconButton from '@mui/joy/IconButton'
-import Modal from '@mui/joy/Modal'
-import ModalDialog from '@mui/joy/ModalDialog'
-import ModalClose from '@mui/joy/ModalClose'
-import { Add, Edit, Delete, AccountCircle, VerifiedUser, ArrowBack, Save } from '@mui/icons-material'
-
-import { Domain_URL } from '../../config'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Person, Envelope, Telephone, ShieldCheck, ExclamationCircle, Pencil, Trash, Plus, Check, X, GenderMale, GenderFemale } from 'react-bootstrap-icons';
+import UserShell from '../Layout/UserShell';
+import { Domain_URL } from '../../config';
 
 // Define interfaces for User and EmailVerificationData
 interface User {
-  userId: string
-  name: string
-  age: number
-  mobileNumber: string
-  email: string
-  gender: string
-  password: string
-  verified: boolean
-  children?: { childId: string; name: string; age: number; gender: string }[]
+  userId: string;
+  name: string;
+  age: number;
+  mobileNumber: string;
+  email: string;
+  gender: string;
+  password: string;
+  verified: boolean;
+  children?: { childId: string; name: string; age: number; gender: string }[];
 }
 
 interface EmailVerificationData {
-  orderId: string
+  orderId: string;
 }
 
-// Custom theme configuration
-const theme = extendTheme({
-  colorSchemes: {
-    light: {
-      palette: {
-        background: {
-          body: 'rgba(255, 255, 255, 0.8)',
-        },
-        primary: {
-          50: '#e3f2fd',
-          100: '#bbdefb',
-          200: '#90caf9',
-          300: '#64b5f6',
-          400: '#42a5f5',
-          500: '#2196f3',
-          600: '#1e88e5',
-          700: '#1976d2',
-          800: '#1565c0',
-          900: '#0d47a1',
-        },
-      },
-    },
-  },
-  components: {
-    JoyCard: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          backdropFilter: 'blur(10px)',
-          transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-5px)',
-            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-          },
-        },
-      },
-    },
-    JoyButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          textTransform: 'none',
-          fontWeight: 600,
-        },
-      },
-    },
-    JoyInput: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-          },
-        },
-      },
-    },
-  },
-})
-
-
-// Error Boundary component for handling errors in the component tree
+// Error Boundary component
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
 > {
   constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError() {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <Typography color="danger">
+        <div className="p-4 bg-red-50 text-red-700 rounded-lg text-center">
           Something went wrong. Please try again later.
-        </Typography>
-      )
+        </div>
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
 
 export default function UserProfile({ userEmail = '' }: { userEmail?: string }) {
-  // State variables for user data and UI control
-  const [email, setEmail] = useState<string | null>(null)
-  const [userData, setUserData] = useState<User | null>(null)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [tempName, setTempName] = useState('')
-  const [tempAge, setTempAge] = useState('')
-  const [tempPhoneNumber, setTempPhoneNumber] = useState('')
-  const [tempGender, setTempGender] = useState('')
-  const [tempEmail, setTempEmail] = useState('')
-  const [newChildName, setNewChildName] = useState('')
-  const [newChildAge, setNewChildAge] = useState('')
-  const [newChildGender, setNewChildGender] = useState('')
-  const [userId, setUserId] = useState('')
-  const [childDetails, setChildDetails] = useState<{ childId: string; name: string; age: number; gender: string }[]>([])
-  const [showAddChildForm, setShowAddChildForm] = useState(false)
-  const [editableChildId, setEditableChildId] = useState<string | null>(null)
-  const [updatedChild, setUpdatedChild] = useState({ name: '', age: '', gender: '' })
-  const [isEmailVerified, setIsEmailVerified] = useState(false)
-  const [showEmailModal, setShowEmailModal] = useState(false)
-  const [otp, setOtp] = useState('')
-  const [emailVerificationData, setEmailVerificationData] = useState<EmailVerificationData>({ orderId: '' })
-  const [showSuccessModal, setShowSuccessModal] = useState(false)
-  const [showErrorModal, setShowErrorModal] = useState(false)
-  const [nameError, setNameError] = useState('')
-  const [phoneError, setPhoneError] = useState('')
-  const [childNameError, setChildNameError] = useState('')
-  const [childAgeError, setChildAgeError] = useState('')
-  const [timer, setTimer] = useState(0)
-  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  // State variables
+  const [email, setEmail] = useState<string | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [tempName, setTempName] = useState('');
+  const [tempAge, setTempAge] = useState('');
+  const [tempPhoneNumber, setTempPhoneNumber] = useState('');
+  const [tempGender, setTempGender] = useState('');
+  const [tempEmail, setTempEmail] = useState('');
+  const [newChildName, setNewChildName] = useState('');
+  const [newChildAge, setNewChildAge] = useState('');
+  const [newChildGender, setNewChildGender] = useState('');
+  const [userId, setUserId] = useState('');
+  const [childDetails, setChildDetails] = useState<{ childId: string; name: string; age: number; gender: string }[]>([]);
+  const [showAddChildForm, setShowAddChildForm] = useState(false);
+  const [editableChildId, setEditableChildId] = useState<string | null>(null);
+  const [updatedChild, setUpdatedChild] = useState({ name: '', age: '', gender: '' });
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [emailVerificationData, setEmailVerificationData] = useState<EmailVerificationData>({ orderId: '' });
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [childNameError, setChildNameError] = useState('');
+  const [childAgeError, setChildAgeError] = useState('');
+  const [timer, setTimer] = useState(0);
+  const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-   // Effect to set email from localStorage on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setEmail(localStorage.getItem('useremail'))
+      setEmail(localStorage.getItem('useremail'));
     }
-  }, [])
-
-  // Function to fetch user data from the server
+  }, []);
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`${Domain_URL}/user/email/${userEmail || email}`)
-      const data: User = response.data
-        // Set user data and temporary state variables
+      const response = await axios.get(`${Domain_URL}/user/email/${userEmail || email}`);
+      const data: User = response.data;
       if (data) {
-        setUserData(data)
-        setTempName(data.name)
-        setTempAge(data.age?.toString() ?? '')
-        setTempPhoneNumber(data.mobileNumber ?? '')
-        setTempGender(data.gender ?? '')
-        setTempEmail(data.email)
-        setIsEmailVerified(data.verified ?? false)
-        setUserId(data.userId)
-        setChildDetails(data.children?.map(child => ({ ...child })) || [])
-      } else {
-        // Navigate to /userlogin if no data is returned
-        //navigate('/userlogin')
+        setUserData(data);
+        setTempName(data.name);
+        setTempAge(data.age?.toString() ?? '');
+        setTempPhoneNumber(data.mobileNumber ?? '');
+        setTempGender(data.gender ?? '');
+        setTempEmail(data.email);
+        setIsEmailVerified(data.verified ?? false);
+        setUserId(data.userId);
+        setChildDetails(data.children?.map(child => ({ ...child })) || []);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error)
-      // Navigate to /userlogin on error
-     // navigate('/userlogin')
+      console.error('Error fetching user data:', error);
     }
-  }
+  };
 
-  // Effect to fetch user data when component mounts or email changes
   useEffect(() => {
-    fetchUserData()
+    fetchUserData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userEmail, email])
+  }, [userEmail, email]);
 
-    // Effect to handle OTP resend timer
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: NodeJS.Timeout;
     if (timer > 0) {
       interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1)
-      }, 1000)
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
     }
-    return () => clearInterval(interval)
-  }, [timer])
+    return () => clearInterval(interval);
+  }, [timer]);
 
-
-  // Function to validate user name
   const validateName = (name: string) => {
-    if (name.length < 2) {
-      setNameError('Name should contain only Alphabets')
-      return false
+    if (name.length < 2 || !/^[a-zA-Z\s]+$/.test(name)) {
+      setNameError('Name should contain only Alphabets');
+      return false;
     }
-    if (!/^[a-zA-Z\s]+$/.test(name)) {
-      setNameError('Name should contain only Alphabets')
-      return false
-    }
-    setNameError('')
-    return true
-  }
+    setNameError('');
+    return true;
+  };
 
-// Function to validate phone number
   const validatePhoneNumber = (phone: string) => {
     if (!/^\d{10}$/.test(phone)) {
-      setPhoneError('Plase enter a valid Phone number ')
-      return false
+      setPhoneError('Please enter a valid Phone number');
+      return false;
     }
-    setPhoneError('')
-    return true
-  }
+    setPhoneError('');
+    return true;
+  };
 
   const validateEmail = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
     if (!email.trim()) {
       setEmailError('Email is required.');
       return false;
     }
-
     if (!emailPattern.test(email)) {
       setEmailError('Please enter a valid email address.');
       return false;
     }
-
     setEmailError('');
     return true;
   };
@@ -259,39 +165,30 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
     validateEmail(updatedEmail);
   };
 
-// Function to validate childname
   const validateChildName = (name: string) => {
-    if (name.length < 2) {
-      setChildNameError('Name should contain only Alphabets')
-      return false
+    if (name.length < 2 || !/^[a-zA-Z\s]+$/.test(name)) {
+      setChildNameError('Name should contain only Alphabets');
+      return false;
     }
-    if (!/^[a-zA-Z\s]+$/.test(name)) {
-      setChildNameError('Name should contain only Alphabets')
-      return false
-    }
-    setChildNameError('')
-    return true
-  }
- 
-  // Function to validate child age
+    setChildNameError('');
+    return true;
+  };
+
   const validateChildAge = (age: string) => {
-    const ageNum = parseInt(age, 10)
+    const ageNum = parseInt(age, 10);
     if (isNaN(ageNum) || ageNum < 6 || ageNum > 15) {
-      setChildAgeError('Age must be between 6 and 15')
-      return false
+      setChildAgeError('Age must be between 6 and 15');
+      return false;
     }
-    setChildAgeError('')
-    return true
-  }
+    setChildAgeError('');
+    return true;
+  };
 
-
-  // Function to update user data
   const updateUserData = async () => {
     if (!validateName(tempName) || !validatePhoneNumber(tempPhoneNumber)) {
-      return
+      return;
     }
-
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const updatedUserData = {
         name: tempName,
@@ -300,123 +197,107 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
         email: tempEmail,
         gender: tempGender,
         children: childDetails,
-      }
+      };
       
       if (tempEmail !== userData?.email) {
-        setShowVerificationPrompt(true)
+        setShowVerificationPrompt(true);
       } else {
-        await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData)
-        setIsEditMode(false)
-        fetchUserData()
+        await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData);
+        setIsEditMode(false);
+        fetchUserData();
       }
     } catch (error) {
-      console.error('Error updating user data:', error)
+      console.error('Error updating user data:', error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+      setTimeout(() => setIsLoading(false), 1000);
     }
-  }
+  };
 
-    // Function to update child data
   const handleUpdateChild = async (childId: string) => {
     if (!validateChildName(updatedChild.name) || !validateChildAge(updatedChild.age)) {
-      return
+      return;
     }
-
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const updatedChildData = {
         name: updatedChild.name,
         age: parseInt(updatedChild.age, 10),
         gender: updatedChild.gender,
-      }
-      await axios.put(`${Domain_URL}/children/id/${childId}`, updatedChildData)
-      setEditableChildId(null)
-      fetchUserData()
+      };
+      await axios.put(`${Domain_URL}/children/id/${childId}`, updatedChildData);
+      setEditableChildId(null);
+      fetchUserData();
     } catch (error) {
-      console.error('Error updating child:', error)
+      console.error('Error updating child:', error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+      setTimeout(() => setIsLoading(false), 1000);
     }
-  }
+  };
 
-  // Function to add a new child
   const addChild = async () => {
     if (!validateChildName(newChildName) || !validateChildAge(newChildAge) || !newChildGender) {
-      return
+      return;
     }
-
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const childData = {
         name: newChildName,
         age: parseInt(newChildAge, 10),
         gender: newChildGender,
         userId,
-      }
-      const response = await axios.post(`${Domain_URL}/children`, childData)
-      setChildDetails(prev => [...prev, { ...response.data, childId: response.data.id }])
-      setNewChildName('')
-      setNewChildAge('')
-      setNewChildGender('')
-      setShowAddChildForm(false)
+      };
+      const response = await axios.post(`${Domain_URL}/children`, childData);
+      setChildDetails(prev => [...prev, { ...response.data, childId: response.data.id }]);
+      setNewChildName('');
+      setNewChildAge('');
+      setNewChildGender('');
+      setShowAddChildForm(false);
     } catch (error) {
-      console.error('Error adding child:', error)
+      console.error('Error adding child:', error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+      setTimeout(() => setIsLoading(false), 1000);
     }
-  }
+  };
 
-
-   // Function to delete a child
   const handleDeleteChild = async (childId: string) => {
-    setIsLoading(true)
+    if (!window.confirm("Are you sure you want to delete this child?")) return;
+    setIsLoading(true);
     try {
-      await axios.delete(`${Domain_URL}/children/id/${childId}`)
-      setChildDetails(prev => prev.filter(child => child.childId !== childId))
+      await axios.delete(`${Domain_URL}/children/id/${childId}`);
+      setChildDetails(prev => prev.filter(child => child.childId !== childId));
     } catch (error) {
-      console.error('Error deleting child:', error)
+      console.error('Error deleting child:', error);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+      setTimeout(() => setIsLoading(false), 1000);
     }
-  }
+  };
 
-   // Function to initiate email verification process
   const verifyEmail = async () => {
     try {
-      const response = await axios.post(`${Domain_URL}/api/send-otp2`, { email: tempEmail })
-      setEmailVerificationData(response.data)
-      setShowEmailModal(true)
-      setTimer(120) // Set 2-minute timer
+      const response = await axios.post(`${Domain_URL}/api/send-otp2`, { email: tempEmail });
+      setEmailVerificationData(response.data);
+      setShowEmailModal(true);
+      setTimer(120);
     } catch (error) {
-      console.error('Error verifying email:', error)
+      console.error('Error verifying email:', error);
       alert('This email is already registered');
     }
-  }
+  };
 
-   // Function to confirm OTP and complete email verification
   const confirmOtp = async (email: string | undefined, otp: string, orderId: string) => {
     try {
       const response = await axios.post(`${Domain_URL}/api/verify-otp`, {
         email,
         otp,
         orderId,
-      })
+      });
 
       if (response.status === 200) {
-        await updateVerifiedStatus(email)
-        setShowSuccessModal(true)
-        setIsEmailVerified(true)
-        setShowEmailModal(false)
+        await updateVerifiedStatus(email);
+        setShowSuccessModal(true);
+        setIsEmailVerified(true);
+        setShowEmailModal(false);
         
-        // Update user data after successful verification
         const updatedUserData = {
           name: tempName,
           age: parseInt(tempAge, 10),
@@ -424,410 +305,383 @@ export default function UserProfile({ userEmail = '' }: { userEmail?: string }) 
           email: tempEmail,
           gender: tempGender,
           children: childDetails,
-        }
-        await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData)
-        setIsEditMode(false)
-        fetchUserData()
+        };
+        await axios.put(`${Domain_URL}/user/email/${userData?.email}`, updatedUserData);
+        setIsEditMode(false);
+        fetchUserData();
        
         if (response.status === 200) {
-    
-          setTimeout(() => navigate('/user-login'), 5000); // 5-second delay
+          setTimeout(() => navigate('/user-login'), 3000);
         }
       }
     } catch (error) {
-      console.error('Error verifying OTP:', error)
-      setShowErrorModal(true)
+      console.error('Error verifying OTP:', error);
+      setShowErrorModal(true);
     }
-  }
+  };
 
-  // Function to update user's verified status  
   const updateVerifiedStatus = async (email: string | undefined) => {
     try {
       await axios.put(`${Domain_URL}/user/email/${email}`, {
         email,
         verified: true,
-      })
+      });
     } catch (error) {
-      console.error('Error updating verified status:', error)
+      console.error('Error updating verified status:', error);
     }
-  }
+  };
 
   return (
-    <ErrorBoundary>
-      <CssVarsProvider theme={theme}>
-        <CssBaseline />
-        <Box
-          sx={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-            padding: 4,
-          }}
-        >
+    <UserShell>
+      <ErrorBoundary>
+        <div className="max-w-4xl mx-auto py-6 md:py-10 space-y-10">
 
-            {/* Back to Dashboard button */}
-           <Button
-            startDecorator={<ArrowBack />}
-            onClick={() => navigate('/screen')}
-            variant="outlined"
-            color="neutral"
-            sx={{
-              mb: 2,
-               backgroundColor:'#0B6BCB',
-              color: 'white',
-              width: { xs: '100%', sm: 'auto' },
-              '&:hover': {
-                backgroundColor: '#0D8CEB', // lighter blue for hover
-              },
-            }}
-          >
-            Back to Dashboard
-          </Button>
-          <Box sx={{ maxWidth: 800, margin: 'auto' }}>
-            <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
-                {/* User profile header */}
-              <AccountCircle sx={{ fontSize: 80, color: 'primary.main' }} />
-              <Typography level="h2" component="h1" sx={{ mt: 2 }}>
-                {userData?.name || 'User'}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 1 }}>
-                <Typography level="body-md">{userData?.email || userEmail || email}</Typography>
-                {isEmailVerified ? (
-                  <VerifiedUser sx={{ marginLeft: 1, color: 'success.main' }} />
-                ) : (
-                  <Button
-                    variant="plain"
-                    color="primary"
-                    onClick={() => setShowEmailModal(true)}
-                    sx={{ marginLeft: 1 }}
-                  >
-                    Verify Email
-                  </Button>
+          {/* Profile Header */}
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+               <Person size={48} />
+            </div>
+            <div>
+               <h1 className="text-3xl font-light text-slate-900 tracking-tight">{userData?.name || 'User'}</h1>
+               <div className="flex items-center justify-center gap-2 mt-1 text-slate-500">
+                  <Envelope size={14} />
+                  <span className="text-sm">{userData?.email || userEmail || email}</span>
+                  {isEmailVerified ? (
+                    <ShieldCheck size={16} className="text-green-500" title="Verified" />
+                  ) : (
+                    <button
+                      onClick={() => setShowEmailModal(true)}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline"
+                    >
+                      Verify Now
+                    </button>
+                  )}
+               </div>
+            </div>
+          </div>
+
+          {/* Personal Information */}
+          <section className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+             <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-medium text-slate-900">Personal Information</h2>
+                {!isEditMode && (
+                   <button
+                     onClick={() => setIsEditMode(true)}
+                     className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                   >
+                     <Pencil size={14} />
+                     Edit
+                   </button>
                 )}
-              </Box>
-            </Box>
-  
-     {/* User profile edit form */}
-            <Card variant="outlined" sx={{ mb: 4 }}>
-              <CardContent>
-                {isEditMode ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Input
-                      placeholder="Name"
-                      value={tempName}
-                      onChange={(e) => {
-                        setTempName(e.target.value)
-                        
-                        validateName(e.target.value)
-                      }}
-                      error={!!nameError}
-                    />
-                    {nameError && <Typography color="danger">{nameError}</Typography>}
-                    <Input
-                      placeholder="Phone Number"
-                      value={tempPhoneNumber}
-                      onChange={(e) => {
-                        let input = e.target.value;
-                        if (input.startsWith("0")) {
-                          input = input.slice(1);
-                        }
-                        // Allow only up to 10 digits
-                        if (input.length <= 10 && /^\d*$/.test(input)) {
-                          setTempPhoneNumber(input);
-                          validatePhoneNumber(input);
-                        }
-                      }}
-                      error={!!phoneError}
-                    />
-                     {/* Email Input */}
-                    <Input
-                      placeholder="Email"
-                      value={tempEmail}
-                      onChange={handleEmailChange}
-                      fullWidth
-                      style={{ marginBottom: '10px' }}
-                      error={!!emailError}
-                    />
-                    
-                    {emailError && <Typography color="danger">{emailError}</Typography>}
+             </div>
 
-                    {phoneError && <Typography color="danger">{phoneError}</Typography>}
-                    <Button sx={{width:'130px' ,  mx: 'auto' }} onClick={updateUserData} disabled={!!nameError || !!phoneError || !!emailError || isLoading}>
-                      {isLoading ? 'Updating...' : 'Update Profile'}
-                    </Button>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Typography>
-                      <strong>Name:</strong> {userData?.name}
-                    </Typography>
-                    <Typography>
-                      <strong>Phone Number:</strong> {userData?.mobileNumber}
-                    </Typography>
-                    <Button sx={{width:'100px' ,  mx: 'auto' }} onClick={() => setIsEditMode(true)}>Edit Profile</Button>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
- {/* Children section */}
-            <Box sx={{ marginTop: 4 }}>
-              <Box sx={{ display: 'flex', 
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 2
-              }}>
-                <Typography level="h3">Add Child</Typography>
-                <Button
-                  startDecorator={<Add />}
-                  onClick={() => setShowAddChildForm(!showAddChildForm)}
-                  variant="outlined"
-                >
-                  Add Child
-                </Button>
-              </Box>
+             {isEditMode ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="space-y-1">
+                      <label className="text-xs font-semibold uppercase text-slate-500 tracking-wider">Name</label>
+                      <input
+                        value={tempName}
+                        onChange={(e) => { setTempName(e.target.value); validateName(e.target.value); }}
+                        className={`w-full p-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all ${nameError ? 'border-red-300' : 'border-slate-200'}`}
+                        placeholder="Full Name"
+                      />
+                      {nameError && <p className="text-xs text-red-500">{nameError}</p>}
+                   </div>
 
-              <Typography level="body-lg" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Total Children: {childDetails.length}
-              </Typography>
-   
-              {/* Add child form */}
-              {showAddChildForm && (
-                <Card variant="outlined" sx={{ marginBottom: 2 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <Input
-                        placeholder="Child's Name"
-                        value={newChildName}
+                   <div className="space-y-1">
+                      <label className="text-xs font-semibold uppercase text-slate-500 tracking-wider">Phone</label>
+                      <input
+                        value={tempPhoneNumber}
                         onChange={(e) => {
-                          setNewChildName(e.target.value)
-                          validateChildName(e.target.value)
+                           let input = e.target.value;
+                           if (input.startsWith("0")) input = input.slice(1);
+                           if (input.length <= 10 && /^\d*$/.test(input)) {
+                              setTempPhoneNumber(input);
+                              validatePhoneNumber(input);
+                           }
                         }}
-                        error={!!childNameError}
+                        className={`w-full p-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all ${phoneError ? 'border-red-300' : 'border-slate-200'}`}
+                        placeholder="Mobile Number"
                       />
-                      {childNameError && <Typography color="danger">{childNameError}</Typography>}
-                      <Input
-                        placeholder="Child's Age"
-                        value={newChildAge}
-                        onChange={(e) => {
-                          setNewChildAge(e.target.value)
-                          validateChildAge(e.target.value)
-                        }}
-                        type="number"
-                        error={!!childAgeError}
+                      {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
+                   </div>
+
+                   <div className="space-y-1">
+                      <label className="text-xs font-semibold uppercase text-slate-500 tracking-wider">Email</label>
+                      <input
+                        value={tempEmail}
+                        onChange={handleEmailChange}
+                        className={`w-full p-3 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-200 transition-all ${emailError ? 'border-red-300' : 'border-slate-200'}`}
+                        placeholder="Email Address"
                       />
-                      {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
-                      <select
-                        value={newChildGender}
-                        onChange={(e) => setNewChildGender(e.target.value)}
-                        required
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          borderRadius: '12px',
-                          border: '1px solid #ccc',
-                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                        }}
+                      {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+                   </div>
+
+                   <div className="md:col-span-2 flex justify-end gap-3 pt-4">
+                      <button
+                        onClick={() => { setIsEditMode(false); setTempName(userData?.name || ''); setTempPhoneNumber(userData?.mobileNumber || ''); setTempEmail(userData?.email || ''); }}
+                        className="px-6 py-2.5 text-slate-500 hover:bg-slate-50 rounded-xl font-medium transition-colors"
                       >
-                        <option value="" disabled>
-                          Select Gender
-                        </option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                      <Button onClick={addChild} disabled={!!childNameError || !!childAgeError || !newChildGender || isLoading}>
-                        {isLoading ? 'Adding...' : 'Add Child'}
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              )}
- 
-         {/* List of children */}
-              {childDetails.length > 0 ? (
-                childDetails.map((child) => (
-                  <Card key={child.childId} variant="outlined" sx={{ marginBottom: 2 }}>
-                    <CardContent>
-                      {editableChildId === child.childId ? (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <Input
-                            value={updatedChild.name}
-                            onChange={(e) => {
-                              setUpdatedChild({ ...updatedChild, name: e.target.value })
-                              validateChildName(e.target.value)
-                            }}
-                            placeholder="Name"
-                            error={!!childNameError}
-                          />
-                          {childNameError && <Typography color="danger">{childNameError}</Typography>}
-                          <Input
-                            value={updatedChild.age}
-                            onChange={(e) => {
-                              setUpdatedChild({ ...updatedChild, age: e.target.value })
-                              validateChildAge(e.target.value)
-                            }}
-                            type="number"
-                            placeholder="Age"
-                            error={!!childAgeError}
-                          />
-                          {childAgeError && <Typography color="danger">{childAgeError}</Typography>}
-                          <select
-                            value={updatedChild.gender}
-                            onChange={(e) =>
-                              setUpdatedChild({ ...updatedChild, gender: e.target.value })
-                            }
-                            required
-                            style={{
-                              width: '100%',
-                              padding: '12px',
-                              borderRadius: '12px',
-                              border: '1px solid #ccc',
-                              backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                            }}
-                          >
-                            <option value="" disabled>
-                              Select Gender
-                            </option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                          </select>
-                          <Button
-                            sx={{width:'100px' ,  mx: 'auto' }}
-                            onClick={() => handleUpdateChild(child.childId)}
-                            disabled={!!childNameError || !!childAgeError || isLoading}
-                            startDecorator={<Save />}
-                          >
-                            {isLoading ? 'Saving...' : 'Save'}
-                          </Button>
-                        </Box>
-                      ) : (
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Box>
-                            <Typography>
-                              <strong>Name:</strong> {child.name}
-                            </Typography>
-                            <Typography>
-                              <strong>Age:</strong> {child.age}
-                            </Typography>
-                            <Typography>
-                              <strong>Gender:</strong> {child.gender}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <IconButton
-                              onClick={() => {
-                                setEditableChildId(child.childId)
-                                setUpdatedChild({
-                                  name: child.name,
-                                  age: child.age.toString(),
-                                  gender: child.gender,
-                                })
-                              }}
-                            >
-                              <Edit />
-                            </IconButton>
-                            <IconButton onClick={() => handleDeleteChild(child.childId)} disabled={isLoading}>
-                              <Delete />
-                            </IconButton>
-                          </Box>
-                        </Box>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
-                  No children added yet. Click the button above to add.
-                </Typography>
-              )}
-            </Box>
-  
-  {/* Email verification modal */}
-            <Modal open={showEmailModal} onClose={() => setShowEmailModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4">Verify Your Email</Typography>
-                <Typography>{tempEmail}</Typography>
-                <Button onClick={verifyEmail} disabled={timer > 0}>
-                  {timer > 0 ? `Resend OTP (${timer}s)` : 'Send OTP'}
-                </Button>
-                <Input
-                  placeholder="Enter OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-                <Button
-                  onClick={() =>
-                    confirmOtp(tempEmail, otp, emailVerificationData.orderId)
-                  }
-                >
-                  Verify OTP
-                </Button>
-              </ModalDialog>
-            </Modal>
- 
-   {/* Email verification prompt modal */}
-            <Modal open={showVerificationPrompt} onClose={() => setShowVerificationPrompt(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4">Email Verification Required</Typography>
-                <Typography>You've changed your email. Please verify your new email address.</Typography>
-                <Button onClick={() => {
-                  setShowVerificationPrompt(false)
-                  verifyEmail()
-                }}>
-                  Verify Email
-                </Button>
-              </ModalDialog>
-            </Modal>
+                        Cancel
+                      </button>
+                      <button
+                        onClick={updateUserData}
+                        disabled={!!nameError || !!phoneError || !!emailError || isLoading}
+                        className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium shadow-md transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? 'Saving...' : 'Save Changes'}
+                      </button>
+                   </div>
+                </div>
+             ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+                   <div>
+                      <span className="block text-xs font-semibold uppercase text-slate-400 tracking-wider mb-1">Name</span>
+                      <p className="text-slate-900 font-medium text-lg">{userData?.name}</p>
+                   </div>
+                   <div>
+                      <span className="block text-xs font-semibold uppercase text-slate-400 tracking-wider mb-1">Phone</span>
+                      <p className="text-slate-900 font-medium text-lg flex items-center gap-2">
+                        <Telephone size={14} className="text-slate-400" />
+                        {userData?.mobileNumber}
+                      </p>
+                   </div>
+                   <div>
+                      <span className="block text-xs font-semibold uppercase text-slate-400 tracking-wider mb-1">Email</span>
+                      <p className="text-slate-900 font-medium text-lg flex items-center gap-2">
+                        <Envelope size={14} className="text-slate-400" />
+                        {userData?.email}
+                      </p>
+                   </div>
+                </div>
+             )}
+          </section>
 
-     {/* Success modal */}
-            <Modal open={showSuccessModal} onClose={() => setShowSuccessModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4" color="success">
-                 OTP Veriffied Successfully! 
-                 </Typography>
-              <Typography level="body-md" color="success" sx={{ mt: 1 }}>
-               New email verified. Please login with your new email and the same password.
-              </Typography>
-              </ModalDialog>
-            </Modal>
-  
-       {/* Error modal */}
-            <Modal open={showErrorModal} onClose={() => setShowErrorModal(false)}>
-              <ModalDialog
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-                }}
-              >
-                <ModalClose />
-                <Typography level="h4" color="danger">
-                  Incorrect OTP. Try Again!
-                </Typography>
-              </ModalDialog>
-            </Modal>
-          </Box>
-        </Box>
-      </CssVarsProvider>
-    </ErrorBoundary>
-  )
+          {/* Children Section */}
+          <section className="space-y-6">
+             <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-medium text-slate-900">Children</h2>
+                  <p className="text-sm text-slate-500">Manage family members ({childDetails.length})</p>
+                </div>
+                <button
+                  onClick={() => setShowAddChildForm(!showAddChildForm)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-900 rounded-xl transition-all shadow-sm font-medium text-sm"
+                >
+                  <Plus size={18} />
+                  Add Child
+                </button>
+             </div>
+
+             {showAddChildForm && (
+                <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                   <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">New Child Details</h3>
+                      <button onClick={() => setShowAddChildForm(false)} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <input
+                           placeholder="Name"
+                           value={newChildName}
+                           onChange={(e) => { setNewChildName(e.target.value); validateChildName(e.target.value); }}
+                           className={`w-full p-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all ${childNameError ? 'border-red-300' : 'border-slate-200'}`}
+                        />
+                        {childNameError && <p className="text-xs text-red-500">{childNameError}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <input
+                           placeholder="Age"
+                           type="number"
+                           value={newChildAge}
+                           onChange={(e) => { setNewChildAge(e.target.value); validateChildAge(e.target.value); }}
+                           className={`w-full p-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all ${childAgeError ? 'border-red-300' : 'border-slate-200'}`}
+                        />
+                        {childAgeError && <p className="text-xs text-red-500">{childAgeError}</p>}
+                      </div>
+                      <div className="space-y-1">
+                        <select
+                           value={newChildGender}
+                           onChange={(e) => setNewChildGender(e.target.value)}
+                           className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-100 transition-all appearance-none"
+                        >
+                           <option value="" disabled>Select Gender</option>
+                           <option value="Male">Male</option>
+                           <option value="Female">Female</option>
+                        </select>
+                      </div>
+                   </div>
+                   <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={addChild}
+                        disabled={!!childNameError || !!childAgeError || !newChildGender || isLoading}
+                        className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-md transition-all disabled:opacity-50"
+                      >
+                        {isLoading ? 'Adding...' : 'Add Child'}
+                      </button>
+                   </div>
+                </div>
+             )}
+
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {childDetails.map((child) => (
+                   <div key={child.childId} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative">
+                      {editableChildId === child.childId ? (
+                         <div className="space-y-3">
+                            <input
+                              value={updatedChild.name}
+                              onChange={(e) => { setUpdatedChild({ ...updatedChild, name: e.target.value }); validateChildName(e.target.value); }}
+                              className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                              placeholder="Name"
+                            />
+                            <div className="flex gap-2">
+                               <input
+                                 value={updatedChild.age}
+                                 onChange={(e) => { setUpdatedChild({ ...updatedChild, age: e.target.value }); validateChildAge(e.target.value); }}
+                                 type="number"
+                                 className="w-1/3 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                                 placeholder="Age"
+                               />
+                               <select
+                                 value={updatedChild.gender}
+                                 onChange={(e) => setUpdatedChild({ ...updatedChild, gender: e.target.value })}
+                                 className="w-2/3 p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                               >
+                                  <option value="Male">Male</option>
+                                  <option value="Female">Female</option>
+                               </select>
+                            </div>
+                            <div className="flex justify-end gap-2 pt-2">
+                               <button onClick={() => setEditableChildId(null)} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg"><X size={16}/></button>
+                               <button onClick={() => handleUpdateChild(child.childId)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg"><Check size={16}/></button>
+                            </div>
+                         </div>
+                      ) : (
+                         <>
+                            <div className="flex items-start justify-between">
+                               <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${child.gender === 'Male' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
+                                     {child.gender === 'Male' ? <GenderMale size={18} /> : <GenderFemale size={18} />}
+                                  </div>
+                                  <div>
+                                     <h3 className="font-semibold text-slate-900">{child.name}</h3>
+                                     <p className="text-xs text-slate-500">{child.age} years old</p>
+                                  </div>
+                               </div>
+                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={() => {
+                                       setEditableChildId(child.childId);
+                                       setUpdatedChild({ name: child.name, age: child.age.toString(), gender: child.gender });
+                                    }}
+                                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                  >
+                                     <Pencil size={14} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteChild(child.childId)}
+                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  >
+                                     <Trash size={14} />
+                                  </button>
+                               </div>
+                            </div>
+                         </>
+                      )}
+                   </div>
+                ))}
+                {childDetails.length === 0 && !showAddChildForm && (
+                   <div className="col-span-full py-12 text-center border border-slate-200 border-dashed rounded-xl bg-slate-50">
+                      <p className="text-slate-500 text-sm">No children added yet.</p>
+                      <button onClick={() => setShowAddChildForm(true)} className="text-indigo-600 font-medium text-sm mt-1 hover:underline">Add one now</button>
+                   </div>
+                )}
+             </div>
+          </section>
+
+          {/* Modals */}
+          {/* Email Verification */}
+          {showEmailModal && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl space-y-6">
+                   <div className="text-center">
+                      <h3 className="text-xl font-bold text-slate-900">Verify Email</h3>
+                      <p className="text-sm text-slate-500 mt-1">{tempEmail}</p>
+                   </div>
+                   <div className="space-y-3">
+                      <input
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter OTP"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-center tracking-widest text-lg font-medium focus:outline-none focus:ring-2 focus:ring-slate-200"
+                      />
+                      <div className="flex flex-col gap-2">
+                         <button
+                           onClick={() => confirmOtp(tempEmail, otp, emailVerificationData.orderId)}
+                           className="w-full py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                         >
+                           Verify OTP
+                         </button>
+                         <button
+                           onClick={verifyEmail}
+                           disabled={timer > 0}
+                           className="text-sm text-slate-500 hover:text-slate-700 disabled:opacity-50"
+                         >
+                           {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
+                         </button>
+                      </div>
+                   </div>
+                   <button onClick={() => setShowEmailModal(false)} className="w-full py-2 text-slate-400 hover:text-slate-600 text-sm">Cancel</button>
+                </div>
+             </div>
+          )}
+
+          {/* Verification Prompt */}
+          {showVerificationPrompt && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center space-y-4">
+                   <div className="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto">
+                      <ExclamationCircle size={24} />
+                   </div>
+                   <div>
+                      <h3 className="text-lg font-bold text-slate-900">Verify New Email</h3>
+                      <p className="text-sm text-slate-500 mt-2">You changed your email. Please verify it to continue.</p>
+                   </div>
+                   <div className="flex gap-3">
+                      <button onClick={() => setShowVerificationPrompt(false)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-medium hover:bg-slate-200">Cancel</button>
+                      <button onClick={() => { setShowVerificationPrompt(false); verifyEmail(); }} className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800">Verify</button>
+                   </div>
+                </div>
+             </div>
+          )}
+
+          {/* Success/Error Modals */}
+          {(showSuccessModal || showErrorModal) && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center space-y-4">
+                   <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${showSuccessModal ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                      {showSuccessModal ? <Check size={24} /> : <X size={24} />}
+                   </div>
+                   <div>
+                      <h3 className="text-lg font-bold text-slate-900">{showSuccessModal ? 'Success!' : 'Error'}</h3>
+                      <p className="text-sm text-slate-500 mt-2">
+                        {showSuccessModal
+                           ? 'Email verified successfully. Please login again.'
+                           : 'Incorrect OTP. Please try again.'}
+                      </p>
+                   </div>
+                   <button
+                     onClick={() => { setShowSuccessModal(false); setShowErrorModal(false); }}
+                     className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800"
+                   >
+                     Okay
+                   </button>
+                </div>
+             </div>
+          )}
+
+        </div>
+      </ErrorBoundary>
+    </UserShell>
+  );
 }
