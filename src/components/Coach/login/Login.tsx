@@ -85,10 +85,10 @@ const LoginForm = () => {
       <button
         onClick={() => navigate('/')}
         className="absolute top-6 left-6 p-2 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors duration-300"
-        aria-label="Back to Role Selection"
+        aria-label="Change role"
       >
         <ArrowLeft size={20} />
-        <span className="text-sm font-medium">Back</span>
+        <span className="text-sm font-medium">Change role</span>
       </button>
 
       <div className="w-full max-w-[400px]">
